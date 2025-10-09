@@ -1,94 +1,108 @@
-# 10x Astro Starter
+## 10x Cards
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+![Version](https://img.shields.io/badge/version-0.0.1-informational) ![Node](https://img.shields.io/badge/node-22.14.0-339933?logo=node.js&logoColor=white) ![Astro](https://img.shields.io/badge/astro-5-FF5D01?logo=astro&logoColor=white) ![React](https://img.shields.io/badge/react-19-61DAFB?logo=react&logoColor=061F2F) ![License](https://img.shields.io/badge/license-MIT-blue)
 
-## Tech Stack
+A modern, opinionated starter for building fast, accessible, and AI‑friendly web applications with Astro and React.
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+### Table of contents
+- [1. Project name](#1-project-name)
+- [2. Project description](#2-project-description)
+- [3. Tech stack](#3-tech-stack)
+- [4. Getting started locally](#4-getting-started-locally)
+- [5. Available scripts](#5-available-scripts)
+- [6. Project scope](#6-project-scope)
+- [7. Project status](#7-project-status)
+- [8. License](#8-license)
 
-## Prerequisites
+## 1. Project name
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+10x Cards
 
-## Getting Started
+## 2. Project description
 
-1. Clone the repository:
+An Astro 5 + React 19 starter template focused on performance, accessibility, and developer experience. It includes a sensible project structure, Tailwind 4 styling, and UI building blocks, along with linting and formatting for consistent code quality.
 
+## 3. Tech stack
+
+- **Astro**: 5.x (app uses `astro` ^5.13.7)
+- **React**: 19.x (app uses `react` ^19.1.1)
+- **TypeScript**: 5.x
+- **Tailwind CSS**: 4.x (via `@tailwindcss/vite`)
+- **UI utilities**: `class-variance-authority`, `tailwind-merge`, `lucide-react`, Radix primitives
+- **Tooling**: ESLint 9, Prettier, Husky, lint-staged
+
+See `src/components/ui/` for ready-to-use UI components and `src/styles/global.css` for base styles.
+
+## 4. Getting started locally
+
+### Prerequisites
+- Node.js 22.14.0 (see `.nvmrc`)
+- npm (bundled with Node)
+
+### Setup
 ```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
+# 1) Clone the repository
+git clone <your-repo-url>
+cd <your-repo-directory>
 
-2. Install dependencies:
+# 2) Ensure correct Node version
+nvm use || nvm install
 
-```bash
+# 3) Install dependencies
 npm install
-```
 
-3. Run the development server:
-
-```bash
+# 4) Start the dev server
 npm run dev
-```
 
-4. Build for production:
-
-```bash
+# 5) Build and preview production
 npm run build
+npm run preview
 ```
 
-## Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
-
-## Project Structure
+Project structure highlights:
 
 ```md
-.
-├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
+./src              # Source code
+./src/layouts      # Astro layouts
+./src/pages        # Astro pages
+./src/pages/api    # API endpoints
+./src/middleware   # Astro middleware
+./src/db           # Supabase clients and types
+./src/types.ts     # Shared types
+./src/components   # Astro & React components
+./src/components/ui# Shadcn/ui-inspired components
+./src/lib          # Services and helpers
+./src/assets       # Internal static assets
+./public           # Public assets
 ```
 
-## AI Development Support
+## 5. Available scripts
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+```bash
+npm run dev       # Start development server
+npm run build     # Build for production
+npm run preview   # Preview the production build
+npm run astro     # Run Astro CLI directly
+npm run lint      # Run ESLint
+npm run lint:fix  # Auto-fix ESLint issues
+npm run format    # Format with Prettier
+```
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
+## 6. Project scope
 
-### Cursor IDE
+This repository serves as a foundation for building modern, content-focused applications using Astro and React:
+- Preconfigured styling with Tailwind 4
+- UI primitives and utilities to build accessible components
+- Opinionated code quality setup (ESLint + Prettier)
+- Clear, scalable file structure ready for pages, APIs, and middleware
 
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
+If your product requires additional domain specifics (features, user roles, or data model), capture them in a `PRD` and link it here.
 
-### GitHub Copilot
+## 7. Project status
 
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
+- Version: `0.0.1`
+- Status: Active development (pre-release)
 
-### Windsurf
-
-The `.windsurfrules` file contains AI configuration for Windsurf.
-
-## Contributing
-
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
-
-## License
+## 8. License
 
 MIT
