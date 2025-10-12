@@ -1,17 +1,54 @@
 // src/lib/services/generation.service.ts
 import type { SupabaseClient } from "../../db/supabase.client";
-import type { StartGenerationCommand, StartGenerationResponseDto } from "../../types";
+import type { StartGenerationCommand, StartGenerationResponseDto, OpenRouterConfig } from "../../types";
+import { OpenRouterService } from "./openrouter.service";
 
 /**
  * Service responsible for managing AI flashcard generation lifecycle
  */
 export class GenerationService {
   private supabase: SupabaseClient;
+  private openRouterService: OpenRouterService;
   private readonly DEFAULT_MODEL = "gpt-4o";
   private readonly ESTIMATED_MS_PER_CARD = 300; // Estimated time per flashcard in ms
 
   constructor(supabase: SupabaseClient) {
     this.supabase = supabase;
+    this.openRouterService = this.createOpenRouterService();
+  }
+
+  /**
+   * Create OpenRouter service with configuration
+   * @returns Configured OpenRouterService instance
+   */
+  private createOpenRouterService(): OpenRouterService {
+    // Get API key from environment (works in both Deno and Node.js)
+    // In Astro, use import.meta.env for client-side and process.env for server-side
+    const apiKey = typeof Deno !== 'undefined' 
+      ? Deno.env.get('OPENROUTER_API_KEY') || ''
+      : (typeof process !== 'undefined' ? process.env.OPENROUTER_API_KEY : '') || '';
+
+    const config: OpenRouterConfig = {
+      apiKey,
+      baseUrl: 'https://openrouter.ai/api/v1',
+      defaultModel: this.DEFAULT_MODEL,
+      maxRetries: 3,
+      timeoutMs: 30000,
+      chunkSize: 10000,
+      maxTokens: 4000,
+    };
+
+    console.log('OpenRouter config:', {
+      hasApiKey: !!config.apiKey,
+      apiKeyLength: config.apiKey.length,
+      environment: typeof Deno !== 'undefined' ? 'deno' : 'node',
+    });
+
+    if (!config.apiKey) {
+      console.warn('OPENROUTER_API_KEY not found in environment variables. Using simulation mode.');
+    }
+
+    return new OpenRouterService(this.supabase, config);
   }
 
   /**
@@ -137,22 +174,126 @@ export class GenerationService {
    * This will call an Edge Function or enqueue a job in a queue
    */
   private async enqueueGenerationJob(generationId: string, command: StartGenerationCommand): Promise<void> {
-    console.log("Starting simulated generation:", {
+    console.log("Starting AI generation:", {
       generationId,
       language: command.language,
       targetCount: command.target_count,
     });
 
-    // Simulate processing time (2-5 seconds)
-    const processingTime = 2000 + Math.random() * 3000;
-    
-    setTimeout(async () => {
-      await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
-    }, processingTime);
+    // Start processing immediately (no delay for real implementation)
+    await this.processGeneration(generationId, command);
+  }
+
+  /**
+   * Process generation using OpenRouter AI service
+   */
+  private async processGeneration(generationId: string, command: StartGenerationCommand): Promise<void> {
+    try {
+      // Update status to processing with progress
+      await this.updateGenerationStatus(generationId, 'processing', 25, 'Analyzing source text...');
+
+      // Get user ID from generation record
+      const { data: generation, error: fetchError } = await this.supabase
+        .from('generations')
+        .select('user_id')
+        .eq('id', generationId)
+        .single();
+
+      if (fetchError || !generation) {
+        throw new Error(`Failed to fetch generation record: ${fetchError?.message || 'Generation not found'}`);
+      }
+
+      // Check if OpenRouter API key is available
+      const apiKey = typeof Deno !== 'undefined' 
+        ? Deno.env.get('OPENROUTER_API_KEY') || ''
+        : process.env.OPENROUTER_API_KEY || '';
+
+      console.log('API Key check:', {
+        hasApiKey: !!apiKey,
+        apiKeyLength: apiKey.length,
+        environment: typeof Deno !== 'undefined' ? 'deno' : 'node',
+        allEnvVars: typeof Deno !== 'undefined' 
+          ? Object.keys(Deno.env.toObject()).filter(k => k.includes('OPENROUTER'))
+          : Object.keys(process.env).filter(k => k.includes('OPENROUTER'))
+      });
+
+      if (!apiKey) {
+        console.log('OpenRouter API key not found, using simulation mode');
+        await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
+        return;
+      }
+
+      // Update progress
+      await this.updateGenerationStatus(generationId, 'processing', 50, 'Generating flashcards with AI...');
+
+      // Use OpenRouter service to generate flashcards with timeout
+      const result = await Promise.race([
+        this.openRouterService.generateFlashcards({
+          sourceText: command.source_text,
+          language: command.language,
+          targetCount: command.target_count || 30,
+          userId: generation.user_id,
+          generationId: generationId,
+        }),
+        new Promise<never>((_, reject) => 
+          setTimeout(() => reject(new Error('Generation timeout after 60 seconds')), 60000)
+        )
+      ]);
+
+      if (!result.success) {
+        throw new Error(result.error?.message || 'AI generation failed');
+      }
+
+      // Update progress
+      await this.updateGenerationStatus(generationId, 'processing', 75, 'Processing generated cards...');
+
+      // Convert AI result to database format
+      const flashcards = result.cards.map((card, index) => ({
+        id: `card-${generationId}-${index}`,
+        front: card.front,
+        back: card.back,
+        source_text_excerpt: card.excerpt,
+        ai_confidence_score: card.confidence,
+        was_edited: false,
+        original_front: card.front,
+        original_back: card.back,
+      }));
+
+      // Update generation with completed status and cards
+      await this.updateGenerationStatus(
+        generationId, 
+        'completed', 
+        100, 
+        `Generation completed! Generated ${flashcards.length} flashcards.`,
+        flashcards,
+        undefined,
+        {
+          model: result.metadata.model,
+          prompt_tokens: result.metadata.promptTokens,
+          completion_tokens: result.metadata.completionTokens,
+          total_cost_usd: result.metadata.totalCost,
+          generation_duration_ms: result.metadata.processingTimeMs,
+        }
+      );
+
+      console.log(`Successfully generated ${flashcards.length} flashcards for generation ${generationId}`);
+
+    } catch (error) {
+      console.error('AI generation failed:', error);
+      await this.updateGenerationStatus(
+        generationId, 
+        'failed', 
+        0, 
+        'Generation failed', 
+        null, 
+        error instanceof Error ? error.message : 'Unknown error'
+      );
+    }
   }
 
   /**
    * Simulate generation by creating random flashcards from source text
+   * Used as fallback when OpenRouter API key is not available
    */
   private async simulateGeneration(generationId: string, sourceText: string, targetCount: number): Promise<void> {
     try {
@@ -206,7 +347,14 @@ export class GenerationService {
     progress: number,
     message: string,
     cards?: any[],
-    errorMessage?: string
+    errorMessage?: string,
+    metadata?: {
+      model: string;
+      prompt_tokens: number;
+      completion_tokens: number;
+      total_cost_usd: number;
+      generation_duration_ms: number;
+    }
   ): Promise<void> {
     const updateData: any = {
       status,
@@ -220,10 +368,20 @@ export class GenerationService {
       updateData.generated_count = cards?.length || 0;
       // Store cards as JSON in a temporary field for the API response
       updateData.cards = cards;
+      
+      // Add AI metadata if provided
+      if (metadata) {
+        updateData.model = metadata.model;
+        updateData.prompt_tokens = metadata.prompt_tokens;
+        updateData.completion_tokens = metadata.completion_tokens;
+        updateData.total_cost_usd = metadata.total_cost_usd;
+        updateData.generation_duration_ms = metadata.generation_duration_ms;
+        // Note: language column doesn't exist in generations table
+      }
     } else if (status === 'failed') {
       updateData.failed_at = new Date().toISOString();
       updateData.error_message = errorMessage;
-      updateData.error_code = 'SIMULATION_ERROR';
+      updateData.error_code = 'AI_GENERATION_ERROR';
     }
 
     const { error } = await this.supabase

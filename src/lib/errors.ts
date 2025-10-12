@@ -112,3 +112,59 @@ export class InternalError extends ApiError {
   }
 }
 
+// OpenRouter Service Specific Errors
+
+/**
+ * 402 Payment Required - API quota exceeded
+ */
+export class QuotaExceededError extends ApiError {
+  constructor(message: string = 'API quota exceeded', details?: Record<string, any>) {
+    super(402, 'QuotaExceeded', message, 'QUOTA_EXCEEDED', details);
+  }
+}
+
+/**
+ * Timeout Error - Request timeout
+ */
+export class TimeoutError extends ApiError {
+  constructor(message: string = 'Request timeout', details?: Record<string, any>) {
+    super(408, 'TimeoutError', message, 'TIMEOUT', details);
+  }
+}
+
+/**
+ * Language Detection Error
+ */
+export class LanguageDetectionError extends ApiError {
+  constructor(message: string = 'Failed to detect language', details?: Record<string, any>) {
+    super(422, 'LanguageDetectionError', message, 'LANGUAGE_DETECTION_FAILED', details);
+  }
+}
+
+/**
+ * Text Processing Error
+ */
+export class TextProcessingError extends ApiError {
+  constructor(message: string = 'Text processing failed', details?: Record<string, any>) {
+    super(422, 'TextProcessingError', message, 'TEXT_PROCESSING_FAILED', details);
+  }
+}
+
+/**
+ * API Response Validation Error
+ */
+export class ResponseValidationError extends ApiError {
+  constructor(message: string = 'API response validation failed', details?: Record<string, any>) {
+    super(422, 'ResponseValidationError', message, 'RESPONSE_VALIDATION_FAILED', details);
+  }
+}
+
+/**
+ * Unknown Error - Fallback for unexpected errors
+ */
+export class UnknownError extends ApiError {
+  constructor(message: string = 'Unknown error occurred', details?: Record<string, any>) {
+    super(500, 'UnknownError', message, 'UNKNOWN_ERROR', details);
+  }
+}
+

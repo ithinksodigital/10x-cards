@@ -181,6 +181,108 @@ export interface SessionSummaryDto {
   time_spent_seconds: number;
 }
 
+// OpenRouter Service Types
+export interface OpenRouterConfig {
+  apiKey: string;
+  baseUrl: string;
+  defaultModel: string;
+  maxRetries: number;
+  timeoutMs: number;
+  chunkSize: number;
+  maxTokens: number;
+}
+
+export interface FlashCardProposal {
+  front: string;
+  back: string;
+  confidence: number;
+  excerpt: string;
+  language: string;
+}
+
+export interface GenerateFlashcardsCommand {
+  sourceText: string;
+  language?: string; // ISO 639-1: pl, en, es
+  targetCount?: number; // 1-30, domyślnie 30
+  userId: string;
+  generationId: string;
+}
+
+export interface GenerationResult {
+  success: boolean;
+  cards: FlashCardProposal[];
+  metadata: {
+    model: string;
+    promptTokens: number;
+    completionTokens: number;
+    totalCost: number;
+    processingTimeMs: number;
+    language: string;
+  };
+  error?: GenerationError;
+}
+
+export interface GenerationError {
+  code: string;
+  message: string;
+  retryable: boolean;
+  retryAfter?: number;
+  details?: Record<string, any>;
+}
+
+export interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+  data?: any;
+}
+
+export interface ServiceStats {
+  totalCalls: number;
+  successfulCalls: number;
+  failedCalls: number;
+  totalCost: number;
+  averageResponseTime: number;
+  lastCallAt?: string;
+}
+
+export interface OpenRouterRequest {
+  model: string;
+  messages: Array<{
+    role: 'system' | 'user' | 'assistant';
+    content: string;
+  }>;
+  max_tokens: number;
+  temperature: number;
+  response_format?: {
+    type: 'json_schema';
+    json_schema: {
+      name: string;
+      strict: boolean;
+      schema: any;
+    };
+  };
+}
+
+export interface OpenRouterResponse {
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: Array<{
+    index: number;
+    message: {
+      role: string;
+      content: string;
+    };
+    finish_reason: string;
+  }>;
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
+}
+
 // Data Export (GDPR)
 export type CardExportDto = Pick<Tables<"cards">, "id" | "front" | "back" | "created_at">;
 export type SetExportDto = Pick<Tables<"sets">, "id" | "name" | "language"> & { cards: CardExportDto[] };

@@ -4,6 +4,10 @@ import { z } from "zod";
 import { GenerationService } from "../../lib/services/generation.service";
 import type { ErrorResponseDto, StartGenerationResponseDto } from "../../types";
 
+// Load environment variables from .env file
+import dotenv from 'dotenv';
+dotenv.config();
+
 export const prerender = false;
 
 // Zod schema for request validation
@@ -82,8 +86,28 @@ export async function POST(context: APIContext): Promise<Response> {
 
   // 3. Call GenerationService to start generation
   try {
+    console.log("Starting generation with command:", {
+      source_text_length: command.source_text.length,
+      language: command.language,
+      target_count: command.target_count,
+      user_id: userId
+    });
+
+    // Check environment variables
+    console.log("Environment check:", {
+      hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
+      openRouterKeyLength: process.env.OPENROUTER_API_KEY?.length || 0,
+      allEnvKeys: Object.keys(process.env).filter(k => k.includes('OPENROUTER'))
+    });
+
     const generationService = new GenerationService(supabase);
     const result: StartGenerationResponseDto = await generationService.startGeneration(command, userId);
+
+    console.log("Generation started successfully:", {
+      generation_id: result.id,
+      status: result.status,
+      estimated_duration_ms: result.estimated_duration_ms
+    });
 
     // 4. Return 202 Accepted with generation metadata
     return new Response(JSON.stringify(result), {
@@ -93,6 +117,12 @@ export async function POST(context: APIContext): Promise<Response> {
   } catch (error) {
     // Handle specific errors
     if (error instanceof Error) {
+      console.error("Error starting generation:", {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+
       // Rate limiting error
       if (error.message.includes("rate limit")) {
         const errorResponse: ErrorResponseDto = {
@@ -107,11 +137,25 @@ export async function POST(context: APIContext): Promise<Response> {
         });
       }
 
+      // OpenRouter API key error
+      if (error.message.includes("API key not configured")) {
+        const errorResponse: ErrorResponseDto = {
+          error: "ConfigurationError",
+          message: "AI service not configured. Please contact support.",
+          code: "API_KEY_MISSING",
+          timestamp: new Date().toISOString(),
+        };
+        return new Response(JSON.stringify(errorResponse), {
+          status: 503,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
       // Database or other internal errors
-      console.error("Error starting generation:", error);
       const errorResponse: ErrorResponseDto = {
         error: "InternalError",
-        message: "An unexpected error occurred while processing your request",
+        message: error.message || "An unexpected error occurred while processing your request",
+        code: "GENERATION_FAILED",
         timestamp: new Date().toISOString(),
       };
       return new Response(JSON.stringify(errorResponse), {
@@ -125,6 +169,7 @@ export async function POST(context: APIContext): Promise<Response> {
     const errorResponse: ErrorResponseDto = {
       error: "InternalError",
       message: "An unexpected error occurred",
+      code: "UNKNOWN_ERROR",
       timestamp: new Date().toISOString(),
     };
     return new Response(JSON.stringify(errorResponse), {
