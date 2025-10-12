@@ -10,9 +10,10 @@ A modern, opinionated starter for building fast, accessible, and AI‑friendly w
 - [3. Tech stack](#3-tech-stack)
 - [4. Getting started locally](#4-getting-started-locally)
 - [5. Available scripts](#5-available-scripts)
-- [6. Project scope](#6-project-scope)
-- [7. Project status](#7-project-status)
-- [8. License](#8-license)
+- [6. API Endpoints](#6-api-endpoints)
+- [7. Project scope](#7-project-scope)
+- [8. Project status](#8-project-status)
+- [9. License](#9-license)
 
 ## 1. Project name
 
@@ -88,7 +89,63 @@ npm run lint:fix  # Auto-fix ESLint issues
 npm run format    # Format with Prettier
 ```
 
-## 6. Project scope
+## 6. API Endpoints
+
+### POST /api/generations
+
+Inicjuje asynchroniczną generację fiszek AI z podanego tekstu źródłowego.
+
+**Dokumentacja:** Zobacz [API Endpoint: POST /api/generations](.ai/api-endpoint-generations.md) dla pełnej dokumentacji.
+
+**Quick start (MVP - bez autoryzacji):**
+
+```bash
+curl -X POST http://localhost:4321/api/generations \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_text": "Twój tekst edukacyjny (100-15000 znaków)...",
+    "language": "pl",
+    "target_count": 20
+  }'
+```
+
+> **⚠️ MVP:** Endpoint używa hardcoded user ID. Autoryzacja JWT zostanie dodana w przyszłości.
+
+**Response (202 Accepted):**
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "user_id": "123e4567-e89b-12d3-a456-426614174000",
+  "model": "gpt-4o",
+  "source_text_hash": "a591a6d40bf420404a011733cfb7b190...",
+  "source_text_length": 456,
+  "created_at": "2025-10-09T12:34:56.789Z",
+  "status": "processing",
+  "estimated_duration_ms": 6500
+}
+```
+
+**Funkcje:**
+- ⚠️ Walidacja JWT (wyłączona w MVP - hardcoded user ID)
+- ✅ Walidacja request body (Zod schema)
+- ✅ Rate limiting (10 generacji/godzinę)
+- ✅ SHA-256 hash dla deduplikacji
+- ✅ Asynchroniczne przetwarzanie w tle
+
+**Przewodnik testowania:** Zobacz [Testing Guide](.ai/testing-guide.md) dla szczegółowych scenariuszy testowych.
+
+### Planowane endpointy
+
+- `GET /api/generations/:id` - Sprawdzenie statusu generacji
+- `GET /api/generations` - Lista generacji użytkownika
+- `POST /api/generations/:id/retry` - Ponowienie nieudanej generacji
+- `POST /api/cards/batch` - Batch create cards from generation
+- `GET /api/sets` - Lista zestawów fiszek
+- `POST /api/sets` - Utworzenie nowego zestawu
+- `GET /api/cards/due` - Fiszki do nauki (SRS)
+- `POST /api/sessions` - Rozpoczęcie sesji nauki
+
+## 7. Project scope
 
 This repository serves as a foundation for building modern, content-focused applications using Astro and React:
 - Preconfigured styling with Tailwind 4
@@ -98,11 +155,11 @@ This repository serves as a foundation for building modern, content-focused appl
 
 If your product requires additional domain specifics (features, user roles, or data model), capture them in a `PRD` and link it here.
 
-## 7. Project status
+## 8. Project status
 
 - Version: `0.0.1`
 - Status: Active development (pre-release)
 
-## 8. License
+## 9. License
 
 MIT
