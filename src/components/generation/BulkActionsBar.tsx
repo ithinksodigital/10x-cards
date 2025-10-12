@@ -70,10 +70,10 @@ export function BulkActionsBar({
   const hasUnreviewedInBatch = batchRemainingCount > 0;
 
   return (
-    <div className={cn('flex flex-wrap items-center gap-2 p-4 bg-white border rounded-lg shadow-sm', className)}>
+    <div className={cn('flex flex-wrap items-center gap-2 p-4 bg-card border border-border rounded-lg shadow-sm', className)}>
       {/* Batch actions */}
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-700">Batch {currentBatch + 1}:</span>
+        <span className="text-sm font-medium text-foreground">Batch {currentBatch + 1}:</span>
         
         <Button
           size="sm"
@@ -102,11 +102,11 @@ export function BulkActionsBar({
         </Button>
       </div>
 
-      <div className="w-px h-6 bg-gray-300"></div>
+      <div className="w-px h-6 bg-border"></div>
 
       {/* Global actions */}
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-700">All cards:</span>
+        <span className="text-sm font-medium text-foreground">All cards:</span>
         
         <Button
           size="sm"
@@ -135,7 +135,7 @@ export function BulkActionsBar({
         </Button>
       </div>
 
-      <div className="w-px h-6 bg-gray-300"></div>
+      <div className="w-px h-6 bg-border"></div>
 
       {/* Undo action */}
       <Button
@@ -143,7 +143,7 @@ export function BulkActionsBar({
         variant="outline"
         onClick={onUndo}
         disabled={!canUndo}
-        className="text-blue-700 border-blue-300 hover:bg-blue-50"
+        className="text-primary border-primary/30 hover:bg-primary/10"
       >
         <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
@@ -151,10 +151,10 @@ export function BulkActionsBar({
         Undo ({undoCount})
       </Button>
 
-      <div className="w-px h-6 bg-gray-300"></div>
+      <div className="w-px h-6 bg-border"></div>
 
       {/* Statistics */}
-      <div className="flex items-center gap-4 text-sm text-gray-600">
+      <div className="flex items-center gap-4 text-sm text-muted-foreground">
         <div className="flex items-center gap-1">
           <div className="w-2 h-2 bg-green-500 rounded-full"></div>
           <span>{totalAcceptedCount} accepted</span>
@@ -164,7 +164,7 @@ export function BulkActionsBar({
           <span>{totalRejectedCount} rejected</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+          <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
           <span>{totalRemainingCount} remaining</span>
         </div>
       </div>

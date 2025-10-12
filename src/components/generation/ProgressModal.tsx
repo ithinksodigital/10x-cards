@@ -153,7 +153,7 @@ export function ProgressModal({
             ) : (
               <>
                 <svg 
-                  className="w-5 h-5 text-blue-600 animate-spin" 
+                  className="w-5 h-5 text-primary animate-spin" 
                   fill="none" 
                   viewBox="0 0 24 24"
                 >
@@ -194,7 +194,7 @@ export function ProgressModal({
 
           {/* Time remaining */}
           {timeRemaining !== null && timeRemaining > 0 && (
-            <div className="text-sm text-gray-600 text-center">
+            <div className="text-sm text-muted-foreground text-center">
               Estimated time remaining: {timeRemaining}s
             </div>
           )}

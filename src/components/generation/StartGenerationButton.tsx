@@ -33,7 +33,7 @@ export function StartGenerationButton({
       disabled={isDisabled}
       className={cn(
         'w-full sm:w-auto',
-        'bg-blue-600 hover:bg-blue-700',
+        'bg-primary hover:bg-primary/90',
         'text-white font-medium',
         'px-8 py-3',
         'rounded-lg',

@@ -60,8 +60,8 @@ export function CardGrid({
   if (proposals.length === 0) {
     return (
       <div className={cn("flex items-center justify-center h-64", className)}>
-        <div className="text-center text-gray-500">
-          <svg className="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center text-muted-foreground">
+          <svg className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -91,10 +91,10 @@ export function CardGrid({
                 <span className="text-sm font-medium">Batch {batch.index + 1}</span>
                 <div className="flex gap-1 text-xs">
                   <span className="text-green-600">{batch.acceptedCount}</span>
-                  <span className="text-gray-400">/</span>
+                  <span className="text-muted-foreground">/</span>
                   <span className="text-red-600">{batch.rejectedCount}</span>
-                  <span className="text-gray-400">/</span>
-                  <span className="text-gray-500">{batch.remainingCount}</span>
+                  <span className="text-muted-foreground">/</span>
+                  <span className="text-muted-foreground">{batch.remainingCount}</span>
                 </div>
               </TabsTrigger>
             ))}
@@ -104,11 +104,11 @@ export function CardGrid({
 
       {/* Batch summary */}
       {currentBatchData && (
-        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+        <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
           <div className="flex items-center gap-4">
             <div className="text-sm">
               <span className="font-medium">Batch {currentBatch + 1}</span>
-              <span className="text-gray-500 ml-2">({currentBatchData.cards.length} cards)</span>
+              <span className="text-muted-foreground ml-2">({currentBatchData.cards.length} cards)</span>
             </div>
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-1">
@@ -120,13 +120,13 @@ export function CardGrid({
                 <span className="text-red-700">{currentBatchData.rejectedCount} rejected</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                <span className="text-gray-600">{currentBatchData.remainingCount} remaining</span>
+                <div className="w-3 h-3 bg-muted-foreground rounded-full"></div>
+                <span className="text-muted-foreground">{currentBatchData.remainingCount} remaining</span>
               </div>
             </div>
           </div>
 
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-muted-foreground">
             {currentBatchData.acceptedCount + currentBatchData.rejectedCount} of {currentBatchData.cards.length}{" "}
             reviewed
           </div>
@@ -162,7 +162,7 @@ export function CardGrid({
           <button
             onClick={() => onBatchChange(Math.max(0, currentBatch - 1))}
             disabled={currentBatch === 0}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground bg-background border border-border rounded-lg hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -170,14 +170,14 @@ export function CardGrid({
             Previous
           </button>
 
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-muted-foreground">
             {currentBatch + 1} of {batchInfo.totalBatches}
           </span>
 
           <button
             onClick={() => onBatchChange(Math.min(batchInfo.totalBatches - 1, currentBatch + 1))}
             disabled={currentBatch === batchInfo.totalBatches - 1}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground bg-background border border-border rounded-lg hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -189,8 +189,8 @@ export function CardGrid({
 
       {/* Progress indicator */}
       <div className="flex items-center justify-center">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
           <span>
             {selectedIds.size + rejectedIds.size} of {proposals.length} cards reviewed
           </span>

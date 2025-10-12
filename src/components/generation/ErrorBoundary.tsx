@@ -43,8 +43,8 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-card rounded-lg shadow-lg p-6 text-center">
             <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
               <svg 
                 className="w-8 h-8 text-red-600" 
@@ -61,17 +61,17 @@ export class ErrorBoundary extends Component<Props, State> {
               </svg>
             </div>
             
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-xl font-semibold text-card-foreground mb-2">
               Something went wrong
             </h2>
             
-            <p className="text-gray-600 mb-4">
+            <p className="text-muted-foreground mb-4">
               An unexpected error occurred while generating flashcards. Please try again.
             </p>
             
             {this.state.error && (
               <details className="mb-4 text-left">
-                <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
+                <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
                   Error details
                 </summary>
                 <pre className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded overflow-auto">

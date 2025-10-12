@@ -40,7 +40,7 @@ export function ErrorToast({
       case 'warning':
         return 'bg-yellow-50 border-yellow-200 text-yellow-800';
       case 'info':
-        return 'bg-blue-50 border-blue-200 text-blue-800';
+        return 'bg-primary/10 border-primary/20 text-primary';
       default:
         return 'bg-red-50 border-red-200 text-red-800';
     }

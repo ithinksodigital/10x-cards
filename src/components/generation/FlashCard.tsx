@@ -276,7 +276,7 @@ export function FlashCard({
           {isEditing ? (
             <div className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">Front</label>
+                <label className="text-sm font-medium text-foreground mb-1 block">Front</label>
                 <Textarea
                   ref={frontTextareaRef}
                   value={editFront}
@@ -287,14 +287,14 @@ export function FlashCard({
                 />
                 <div className="flex justify-between items-center mt-1">
                   {editErrors.front && <span className="text-xs text-red-600">{editErrors.front}</span>}
-                  <span className="text-xs text-gray-500 ml-auto">
+                  <span className="text-xs text-muted-foreground ml-auto">
                     {editFront.length}/{FRONT_MAX_LENGTH}
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 block">Back</label>
+                <label className="text-sm font-medium text-foreground mb-1 block">Back</label>
                 <Textarea
                   ref={backTextareaRef}
                   value={editBack}
@@ -305,7 +305,7 @@ export function FlashCard({
                 />
                 <div className="flex justify-between items-center mt-1">
                   {editErrors.back && <span className="text-xs text-red-600">{editErrors.back}</span>}
-                  <span className="text-xs text-gray-500 ml-auto">
+                  <span className="text-xs text-muted-foreground ml-auto">
                     {editBack.length}/{BACK_MAX_LENGTH}
                   </span>
                 </div>
@@ -339,12 +339,12 @@ export function FlashCard({
           ) : (
             <div className="flex-1 flex flex-col justify-center">
               <div className="text-center">
-                <div className="text-sm text-gray-500 mb-2">{isFlipped ? "Back" : "Front"}</div>
+                <div className="text-sm text-muted-foreground mb-2">{isFlipped ? "Back" : "Front"}</div>
                 <div className="text-lg leading-relaxed break-words">{isFlipped ? proposal.back : proposal.front}</div>
               </div>
 
               {proposal.source_text_excerpt && (
-                <div className="mt-3 p-2 bg-gray-50 rounded text-xs text-gray-600">
+                <div className="mt-3 p-2 bg-muted rounded text-xs text-muted-foreground">
                   <div className="font-medium mb-1">Source excerpt:</div>
                   <div className="line-clamp-2">{proposal.source_text_excerpt}</div>
                 </div>
@@ -355,14 +355,14 @@ export function FlashCard({
 
         {/* Flip indicator */}
         {!isEditing && (
-          <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+          <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">
             Click to flip • {isFlipped ? "Front" : "Back"}
           </div>
         )}
 
         {/* Keyboard shortcuts hint */}
         {!isEditing && (
-          <div className="absolute bottom-2 left-2 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute bottom-2 left-2 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
             A: Accept • R: Reject • E: Edit • Space: Flip
           </div>
         )}

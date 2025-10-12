@@ -57,7 +57,7 @@ export function PasteTextarea({
   // Calculate progress for visual feedback
   const progress = Math.min((charCount / MAX_LENGTH) * 100, 100);
   const progressColor = 
-    charCount < MIN_LENGTH ? 'bg-gray-300' :
+    charCount < MIN_LENGTH ? 'bg-muted' :
     charCount > MAX_LENGTH ? 'bg-red-500' :
     charCount > CHUNK_SUGGESTION_THRESHOLD ? 'bg-yellow-500' :
     'bg-green-500';
@@ -67,7 +67,7 @@ export function PasteTextarea({
       <div className="flex items-center justify-between">
         <label 
           htmlFor="paste-textarea" 
-          className="text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-foreground"
         >
           Paste your text
         </label>
@@ -75,7 +75,7 @@ export function PasteTextarea({
           <span 
             className={cn(
               'text-sm font-mono',
-              charCount < MIN_LENGTH && 'text-gray-500',
+              charCount < MIN_LENGTH && 'text-muted-foreground',
               charCount >= MIN_LENGTH && charCount <= MAX_LENGTH && 'text-green-600',
               charCount > MAX_LENGTH && 'text-red-600'
             )}
@@ -86,7 +86,7 @@ export function PasteTextarea({
       </div>
 
       {/* Progress bar */}
-      <div className="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+      <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
         <div 
           className={cn('h-full transition-all duration-300', progressColor)}
           style={{ width: `${progress}%` }}
@@ -106,11 +106,11 @@ export function PasteTextarea({
             'w-full min-h-[300px] p-4 rounded-lg border',
             'font-mono text-sm leading-relaxed',
             'resize-y transition-colors',
-            'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-            'disabled:bg-gray-50 disabled:cursor-not-allowed',
-            isFocused && 'border-blue-500',
+            'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent',
+            'disabled:bg-muted disabled:cursor-not-allowed',
+            isFocused && 'border-primary',
             !isFocused && !validation.isValid && charCount > 0 && 'border-red-300',
-            !isFocused && validation.isValid && 'border-gray-300',
+            !isFocused && validation.isValid && 'border-border',
             className
           )}
         />
@@ -154,7 +154,7 @@ export function PasteTextarea({
 
       {/* Helper text */}
       {charCount === 0 && (
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted-foreground">
           Paste or type text between {MIN_LENGTH} and {MAX_LENGTH.toLocaleString()} characters. 
           The AI will generate flashcards based on your content.
         </p>

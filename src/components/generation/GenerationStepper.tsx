@@ -84,8 +84,8 @@ export function GenerationStepper({ currentStep, onStepClick, className }: Gener
                   'flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-200',
                   'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
                   step.completed && 'bg-green-500 border-green-500 text-white',
-                  step.current && !step.completed && 'bg-blue-500 border-blue-500 text-white',
-                  !step.completed && !step.current && 'bg-white border-gray-300 text-gray-400',
+                  step.current && !step.completed && 'bg-primary border-primary text-primary-foreground',
+                  !step.completed && !step.current && 'bg-background border-border text-muted-foreground',
                   step.clickable && 'hover:scale-105 cursor-pointer',
                   !step.clickable && 'cursor-default'
                 )}
@@ -104,12 +104,12 @@ export function GenerationStepper({ currentStep, onStepClick, className }: Gener
                 <div className={cn(
                   'text-sm font-medium',
                   step.completed && 'text-green-600',
-                  step.current && !step.completed && 'text-blue-600',
-                  !step.completed && !step.current && 'text-gray-500'
+                  step.current && !step.completed && 'text-primary',
+                  !step.completed && !step.current && 'text-muted-foreground'
                 )}>
                   {step.title}
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-xs text-muted-foreground mt-1">
                   {step.description}
                 </div>
               </div>
@@ -121,7 +121,7 @@ export function GenerationStepper({ currentStep, onStepClick, className }: Gener
                 <Separator 
                   className={cn(
                     'h-0.5',
-                    steps[index + 1].completed ? 'bg-green-500' : 'bg-gray-300'
+                    steps[index + 1].completed ? 'bg-green-500' : 'bg-border'
                   )} 
                 />
               </div>

@@ -165,7 +165,7 @@ export function SaveToSetDialog({
           {!isCreatingNew && (
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Search sets
                 </label>
                 <Input
@@ -177,7 +177,7 @@ export function SaveToSetDialog({
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Select set
                 </label>
                 <Select value={selectedSetId} onValueChange={setSelectedSetId}>
@@ -198,7 +198,7 @@ export function SaveToSetDialog({
                         <SelectItem key={set.id} value={set.id}>
                           <div className="flex items-center justify-between w-full">
                             <span>{set.name}</span>
-                            <span className="text-xs text-gray-500 ml-2">
+                            <span className="text-xs text-muted-foreground ml-2">
                               {set.cards_count}/{MAX_CARDS_PER_SET} cards
                             </span>
                           </div>
@@ -215,7 +215,7 @@ export function SaveToSetDialog({
           {isCreatingNew && (
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Set name
                 </label>
                 <Input
@@ -227,7 +227,7 @@ export function SaveToSetDialog({
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Language
                 </label>
                 <Select value={newSetLanguage} onValueChange={(value: 'pl' | 'en' | 'es') => setNewSetLanguage(value)}>
@@ -245,8 +245,8 @@ export function SaveToSetDialog({
           )}
 
           {/* Limits and validation */}
-          <div className="p-4 bg-gray-50 rounded-lg space-y-2">
-            <div className="text-sm font-medium text-gray-700">Validation</div>
+          <div className="p-4 bg-muted rounded-lg space-y-2">
+            <div className="text-sm font-medium text-foreground">Validation</div>
             
             <div className="space-y-1 text-sm">
               <div className={cn(
