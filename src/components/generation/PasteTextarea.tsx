@@ -1,5 +1,6 @@
 // src/components/generation/PasteTextarea.tsx
 import React, { useState, useCallback } from 'react';
+import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import type { PasteFormState } from '@/lib/view-models';
 
@@ -94,7 +95,7 @@ export function PasteTextarea({
       </div>
 
       <div className="relative">
-        <textarea
+        <Textarea
           id="paste-textarea"
           value={value}
           onChange={handleChange}
@@ -103,14 +104,8 @@ export function PasteTextarea({
           disabled={disabled}
           placeholder="Paste your text here (minimum 100 characters)..."
           className={cn(
-            'w-full min-h-[300px] p-4 rounded-lg border',
-            'font-mono text-sm leading-relaxed',
-            'resize-y transition-colors',
-            'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent',
-            'disabled:bg-muted disabled:cursor-not-allowed',
-            isFocused && 'border-primary',
-            !isFocused && !validation.isValid && charCount > 0 && 'border-red-300',
-            !isFocused && validation.isValid && 'border-border',
+            'min-h-[300px] font-mono text-sm leading-relaxed resize-y',
+            !isFocused && !validation.isValid && charCount > 0 && 'border-red-300 focus:border-red-500',
             className
           )}
         />

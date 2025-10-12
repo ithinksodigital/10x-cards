@@ -21,9 +21,9 @@ const { title = "10x Astro Starter" } = Astro.props;
   <body>
     <div class="min-h-screen bg-background text-foreground">
       <!-- Header with theme toggle -->
-      <header class="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header class="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 class="text-xl font-semibold">10x Cards</h1>
+          <h1 class="text-xl font-semibold text-foreground">10x Cards</h1>
           <ThemeToggle client:load />
         </div>
       </header>

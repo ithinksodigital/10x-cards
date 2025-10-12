@@ -1,6 +1,7 @@
 // src/components/generation/ErrorToast.tsx
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 
 export interface ErrorToastProps {
@@ -80,49 +81,47 @@ export function ErrorToast({
         className
       )}
     >
-      <div className={cn(
-        'p-4 rounded-lg border shadow-lg',
-        getTypeStyles()
-      )}>
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 mt-0.5">
-            {getIcon()}
-          </div>
-          
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium">
-              {type === 'error' && 'Error occurred'}
-              {type === 'warning' && 'Warning'}
-              {type === 'info' && 'Information'}
-            </p>
-            <p className="text-sm mt-1 break-words">
-              {error}
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {onRetry && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={onRetry}
-                className="text-xs h-6 px-2"
-              >
-                Retry
-              </Button>
-            )}
-            <button
-              onClick={onDismiss}
-              className="flex-shrink-0 p-1 hover:bg-black/10 rounded"
-              aria-label="Dismiss"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+      <Alert className={cn('shadow-lg', getTypeStyles())}>
+        <div className="flex-shrink-0 mt-0.5">
+          {getIcon()}
         </div>
-      </div>
+        <AlertDescription className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium">
+                {type === 'error' && 'Error occurred'}
+                {type === 'warning' && 'Warning'}
+                {type === 'info' && 'Information'}
+              </p>
+              <p className="text-sm mt-1 break-words">
+                {error}
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {onRetry && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={onRetry}
+                  className="text-xs h-6 px-2"
+                >
+                  Retry
+                </Button>
+              )}
+              <button
+                onClick={onDismiss}
+                className="flex-shrink-0 p-1 hover:bg-black/10 rounded"
+                aria-label="Dismiss"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </AlertDescription>
+      </Alert>
     </div>
   );
 }

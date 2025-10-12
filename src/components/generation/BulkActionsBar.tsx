@@ -77,12 +77,12 @@ export function BulkActionsBar({
         
         <Button
           size="sm"
-          variant="outline"
+          variant="ghost"
           onClick={() => setShowAcceptBatchDialog(true)}
           disabled={!hasUnreviewedInBatch}
-          className="text-green-700 border-green-300 hover:bg-green-50"
+          className="hover:bg-green-100 hover:text-green-700 dark:hover:bg-green-900/20"
         >
-          <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
           Accept All ({batchRemainingCount})
@@ -90,12 +90,12 @@ export function BulkActionsBar({
         
         <Button
           size="sm"
-          variant="outline"
+          variant="ghost"
           onClick={() => setShowRejectBatchDialog(true)}
           disabled={!hasUnreviewedInBatch}
-          className="text-red-700 border-red-300 hover:bg-red-50"
+          className="hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
         >
-          <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
           Reject All ({batchRemainingCount})
@@ -110,12 +110,12 @@ export function BulkActionsBar({
         
         <Button
           size="sm"
-          variant="outline"
+          variant="ghost"
           onClick={() => setShowAcceptAllDialog(true)}
           disabled={!hasUnreviewedCards}
-          className="text-green-700 border-green-300 hover:bg-green-50"
+          className="hover:bg-green-100 hover:text-green-700 dark:hover:bg-green-900/20"
         >
-          <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
           Accept All ({totalRemainingCount})
@@ -123,12 +123,12 @@ export function BulkActionsBar({
         
         <Button
           size="sm"
-          variant="outline"
+          variant="ghost"
           onClick={() => setShowRejectAllDialog(true)}
           disabled={!hasUnreviewedCards}
-          className="text-red-700 border-red-300 hover:bg-red-50"
+          className="hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
         >
-          <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
           Reject All ({totalRemainingCount})
@@ -140,12 +140,12 @@ export function BulkActionsBar({
       {/* Undo action */}
       <Button
         size="sm"
-        variant="outline"
+        variant="ghost"
         onClick={onUndo}
         disabled={!canUndo}
-        className="text-primary border-primary/30 hover:bg-primary/10"
+        className="hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/20"
       >
-        <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
         </svg>
         Undo ({undoCount})

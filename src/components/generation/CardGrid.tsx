@@ -1,6 +1,7 @@
 // src/components/generation/CardGrid.tsx
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { FlashCard } from "./FlashCard";
 import { cn } from "@/lib/utils";
 import type { FlashCardProposal } from "@/lib/view-models";
@@ -78,63 +79,77 @@ export function CardGrid({
 
   return (
     <div className={cn("space-y-6", className)}>
-      {/* Batch navigation tabs */}
+      {/* Batch navigation */}
       {batchInfo.totalBatches > 1 && (
-        <Tabs value={currentBatch.toString()} onValueChange={(value) => onBatchChange(parseInt(value))}>
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-5">
+        <div className="bg-card border border-border rounded-lg p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-foreground">Card Batches</h3>
+            <span className="text-xs text-muted-foreground">
+              {currentBatch + 1} of {batchInfo.totalBatches}
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-2 overflow-x-auto pb-2">
             {batchInfo.batches.map((batch) => (
-              <TabsTrigger
+              <button
                 key={batch.index}
-                value={batch.index.toString()}
-                className="flex flex-col items-center gap-1 p-2"
+                onClick={() => onBatchChange(batch.index)}
+                className={cn(
+                  "flex-shrink-0 px-4 py-2 rounded-lg border transition-all duration-200",
+                  "hover:bg-accent hover:text-accent-foreground",
+                  currentBatch === batch.index
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background border-border text-foreground"
+                )}
               >
-                <span className="text-sm font-medium">Batch {batch.index + 1}</span>
-                <div className="flex gap-1 text-xs">
-                  <span className="text-green-600">{batch.acceptedCount}</span>
-                  <span className="text-muted-foreground">/</span>
-                  <span className="text-red-600">{batch.rejectedCount}</span>
-                  <span className="text-muted-foreground">/</span>
-                  <span className="text-muted-foreground">{batch.remainingCount}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">Batch {batch.index + 1}</span>
+                  <div className="flex items-center gap-1 text-xs">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                    <span>{batch.acceptedCount}</span>
+                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                    <span>{batch.rejectedCount}</span>
+                    <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
+                    <span>{batch.remainingCount}</span>
+                  </div>
                 </div>
-              </TabsTrigger>
+              </button>
             ))}
-          </TabsList>
-        </Tabs>
+          </div>
+        </div>
       )}
 
       {/* Batch summary */}
       {currentBatchData && (
-        <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-          <div className="flex items-center gap-4">
-            <div className="text-sm">
-              <span className="font-medium">Batch {currentBatch + 1}</span>
-              <span className="text-muted-foreground ml-2">({currentBatchData.cards.length} cards)</span>
-            </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span className="text-green-700">{currentBatchData.acceptedCount} accepted</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <span className="text-red-700">{currentBatchData.rejectedCount} rejected</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-muted-foreground rounded-full"></div>
-                <span className="text-muted-foreground">{currentBatchData.remainingCount} remaining</span>
-              </div>
+        <div className="bg-card border border-border rounded-lg p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium text-foreground">
+              Batch {currentBatch + 1} - {currentBatchData.cards.length} cards
+            </h3>
+            <div className="text-sm text-muted-foreground">
+              {currentBatchData.acceptedCount + currentBatchData.rejectedCount} of {currentBatchData.cards.length} reviewed
             </div>
           </div>
-
-          <div className="text-sm text-muted-foreground">
-            {currentBatchData.acceptedCount + currentBatchData.rejectedCount} of {currentBatchData.cards.length}{" "}
-            reviewed
+          
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span className="text-sm text-green-700 font-medium">{currentBatchData.acceptedCount} accepted</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+              <span className="text-sm text-red-700 font-medium">{currentBatchData.rejectedCount} rejected</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-muted-foreground rounded-full"></div>
+              <span className="text-sm text-muted-foreground">{currentBatchData.remainingCount} remaining</span>
+            </div>
           </div>
         </div>
       )}
 
       {/* Cards grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {currentBatchData?.cards.map((proposal, index) => {
           const globalIndex = currentBatch * BATCH_SIZE + index;
           const isSelected = selectedIds.has(proposal.id);
@@ -150,7 +165,7 @@ export function CardGrid({
               onAccept={onAccept}
               onReject={onReject}
               onEditSave={onEditSave}
-              className="group"
+              className="group hover:scale-[1.02] transition-transform duration-200"
             />
           );
         })}
@@ -159,41 +174,59 @@ export function CardGrid({
       {/* Batch navigation buttons for mobile */}
       {batchInfo.totalBatches > 1 && (
         <div className="flex items-center justify-between md:hidden">
-          <button
+          <Button
             onClick={() => onBatchChange(Math.max(0, currentBatch - 1))}
             disabled={currentBatch === 0}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground bg-background border border-border rounded-lg hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Previous
-          </button>
+          </Button>
 
           <span className="text-sm text-muted-foreground">
             {currentBatch + 1} of {batchInfo.totalBatches}
           </span>
 
-          <button
+          <Button
             onClick={() => onBatchChange(Math.min(batchInfo.totalBatches - 1, currentBatch + 1))}
             disabled={currentBatch === batchInfo.totalBatches - 1}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground bg-background border border-border rounded-lg hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed"
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
           >
             Next
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-          </button>
+          </Button>
         </div>
       )}
 
       {/* Progress indicator */}
-      <div className="flex items-center justify-center">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-          <span>
+      <div className="bg-card border border-border rounded-lg p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+            <span className="text-sm font-medium text-foreground">
+              Overall Progress
+            </span>
+          </div>
+          <div className="text-sm text-muted-foreground">
             {selectedIds.size + rejectedIds.size} of {proposals.length} cards reviewed
-          </span>
+          </div>
+        </div>
+        
+        <div className="mt-3">
+          <div className="w-full bg-muted rounded-full h-2">
+            <div 
+              className="bg-primary h-2 rounded-full transition-all duration-300"
+              style={{ width: `${((selectedIds.size + rejectedIds.size) / proposals.length) * 100}%` }}
+            ></div>
+          </div>
         </div>
       </div>
     </div>

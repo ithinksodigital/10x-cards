@@ -180,11 +180,11 @@ export function FlashCard({
     <Card
       ref={cardRef}
       className={cn(
-        "relative w-full h-64 cursor-pointer transition-all duration-300",
-        "hover:shadow-lg focus-within:ring-2 focus-within:ring-blue-500",
+        "relative w-full h-72 cursor-pointer transition-all duration-300",
+        "hover:shadow-lg focus-within:ring-2 focus-within:ring-primary",
         "transform-gpu perspective-1000",
-        cardStatus === "selected" && "ring-2 ring-green-500 bg-green-50",
-        cardStatus === "rejected" && "ring-2 ring-red-500 bg-red-50",
+        cardStatus === "selected" && "ring-2 ring-green-500 bg-green-50/50 dark:bg-green-950/20",
+        cardStatus === "rejected" && "ring-2 ring-red-500 bg-red-50/50 dark:bg-red-950/20",
         cardStatus === "neutral" && "hover:shadow-md",
         disabled && "opacity-50 cursor-not-allowed",
         className
@@ -223,11 +223,11 @@ export function FlashCard({
                     e.stopPropagation();
                     handleEditStart();
                   }}
-                  className="h-6 w-6 p-0"
+                  className="h-8 w-8 p-0 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/20"
                   disabled={disabled}
                   aria-label="Edit card"
                 >
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -243,11 +243,11 @@ export function FlashCard({
                     e.stopPropagation();
                     handleAccept();
                   }}
-                  className="h-6 w-6 p-0 text-green-600 hover:text-green-700"
+                  className="h-8 w-8 p-0 hover:bg-green-100 hover:text-green-700 dark:hover:bg-green-900/20"
                   disabled={disabled}
                   aria-label="Accept card"
                 >
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </Button>
@@ -258,11 +258,11 @@ export function FlashCard({
                     e.stopPropagation();
                     handleReject();
                   }}
-                  className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
+                  className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-700 dark:hover:bg-red-900/20"
                   disabled={disabled}
                   aria-label="Reject card"
                 >
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </Button>
@@ -337,33 +337,38 @@ export function FlashCard({
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex flex-col justify-center">
-              <div className="text-center">
-                <div className="text-sm text-muted-foreground mb-2">{isFlipped ? "Back" : "Front"}</div>
-                <div className="text-lg leading-relaxed break-words">{isFlipped ? proposal.back : proposal.front}</div>
+            <div className="flex-1 flex flex-col justify-center min-h-0">
+              <div className="text-center px-2">
+                <div className="text-base leading-relaxed break-words overflow-hidden text-ellipsis line-clamp-4 max-h-20">
+                  {isFlipped ? proposal.back : proposal.front}
+                </div>
               </div>
 
               {proposal.source_text_excerpt && (
-                <div className="mt-3 p-2 bg-muted rounded text-xs text-muted-foreground">
+                <div className="mt-3 p-2 bg-muted/50 rounded-md text-xs text-muted-foreground border">
                   <div className="font-medium mb-1">Source excerpt:</div>
-                  <div className="line-clamp-2">{proposal.source_text_excerpt}</div>
+                  <div className="line-clamp-2 text-xs leading-relaxed">{proposal.source_text_excerpt}</div>
                 </div>
               )}
             </div>
           )}
         </div>
 
-        {/* Flip indicator */}
+        {/* Status indicator */}
         {!isEditing && (
-          <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">
-            Click to flip • {isFlipped ? "Front" : "Back"}
+          <div className="absolute top-2 right-2">
+            <Badge variant="outline" className="text-xs px-2 py-1 bg-background/80 backdrop-blur-sm">
+              {isFlipped ? "Back" : "Front"}
+            </Badge>
           </div>
         )}
 
         {/* Keyboard shortcuts hint */}
         {!isEditing && (
-          <div className="absolute bottom-2 left-2 text-xs text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-            A: Accept • R: Reject • E: Edit • Space: Flip
+          <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="bg-background/90 backdrop-blur-sm rounded-md px-2 py-1 text-xs text-muted-foreground border">
+              A: Accept • R: Reject • E: Edit • Space: Flip
+            </div>
           </div>
         )}
       </CardContent>

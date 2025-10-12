@@ -10,6 +10,7 @@ import { SaveToSetDialog, useSaveToSetDialog } from './SaveToSetDialog';
 import { ErrorToast, useErrorToast } from './ErrorToast';
 import { useGeneration } from './GenerationContext';
 import { useGenerationApi } from '@/hooks/useGenerationApi';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { StartGenerationCommand } from '@/types';
 import type { FlashCardProposal } from '@/lib/view-models';
@@ -203,12 +204,13 @@ export function GeneratePage() {
               {/* Continue to Save */}
               {selectedCards.length > 0 && (
                 <div className="flex justify-center">
-                  <button
+                  <Button
                     onClick={() => nextStep()}
-                    className="px-8 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+                    className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium"
+                    size="lg"
                   >
                     Continue to Save ({selectedCards.length} cards selected)
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -226,12 +228,13 @@ export function GeneratePage() {
                 </p>
 
                 <div className="text-center">
-                  <button
+                  <Button
                     onClick={openSaveDialog}
-                    className="px-8 py-3 bg-primary text-primary-foreground font-medium rounded-lg hover:bg-primary/90 transition-colors"
+                    className="px-8 py-3 font-medium"
+                    size="lg"
                   >
                     Choose Set or Create New
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
