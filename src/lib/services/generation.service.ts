@@ -60,8 +60,8 @@ export class GenerationService {
     const sourceTextHash = await this.calculateHash(command.source_text);
     const sourceTextLength = command.source_text.length;
 
-    // 2. Validate rate limiting (10 generations per hour)
-    await this.checkRateLimit(userId);
+    // 2. Validate rate limiting (10 generations per hour) - TEMPORARILY DISABLED
+    // await this.checkRateLimit(userId);
 
     // 3. Create generation record in database
     const { data: generation, error: insertError } = await this.supabase

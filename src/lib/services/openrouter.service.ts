@@ -72,8 +72,8 @@ export class OpenRouterService {
       // Validate input parameters
       this.validateInput(command);
 
-      // Check user rate limit
-      await this.checkUserRateLimit(command.userId);
+      // Check user rate limit - TEMPORARILY DISABLED
+      // await this.checkUserRateLimit(command.userId);
 
       // Sanitize source text
       const sanitizedText = this.sanitizeInput(command.sourceText);
