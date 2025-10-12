@@ -128,7 +128,7 @@ export function GeneratePage() {
         <div className="space-y-8">
           {/* Step 1: Paste Text */}
           {currentStep === 'paste' && (
-            <div className="max-w-4xl mx-auto">
+            <div className="w-full">
               <div className="bg-card rounded-lg shadow-sm border border-border p-6">
                 <h2 className="text-xl font-semibold text-card-foreground mb-4">
                   Step 1: Paste Your Text
