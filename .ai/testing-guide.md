@@ -1,316 +1,426 @@
-# Przewodnik testowania - POST /api/generations
+# API Testing Guide
 
-## Przygotowanie środowiska testowego
+## Quick Start
 
-### 1. Uruchom projekt lokalnie
-
-```bash
-cd /Users/rafalpawelec/Development/10xdevs/10x-cards
-npm run dev
-```
-
-Projekt powinien być dostępny pod adresem: `http://localhost:4321`
-
-### 2. Przygotuj dane testowe
-
-> **⚠️ MVP Version:** Endpoint używa hardcoded user ID, więc **nie potrzebujesz tokena autoryzacji**.  
-> User ID: `00000000-0000-0000-0000-000000000001`
-
-#### ~~Uzyskaj Supabase JWT Token~~ (Niepotrzebne w MVP)
-
-~~Opcja A - Przez Supabase Dashboard~~  
-~~Opcja B - Przez API (sign up/sign in)~~
-
-**MVP:** Autoryzacja jest wyłączona - możesz od razu testować endpoint bez tokena!
-
-#### Przykładowe teksty do testowania
-
-**Tekst minimalny (100 znaków):**
-```
-To jest przykładowy tekst do testowania minimalnej długości wymaganej dla generacji fiszek AI - dokładnie sto znaków.
-```
-
-**Tekst optymalny (500-1000 znaków):**
-```
-Fotosynteza to podstawowy proces biologiczny zachodzący w roślinach zielonych, glonach i niektórych bakteriach. Polega na przekształcaniu energii świetlnej w energię chemiczną zmagazynowaną w cząsteczce glukozy. Proces ten składa się z dwóch głównych faz: reakcji świetlnych i ciemnych. W reakcjach świetlnych, zachodzących w tylakoidach chloroplastów, energia słoneczna jest wychwytywana przez chlorofil i wykorzystywana do produkcji ATP oraz NADPH. Jednocześnie następuje fotoliza wody, podczas której powstaje tlen jako produkt uboczny. Reakcje ciemne, znane jako cykl Calvina, nie wymagają bezpośredniego światła i zachodzą w stromie chloroplastu. W ich trakcie dwutlenek węgla z atmosfery jest przyłączany do związków organicznych, a następnie, przy użyciu energii z ATP i NADPH, redukowany do glukozy.
-```
-
-**Tekst długi (>5000 znaków):**
-Użyj artykułu naukowego, rozdziału książki lub obszernego tekstu edukacyjnego.
-
-## Scenariusze testowe
-
-### Test 1: Poprawne żądanie - Happy Path
-
-**Cel:** Sprawdzenie, czy endpoint poprawnie przetwarza prawidłowe żądanie.
+### 1. Run Basic Tests (No Auth Required)
 
 ```bash
-# MVP - Bez Authorization header
-curl -X POST http://localhost:4321/api/generations \
+node .ai/test-simple.js
+```
+
+This will test:
+- Authentication enforcement (401 errors)
+- UUID validation (400 errors)
+- Error message formatting
+
+Expected: All tests should pass with proper error responses.
+
+---
+
+### 2. Run Interactive Tests (Auth Required)
+
+```bash
+./.ai/test-api-endpoints.sh
+```
+
+**Prerequisites:**
+- `jq` installed (`brew install jq` on macOS)
+- Valid Supabase JWT token
+
+**Setup:**
+Edit the script and replace the token:
+```bash
+AUTH_TOKEN="your-supabase-jwt-token-here"
+```
+
+---
+
+## Getting Supabase JWT Token
+
+### Option 1: From Supabase Dashboard
+
+1. Go to your Supabase project dashboard
+2. Navigate to **Authentication** → **Users**
+3. Create a test user or select existing user
+4. Click on the user to see details
+5. Copy the **JWT Token** (access token)
+
+### Option 2: Using Supabase CLI
+
+```bash
+# Login to Supabase
+supabase login
+
+# Start local development
+supabase start
+
+# Create a test user
+supabase auth signup --email test@example.com --password testpass123
+
+# The response will include the access_token
+```
+
+### Option 3: Programmatically (Node.js)
+
+```javascript
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  'your-project-url',
+  'your-anon-key'
+)
+
+const { data, error } = await supabase.auth.signUp({
+  email: 'test@example.com',
+  password: 'testpass123'
+})
+
+console.log('Token:', data.session?.access_token)
+```
+
+---
+
+## Test Scenarios
+
+### Scenario 1: Complete CRUD Flow
+
+```bash
+# 1. Create a set
+curl -X POST http://localhost:3001/api/sets \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"name": "Spanish 101", "language": "es"}'
+
+# Save the returned ID
+SET_ID="uuid-from-response"
+
+# 2. Create a card
+curl -X POST http://localhost:3001/api/sets/$SET_ID/cards \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"front": "Hola", "back": "Hello"}'
+
+# Save the card ID
+CARD_ID="uuid-from-response"
+
+# 3. List cards
+curl http://localhost:3001/api/sets/$SET_ID/cards \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# 4. Update card
+curl -X PATCH http://localhost:3001/api/cards/$CARD_ID \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"front": "¡Hola!"}'
+
+# 5. Get card details
+curl http://localhost:3001/api/cards/$CARD_ID \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+---
+
+### Scenario 2: SRS Learning Flow
+
+```bash
+# 1. Get due cards
+curl http://localhost:3001/api/srs/due \
+  -H "Authorization: Bearer YOUR_TOKEN"
+
+# 2. Start session
+curl -X POST http://localhost:3001/api/srs/sessions \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
-    "source_text": "Fotosynteza to podstawowy proces biologiczny zachodzący w roślinach zielonych, glonach i niektórych bakteriach. Polega na przekształcaniu energii świetlnej w energię chemiczną zmagazynowaną w cząsteczce glukozy.",
-    "language": "pl",
-    "target_count": 10
+    "set_id": "your-set-id",
+    "new_cards_limit": 10,
+    "review_cards_limit": 20
+  }'
+
+# Save session ID
+SESSION_ID="uuid-from-response"
+
+# 3. Submit review (rating 1-5)
+curl -X POST http://localhost:3001/api/srs/reviews \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "card_id": "your-card-id",
+    "rating": 4,
+    "session_id": "'$SESSION_ID'"
+  }'
+
+# 4. Get session summary
+curl http://localhost:3001/api/srs/sessions/$SESSION_ID/summary \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+---
+
+### Scenario 3: Batch Card Creation
+
+```bash
+curl -X POST http://localhost:3001/api/sets/$SET_ID/cards/batch \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "generation_id": "your-generation-id",
+    "cards": [
+      {
+        "front": "Hola",
+        "back": "Hello",
+        "was_edited": false,
+        "ai_confidence_score": 0.95
+      },
+      {
+        "front": "Adiós",
+        "back": "Goodbye",
+        "was_edited": false,
+        "ai_confidence_score": 0.92
+      }
+    ]
   }'
 ```
 
-**Oczekiwany wynik:**
-- Status: `202 Accepted`
-- Response zawiera: `id`, `user_id`, `model`, `source_text_hash`, `source_text_length`, `created_at`, `status: "processing"`, `estimated_duration_ms`
+---
 
-### ~~Test 2: Brak autoryzacji~~ (Pominięty w MVP)
+## Testing Limits
 
-**MVP:** Test pominięty - autoryzacja jest wyłączona.  
-**Przyszłość:** Zostanie włączony gdy dodamy JWT auth.
-
-### Test 3: Tekst zbyt krótki
-
-**Cel:** Walidacja minimalnej długości tekstu.
+### Test Set Limit (200 cards)
 
 ```bash
-curl -X POST http://localhost:4321/api/generations \
-  -H "Content-Type: application/json" \
-  -d '{
-    "source_text": "Za krótki tekst",
-    "target_count": 10
-  }'
-```
-
-**Oczekiwany wynik:**
-- Status: `400 Bad Request`
-- Response zawiera: `"error": "ValidationError"`, `"details": {"source_text": "Source text must be at least 100 characters"}`
-
-### Test 4: Tekst zbyt długi
-
-**Cel:** Walidacja maksymalnej długości tekstu.
-
-```bash
-# Wygeneruj tekst >15000 znaków i użyj go w żądaniu
-curl -X POST http://localhost:4321/api/generations \
-  -H "Content-Type: application/json" \
-  -d '{
-    "source_text": "'$(python3 -c "print('a' * 15001)")'"
-  }'
-```
-
-**Oczekiwany wynik:**
-- Status: `400 Bad Request`
-- Response: błąd walidacji dla `source_text`
-
-### Test 5: Nieprawidłowy kod języka
-
-**Cel:** Walidacja formatu kodu języka.
-
-```bash
-curl -X POST http://localhost:4321/api/generations \
-  -H "Content-Type: application/json" \
-  -d '{
-    "source_text": "Prawidłowy tekst o odpowiedniej długości, który spełnia wszystkie wymagania dotyczące minimalnej liczby znaków.",
-    "language": "polish",
-    "target_count": 10
-  }'
-```
-
-**Oczekiwany wynik:**
-- Status: `400 Bad Request`
-- Response: błąd walidacji dla `language` - musi być kod ISO 639-1 (2 litery)
-
-### Test 6: Target count poza zakresem
-
-**Cel:** Walidacja zakresu `target_count`.
-
-```bash
-# Zbyt duża wartość
-curl -X POST http://localhost:4321/api/generations \
-  -H "Content-Type: application/json" \
-  -d '{
-    "source_text": "Prawidłowy tekst o odpowiedniej długości, który spełnia wszystkie wymagania dotyczące minimalnej liczby znaków.",
-    "target_count": 100
-  }'
-```
-
-**Oczekiwany wynik:**
-- Status: `400 Bad Request`
-- Response: błąd walidacji dla `target_count`
-
-### Test 7: Rate Limiting
-
-**Cel:** Sprawdzenie ograniczenia 10 generacji na godzinę.
-
-```bash
-# Wykonaj 11 żądań w szybkiej sekwencji
-for i in {1..11}; do
-  echo "Request $i"
-  curl -X POST http://localhost:4321/api/generations \
+# Create 200 cards (use loop)
+for i in {1..200}; do
+  curl -X POST http://localhost:3001/api/sets/$SET_ID/cards \
     -H "Content-Type: application/json" \
-    -d '{
-      "source_text": "Test text number '"$i"' - Prawidłowy tekst o odpowiedniej długości, który spełnia wszystkie wymagania dotyczące minimalnej liczby znaków.",
-      "target_count": 5
-    }'
-  echo -e "\n---\n"
+    -H "Authorization: Bearer YOUR_TOKEN" \
+    -d '{"front": "Card '$i'", "back": "Back '$i'"}'
 done
+
+# Try to create 201st (should fail with 422)
+curl -X POST http://localhost:3001/api/sets/$SET_ID/cards \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"front": "Card 201", "back": "Back 201"}'
 ```
 
-**Oczekiwany wynik:**
-- Pierwsze 10 żądań: `202 Accepted`
-- 11. żądanie: `429 Too Many Requests`
-- Response: `{"error": "TooManyRequests", "message": "Rate limit exceeded: Maximum 10 generations per hour..."}`
-
-### Test 8: Nieprawidłowy JSON
-
-**Cel:** Sprawdzenie obsługi błędów parsowania.
-
-```bash
-curl -X POST http://localhost:4321/api/generations \
-  -H "Content-Type: application/json" \
-  -d 'not valid json'
+Expected response:
+```json
+{
+  "error": "LimitExceeded",
+  "message": "Set has reached maximum of 200 cards",
+  "code": "LIMIT_EXCEEDED",
+  "details": {
+    "set_limit": 200,
+    "current_count": 200
+  }
+}
 ```
 
-**Oczekiwany wynik:**
-- Status: `400 Bad Request`
-- Response: `{"error": "BadRequest", "message": "Invalid JSON in request body"}`
+---
 
-### Test 9: Minimalna konfiguracja (tylko wymagane pola)
+### Test User Limit (1000 cards)
 
-**Cel:** Sprawdzenie, czy opcjonalne parametry działają z wartościami domyślnymi.
+Similar to above, but across multiple sets. When you reach 1000:
+
+Expected response:
+```json
+{
+  "error": "LimitExceeded",
+  "message": "User has reached maximum of 1000 cards",
+  "code": "LIMIT_EXCEEDED",
+  "details": {
+    "user_limit": 1000,
+    "current_count": 1000
+  }
+}
+```
+
+---
+
+### Test Daily Limits
 
 ```bash
-curl -X POST http://localhost:4321/api/generations \
+# Review 20 new cards in one day
+# The 21st should fail with:
+{
+  "error": "DailyLimitReached",
+  "message": "You have reached your daily limit for new cards",
+  "code": "DAILY_LIMIT_REACHED",
+  "details": {
+    "new_cards_today": 20,
+    "new_cards_limit": 20
+  }
+}
+```
+
+---
+
+## Testing Error Scenarios
+
+### Invalid UUID
+```bash
+curl http://localhost:3001/api/sets/invalid-uuid \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+Expected: 400 Bad Request
+
+### Missing Required Fields
+```bash
+curl -X POST http://localhost:3001/api/sets \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{}'
+```
+Expected: 400 Validation Error
+
+### Duplicate Card
+```bash
+# Create card
+curl -X POST http://localhost:3001/api/sets/$SET_ID/cards \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"front": "Hola", "back": "Hello"}'
+
+# Try to create same card (case-insensitive)
+curl -X POST http://localhost:3001/api/sets/$SET_ID/cards \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{"front": "hola", "back": "Hi"}'
+```
+Expected: 409 Conflict
+
+### Invalid Rating
+```bash
+curl -X POST http://localhost:3001/api/srs/reviews \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
-    "source_text": "Prawidłowy tekst o odpowiedniej długości, który spełnia wszystkie wymagania dotyczące minimalnej liczby znaków potrzebnych do rozpoczęcia generacji fiszek."
+    "card_id": "some-uuid",
+    "rating": 10,
+    "session_id": "some-uuid"
   }'
 ```
+Expected: 400 Validation Error (rating must be 1-5)
 
-**Oczekiwany wynik:**
-- Status: `202 Accepted`
-- Response z `target_count` ustawionym na domyślną wartość 30
+---
 
-## Weryfikacja w bazie danych
+## Using Postman or Insomnia
 
-Po wykonaniu testów, sprawdź rekordy w bazie danych:
+### Import Collection
 
-```sql
--- Sprawdź utworzone generacje
-SELECT 
-  id,
-  user_id,
-  source_text_length,
-  source_text_hash,
-  model,
-  created_at,
-  generated_count
-FROM generations
-ORDER BY created_at DESC
-LIMIT 10;
+Create a collection with these requests:
 
--- Sprawdź rate limiting dla konkretnego użytkownika
-SELECT 
-  user_id,
-  COUNT(*) as total_generations,
-  COUNT(CASE WHEN created_at >= NOW() - INTERVAL '1 hour' THEN 1 END) as last_hour
-FROM generations
-WHERE user_id = 'YOUR_USER_ID'
-GROUP BY user_id;
+1. **Environment Variables:**
+   - `base_url`: http://localhost:3001
+   - `auth_token`: your-jwt-token
 
--- Sprawdź unikalne hashe (deduplikacja)
-SELECT 
-  source_text_hash,
-  COUNT(*) as count
-FROM generations
-GROUP BY source_text_hash
-HAVING COUNT(*) > 1;
+2. **Headers (Global):**
+   - `Content-Type`: application/json
+   - `Authorization`: Bearer {{auth_token}}
+
+3. **Import from cURL:**
+   Both tools support importing cURL commands directly.
+
+---
+
+## Automated Testing with Jest (Optional)
+
+If you want to add automated tests:
+
+```bash
+npm install --save-dev jest @types/jest
 ```
 
-## Checklist testowania
+Create `tests/api.test.js`:
 
-- [ ] Test 1: Happy path działa poprawnie (202)
-- [ ] ~~Test 2: Brak autoryzacji zwraca 401~~ (Pominięte w MVP)
-- [ ] Test 3: Tekst <100 znaków zwraca błąd walidacji
-- [ ] Test 4: Tekst >15000 znaków zwraca błąd walidacji
-- [ ] Test 5: Nieprawidłowy kod języka zwraca błąd
-- [ ] Test 6: Target count poza zakresem zwraca błąd
-- [ ] Test 7: Rate limiting działa (11. request = 429)
-- [ ] Test 8: Nieprawidłowy JSON zwraca 400
-- [ ] Test 9: Minimalna konfiguracja działa
-- [ ] Rekordy poprawnie zapisują się w bazie danych
-- [ ] SHA-256 hash jest poprawnie generowany
-- [ ] `estimated_duration_ms` jest wyliczany
-- [ ] Timestamps są w formacie ISO 8601
-- [ ] Response zawiera wszystkie wymagane pola
+```javascript
+describe('API Endpoints', () => {
+  const BASE_URL = 'http://localhost:3001';
+  const AUTH_TOKEN = process.env.AUTH_TOKEN;
 
-## Narzędzia pomocnicze
+  test('should require authentication', async () => {
+    const response = await fetch(`${BASE_URL}/api/sets`);
+    expect(response.status).toBe(401);
+  });
 
-### Postman Collection
+  test('should validate UUID format', async () => {
+    const response = await fetch(`${BASE_URL}/api/sets/invalid-uuid`, {
+      headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+    });
+    expect(response.status).toBe(400);
+  });
 
-Możesz zaimportować gotową kolekcję Postman (TODO: utworzyć plik JSON).
-
-### VS Code REST Client
-
-Utwórz plik `test.http`:
-
-```http
-### Test 1: Poprawne żądanie
-POST http://localhost:4321/api/generations
-Content-Type: application/json
-Authorization: Bearer YOUR_JWT_TOKEN
-
-{
-  "source_text": "Prawidłowy tekst...",
-  "language": "pl",
-  "target_count": 10
-}
-
-### Test 2: Brak autoryzacji
-POST http://localhost:4321/api/generations
-Content-Type: application/json
-
-{
-  "source_text": "Prawidłowy tekst..."
-}
+  // Add more tests...
+});
 ```
+
+---
 
 ## Troubleshooting
 
-### Problem: 500 Internal Server Error
+### Issue: 401 Unauthorized even with token
 
-**Możliwe przyczyny:**
-- Błąd połączenia z bazą danych Supabase
-- Nieprawidłowe zmienne środowiskowe (`SUPABASE_URL`, `SUPABASE_KEY`)
-- Błąd w logice serwisu
+**Solution:**
+- Verify token is not expired
+- Check token format (should be JWT)
+- Ensure Authorization header format: `Bearer TOKEN`
+- Verify Supabase project URL matches
 
-**Rozwiązanie:**
-1. Sprawdź logi serwera w terminalu
-2. Zweryfikuj zmienne środowiskowe w `.env`
-3. Sprawdź połączenie z Supabase
+### Issue: Connection refused
 
-### Problem: 401 Unauthorized mimo poprawnego tokena
+**Solution:**
+- Ensure dev server is running: `npm run dev`
+- Check correct port (default: 3001)
+- Verify no firewall blocking
 
-**Możliwe przyczyny:**
-- Token wygasł
-- Token należy do innego projektu Supabase
-- Nieprawidłowa konfiguracja Supabase client
+### Issue: Database errors
 
-**Rozwiązanie:**
-1. Wygeneruj nowy token (sign in ponownie)
-2. Sprawdź `SUPABASE_URL` i `SUPABASE_KEY`
-3. Zweryfikuj middleware w `src/middleware/index.ts`
+**Solution:**
+- Check Supabase connection
+- Verify environment variables set
+- Check RLS policies enabled
+- Ensure migrations ran successfully
 
-### Problem: Rate limiting nie działa
+### Issue: Slow responses
 
-**Rozwiązanie:**
-1. Sprawdź czy rekordy są zapisywane w bazie
-2. Zweryfikuj query w `checkRateLimit()` w GenerationService
-3. Upewnij się, że `user_id` jest poprawny
+**Solution:**
+- Check database indexes
+- Verify RLS policies are optimized
+- Check network connection to Supabase
+- Monitor Supabase dashboard for issues
 
-## Następne kroki
+---
 
-Po pomyślnym przejściu wszystkich testów:
+## Tips for Effective Testing
 
-1. ✅ Endpoint działa poprawnie
-2. 🔄 Implementuj Edge Function do rzeczywistej generacji AI
-3. 🔄 Implementuj endpoint GET `/api/generations/{id}` do sprawdzania statusu
-4. 🔄 Dodaj obsługę webhook/notification po zakończeniu generacji
-5. 🔄 Implementuj endpoint do akceptacji/odrzucenia wygenerowanych kart
+1. **Start Simple:** Begin with GET requests before POST/PATCH/DELETE
+2. **Save IDs:** Keep track of created resource IDs for subsequent tests
+3. **Test Order:** Follow logical flow (create → read → update → delete)
+4. **Clean Up:** Delete test data after testing
+5. **Use Variables:** Store common values (tokens, IDs) in variables
+6. **Check Logs:** Monitor server logs for detailed error info
+7. **Test Edge Cases:** Empty strings, very long strings, special characters
+8. **Test Concurrency:** Multiple sessions, simultaneous reviews
 
+---
+
+## Next Steps
+
+1. ✅ Run basic tests without authentication
+2. ⏳ Get Supabase JWT token
+3. ⏳ Run authenticated tests
+4. ⏳ Test all CRUD operations
+5. ⏳ Test SRS flow
+6. ⏳ Test limits and constraints
+7. ⏳ Test error scenarios
+8. ⏳ Integration with frontend
+
+---
+
+## Resources
+
+- [API Documentation](.ai/api-endpoints-implemented.md)
+- [Implementation Plan](.ai/view-implementation-plan-2.md)
+- [Testing Results](.ai/testing-results.md)
+- [Test Scripts](.ai/test-api-endpoints.sh)
