@@ -1,14 +1,14 @@
 // src/pages/api/sets/[setId]/cards/batch.ts
-import type { APIContext } from 'astro';
-import { CardService } from '../../../../../lib/services/card.service';
-import { UuidSchema, BatchCreateCardsSchema } from '../../../../../lib/schemas';
+import type { APIContext } from "astro";
+import { CardService } from "../../../../../lib/services/card.service";
+import { UuidSchema, BatchCreateCardsSchema } from "../../../../../lib/schemas";
 import {
   getMvpUserId,
   parseJsonBody,
   validateParam,
   jsonResponse,
   withErrorHandling,
-} from '../../../../../lib/api-utils';
+} from "../../../../../lib/api-utils";
 
 export const prerender = false;
 
@@ -50,7 +50,7 @@ export const prerender = false;
  */
 export const POST = withErrorHandling(async (context: APIContext) => {
   // 1. Validate UUID parameter
-  const setId = validateParam(context.params.setId, UuidSchema, 'setId');
+  const setId = validateParam(context.params.setId, UuidSchema, "setId");
 
   // 2. MVP: Get hardcoded user ID
   const userId = getMvpUserId();
@@ -65,4 +65,3 @@ export const POST = withErrorHandling(async (context: APIContext) => {
   // 5. Return response with 201 Created status
   return jsonResponse(result, 201);
 });
-

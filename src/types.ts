@@ -1,5 +1,5 @@
 // src/types.ts
-import { Tables, TablesInsert, TablesUpdate, Enums } from "./db/database.types";
+import type { Tables, TablesInsert, TablesUpdate, Enums } from "./db/database.types";
 
 // Common
 export interface PaginationDto {

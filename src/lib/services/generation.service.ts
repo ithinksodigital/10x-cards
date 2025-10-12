@@ -41,6 +41,10 @@ export class GenerationService {
         rejected_count: 0,
         accepted_edited_count: 0,
         accepted_unedited_count: 0,
+        status: 'processing',
+        progress: 0,
+        message: 'Initializing generation...',
+        estimated_completion: new Date(Date.now() + this.calculateEstimatedDuration(command.target_count || 30)).toISOString(),
       })
       .select("id, user_id, model, source_text_hash, source_text_length, created_at")
       .single();
@@ -133,35 +137,103 @@ export class GenerationService {
    * This will call an Edge Function or enqueue a job in a queue
    */
   private async enqueueGenerationJob(generationId: string, command: StartGenerationCommand): Promise<void> {
-    // TODO: Implement actual Edge Function call or job enqueue
-    // For now, this is a placeholder that logs the intent
-    console.log("Enqueueing generation job:", {
+    console.log("Starting simulated generation:", {
       generationId,
       language: command.language,
       targetCount: command.target_count,
     });
 
-    // Example Edge Function call (to be implemented):
-    // const edgeFunctionUrl = import.meta.env.SUPABASE_EDGE_FUNCTION_URL;
-    // await fetch(`${edgeFunctionUrl}/generate-flashcards`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': `Bearer ${import.meta.env.SUPABASE_SERVICE_ROLE_KEY}`
-    //   },
-    //   body: JSON.stringify({
-    //     generation_id: generationId,
-    //     language: command.language,
-    //     target_count: command.target_count
-    //   })
-    // });
+    // Simulate processing time (2-5 seconds)
+    const processingTime = 2000 + Math.random() * 3000;
+    
+    setTimeout(async () => {
+      await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
+    }, processingTime);
+  }
 
-    // Note: The actual AI processing will:
-    // 1. Fetch the generation record by ID
-    // 2. Process the source_text with AI model
-    // 3. Update generation record with results
-    // 4. Create card records
-    // 5. Handle errors and log to generation_error_logs if needed
+  /**
+   * Simulate generation by creating random flashcards from source text
+   */
+  private async simulateGeneration(generationId: string, sourceText: string, targetCount: number): Promise<void> {
+    try {
+      // Update status to processing with progress
+      await this.updateGenerationStatus(generationId, 'processing', 50, 'Generating flashcards...');
+
+      // Split text into sentences and create random flashcards
+      const sentences = sourceText.split(/[.!?]+/).filter(s => s.trim().length > 10);
+      const flashcards = [];
+
+      for (let i = 0; i < Math.min(targetCount, sentences.length); i++) {
+        const sentence = sentences[i].trim();
+        if (sentence.length < 20) continue;
+
+        // Create a simple flashcard by splitting the sentence
+        const words = sentence.split(' ');
+        const midPoint = Math.floor(words.length / 2);
+        
+        const front = words.slice(0, midPoint).join(' ') + '...';
+        const back = words.slice(midPoint).join(' ');
+
+        flashcards.push({
+          id: `card-${generationId}-${i}`,
+          front: front,
+          back: back,
+          source_text_excerpt: sentence.substring(0, 100),
+          ai_confidence_score: 0.7 + Math.random() * 0.3, // Random confidence 0.7-1.0
+          was_edited: false,
+          original_front: front,
+          original_back: back,
+        });
+      }
+
+      // Update generation with completed status and cards
+      await this.updateGenerationStatus(generationId, 'completed', 100, 'Generation completed!', flashcards);
+
+      console.log(`Generated ${flashcards.length} flashcards for generation ${generationId}`);
+
+    } catch (error) {
+      console.error('Simulation generation failed:', error);
+      await this.updateGenerationStatus(generationId, 'failed', 0, 'Generation failed', null, error instanceof Error ? error.message : 'Unknown error');
+    }
+  }
+
+  /**
+   * Update generation status in database
+   */
+  private async updateGenerationStatus(
+    generationId: string, 
+    status: 'processing' | 'completed' | 'failed',
+    progress: number,
+    message: string,
+    cards?: any[],
+    errorMessage?: string
+  ): Promise<void> {
+    const updateData: any = {
+      status,
+      progress,
+      message,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (status === 'completed') {
+      updateData.completed_at = new Date().toISOString();
+      updateData.generated_count = cards?.length || 0;
+      // Store cards as JSON in a temporary field for the API response
+      updateData.cards = cards;
+    } else if (status === 'failed') {
+      updateData.failed_at = new Date().toISOString();
+      updateData.error_message = errorMessage;
+      updateData.error_code = 'SIMULATION_ERROR';
+    }
+
+    const { error } = await this.supabase
+      .from('generations')
+      .update(updateData)
+      .eq('id', generationId);
+
+    if (error) {
+      console.error('Failed to update generation status:', error);
+    }
   }
 
   /**
@@ -175,5 +247,41 @@ export class GenerationService {
     const perCardMs = this.ESTIMATED_MS_PER_CARD * targetCount;
 
     return baseOverheadMs + perCardMs;
+  }
+
+  /**
+   * Retrieves the current status of a generation process
+   */
+  async getGenerationStatus(generationId: string, userId: string): Promise<any | null> {
+    const { data: generation, error } = await this.supabase
+      .from("generations")
+      .select(`
+        id,
+        user_id,
+        status,
+        progress,
+        message,
+        generated_count,
+        accepted_count,
+        rejected_count,
+        created_at,
+        updated_at,
+        completed_at,
+        failed_at,
+        error_message,
+        error_code,
+        estimated_completion,
+        cards
+      `)
+      .eq("id", generationId)
+      .eq("user_id", userId)
+      .single();
+
+    if (error) {
+      console.error("Failed to fetch generation status:", error);
+      return null;
+    }
+
+    return generation;
   }
 }

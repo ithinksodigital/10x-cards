@@ -152,11 +152,13 @@ export const StartSessionSchema = z.object({
     .int()
     .min(0, 'New cards limit must be at least 0')
     .max(20, 'New cards limit must not exceed 20')
+    .optional()
     .default(20),
   review_cards_limit: z.number()
     .int()
     .min(0, 'Review cards limit must be at least 0')
     .max(100, 'Review cards limit must not exceed 100')
+    .optional()
     .default(100),
 });
 
@@ -170,5 +172,25 @@ export const SubmitReviewSchema = z.object({
     .min(1, 'Rating must be at least 1')
     .max(5, 'Rating must be between 1 and 5'),
   session_id: UuidSchema,
+});
+
+// ============================================================================
+// Generations Schemas
+// ============================================================================
+
+/**
+ * Schema for starting a new generation
+ */
+export const StartGenerationSchema = z.object({
+  source_text: z.string()
+    .min(100, 'Source text must be at least 100 characters')
+    .max(15000, 'Source text must not exceed 15,000 characters'),
+  language: z.enum(['pl', 'en', 'es']).optional(),
+  target_count: z.number()
+    .int()
+    .min(1, 'Target count must be at least 1')
+    .max(30, 'Target count must not exceed 30')
+    .optional()
+    .default(30),
 });
 

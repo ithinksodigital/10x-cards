@@ -1,5 +1,5 @@
 // src/lib/services/card.service.ts
-import type { SupabaseClient } from '../db/supabase.client';
+import type { SupabaseClient } from "../../db/supabase.client";
 import type {
   CardDto,
   CardDetailDto,
@@ -9,8 +9,8 @@ import type {
   BatchCreateCardsCommand,
   BatchCreateCardsResponseDto,
   PaginationDto,
-} from '../../types';
-import { NotFoundError, DuplicateCardError, LimitExceededError } from '../errors';
+} from "../../types";
+import { NotFoundError, DuplicateCardError, LimitExceededError } from "../errors";
 
 /**
  * Query parameters for listing cards
@@ -19,9 +19,9 @@ export interface ListCardsQuery {
   page?: number;
   limit?: number;
   search?: string;
-  status?: 'new' | 'learning' | 'review' | 'relearning';
-  sort?: 'created_at' | 'due_at';
-  order?: 'asc' | 'desc';
+  status?: "new" | "learning" | "review" | "relearning";
+  sort?: "created_at" | "due_at";
+  order?: "asc" | "desc";
 }
 
 /**
@@ -38,31 +38,24 @@ export class CardService {
     userId: string,
     query: ListCardsQuery
   ): Promise<{ data: CardDto[]; pagination: PaginationDto }> {
-    const {
-      page = 1,
-      limit = 50,
-      search,
-      status,
-      sort = 'created_at',
-      order = 'desc',
-    } = query;
+    const { page = 1, limit = 50, search, status, sort = "created_at", order = "desc" } = query;
 
     // Calculate offset for pagination
     const offset = (page - 1) * limit;
 
     // Build base query
     let baseQuery = this.supabase
-      .from('cards')
+      .from("cards")
       .select(
-        'id, set_id, user_id, front, back, language, due_at, interval_days, ease_factor, repetitions, status, generation_id, source_text_excerpt, ai_confidence_score, was_edited_after_generation, created_at, updated_at',
-        { count: 'exact' }
+        "id, set_id, user_id, front, back, language, due_at, interval_days, ease_factor, repetitions, status, generation_id, source_text_excerpt, ai_confidence_score, was_edited_after_generation, created_at, updated_at",
+        { count: "exact" }
       )
-      .eq('set_id', setId)
-      .eq('user_id', userId);
+      .eq("set_id", setId)
+      .eq("user_id", userId);
 
     // Apply status filter if provided
     if (status) {
-      baseQuery = baseQuery.eq('status', status);
+      baseQuery = baseQuery.eq("status", status);
     }
 
     // Apply search filter if provided (search in front and back)
@@ -71,7 +64,7 @@ export class CardService {
     }
 
     // Apply sorting
-    baseQuery = baseQuery.order(sort, { ascending: order === 'asc' });
+    baseQuery = baseQuery.order(sort, { ascending: order === "asc" });
 
     // Apply pagination
     baseQuery = baseQuery.range(offset, offset + limit - 1);
@@ -104,14 +97,14 @@ export class CardService {
    */
   async getCard(cardId: string, userId: string): Promise<CardDetailDto> {
     const { data, error } = await this.supabase
-      .from('cards')
-      .select('*')
-      .eq('id', cardId)
-      .eq('user_id', userId)
+      .from("cards")
+      .select("*")
+      .eq("id", cardId)
+      .eq("user_id", userId)
       .single();
 
     if (error || !data) {
-      throw new NotFoundError('Card');
+      throw new NotFoundError("Card");
     }
 
     return data;
@@ -123,26 +116,22 @@ export class CardService {
    * @throws {LimitExceededError} If set or user limit exceeded
    * @throws {DuplicateCardError} If card with same front text exists
    */
-  async createCard(
-    setId: string,
-    command: CreateCardCommand,
-    userId: string
-  ): Promise<CardDto> {
+  async createCard(setId: string, command: CreateCardCommand, userId: string): Promise<CardDto> {
     // 1. Get set and verify ownership
     const { data: set, error: setError } = await this.supabase
-      .from('sets')
-      .select('id, user_id, language, cards_count')
-      .eq('id', setId)
-      .eq('user_id', userId)
+      .from("sets")
+      .select("id, user_id, language, cards_count")
+      .eq("id", setId)
+      .eq("user_id", userId)
       .single();
 
     if (setError || !set) {
-      throw new NotFoundError('Set');
+      throw new NotFoundError("Set");
     }
 
     // 2. Check set limit (200 cards/set)
     if (set.cards_count >= 200) {
-      throw new LimitExceededError('Set has reached maximum of 200 cards', {
+      throw new LimitExceededError("Set has reached maximum of 200 cards", {
         set_limit: 200,
         current_count: set.cards_count,
       });
@@ -150,18 +139,18 @@ export class CardService {
 
     // 3. Get user's total cards count
     const { data: profile, error: profileError } = await this.supabase
-      .from('profiles')
-      .select('cards_count')
-      .eq('id', userId)
+      .from("profiles")
+      .select("cards_count")
+      .eq("id", userId)
       .single();
 
     if (profileError || !profile) {
-      throw new Error('Failed to fetch user profile');
+      throw new Error("Failed to fetch user profile");
     }
 
     // 4. Check user limit (1000 cards/account)
     if (profile.cards_count >= 1000) {
-      throw new LimitExceededError('User has reached maximum of 1000 cards', {
+      throw new LimitExceededError("User has reached maximum of 1000 cards", {
         user_limit: 1000,
         current_count: profile.cards_count,
       });
@@ -175,7 +164,7 @@ export class CardService {
 
     // 6. Insert card
     const { data: card, error: insertError } = await this.supabase
-      .from('cards')
+      .from("cards")
       .insert({
         set_id: setId,
         user_id: userId,
@@ -185,7 +174,7 @@ export class CardService {
         // Defaults will be set by database: status='new', ease_factor=2.5, etc.
       })
       .select(
-        'id, set_id, user_id, front, back, language, due_at, interval_days, ease_factor, repetitions, status, generation_id, source_text_excerpt, ai_confidence_score, was_edited_after_generation, created_at, updated_at'
+        "id, set_id, user_id, front, back, language, due_at, interval_days, ease_factor, repetitions, status, generation_id, source_text_excerpt, ai_confidence_score, was_edited_after_generation, created_at, updated_at"
       )
       .single();
 
@@ -213,26 +202,26 @@ export class CardService {
   ): Promise<BatchCreateCardsResponseDto> {
     // 1. Verify generation belongs to user
     const { data: generation, error: genError } = await this.supabase
-      .from('generations')
-      .select('id, user_id, generated_count, accepted_count, accepted_edited_count, accepted_unedited_count')
-      .eq('id', command.generation_id)
-      .eq('user_id', userId)
+      .from("generations")
+      .select("id, user_id, generated_count, accepted_count, accepted_edited_count, accepted_unedited_count")
+      .eq("id", command.generation_id)
+      .eq("user_id", userId)
       .single();
 
     if (genError || !generation) {
-      throw new NotFoundError('Generation');
+      throw new NotFoundError("Generation");
     }
 
     // 2. Get set and check limits
     const { data: set, error: setError } = await this.supabase
-      .from('sets')
-      .select('id, user_id, language, cards_count')
-      .eq('id', setId)
-      .eq('user_id', userId)
+      .from("sets")
+      .select("id, user_id, language, cards_count")
+      .eq("id", setId)
+      .eq("user_id", userId)
       .single();
 
     if (setError || !set) {
-      throw new NotFoundError('Set');
+      throw new NotFoundError("Set");
     }
 
     const requestedCount = command.cards.length;
@@ -252,13 +241,13 @@ export class CardService {
 
     // 3. Check user limit
     const { data: profile, error: profileError } = await this.supabase
-      .from('profiles')
-      .select('cards_count')
-      .eq('id', userId)
+      .from("profiles")
+      .select("cards_count")
+      .eq("id", userId)
       .single();
 
     if (profileError || !profile) {
-      throw new Error('Failed to fetch user profile');
+      throw new Error("Failed to fetch user profile");
     }
 
     const availableInAccount = 1000 - profile.cards_count;
@@ -294,10 +283,10 @@ export class CardService {
     }));
 
     const { data: insertedCards, error: insertError } = await this.supabase
-      .from('cards')
+      .from("cards")
       .insert(cardsToInsert)
       .select(
-        'id, set_id, user_id, front, back, language, due_at, interval_days, ease_factor, repetitions, status, generation_id, source_text_excerpt, ai_confidence_score, was_edited_after_generation, created_at, updated_at'
+        "id, set_id, user_id, front, back, language, due_at, interval_days, ease_factor, repetitions, status, generation_id, source_text_excerpt, ai_confidence_score, was_edited_after_generation, created_at, updated_at"
       );
 
     if (insertError) {
@@ -309,7 +298,7 @@ export class CardService {
     const uneditedCount = command.cards.length - editedCount;
 
     const { error: updateGenError } = await this.supabase
-      .from('generations')
+      .from("generations")
       .update({
         set_id: setId,
         accepted_count: generation.accepted_count + command.cards.length,
@@ -317,10 +306,10 @@ export class CardService {
         accepted_unedited_count: generation.accepted_unedited_count + uneditedCount,
         rejected_count: generation.generated_count - (generation.accepted_count + command.cards.length),
       })
-      .eq('id', command.generation_id);
+      .eq("id", command.generation_id);
 
     if (updateGenError) {
-      console.error('Failed to update generation stats:', updateGenError);
+      console.error("Failed to update generation stats:", updateGenError);
     }
 
     return {
@@ -336,11 +325,7 @@ export class CardService {
    * @throws {NotFoundError} If card not found
    * @throws {DuplicateCardError} If new front text conflicts
    */
-  async updateCard(
-    cardId: string,
-    command: UpdateCardCommand,
-    userId: string
-  ): Promise<UpdateCardResponseDto> {
+  async updateCard(cardId: string, command: UpdateCardCommand, userId: string): Promise<UpdateCardResponseDto> {
     // 1. Get current card
     const currentCard = await this.getCard(cardId, userId);
 
@@ -358,11 +343,7 @@ export class CardService {
     if (command.front !== undefined) {
       // Check duplicate only if front changes
       if (command.front !== currentCard.front) {
-        const isDuplicate = await this.checkDuplicate(
-          currentCard.set_id,
-          command.front,
-          cardId
-        );
+        const isDuplicate = await this.checkDuplicate(currentCard.set_id, command.front, cardId);
         if (isDuplicate) {
           throw new DuplicateCardError();
         }
@@ -376,12 +357,12 @@ export class CardService {
 
     // 5. Update card
     const { data: updatedCard, error } = await this.supabase
-      .from('cards')
+      .from("cards")
       .update(updateData)
-      .eq('id', cardId)
-      .eq('user_id', userId)
+      .eq("id", cardId)
+      .eq("user_id", userId)
       .select(
-        'id, set_id, user_id, front, back, language, was_edited_after_generation, original_front, original_back, updated_at'
+        "id, set_id, user_id, front, back, language, was_edited_after_generation, original_front, original_back, updated_at"
       )
       .single();
 
@@ -390,7 +371,7 @@ export class CardService {
     }
 
     if (!updatedCard) {
-      throw new NotFoundError('Card');
+      throw new NotFoundError("Card");
     }
 
     return updatedCard;
@@ -401,11 +382,7 @@ export class CardService {
    * @throws {NotFoundError} If card not found
    */
   async deleteCard(cardId: string, userId: string): Promise<void> {
-    const { error } = await this.supabase
-      .from('cards')
-      .delete()
-      .eq('id', cardId)
-      .eq('user_id', userId);
+    const { error } = await this.supabase.from("cards").delete().eq("id", cardId).eq("user_id", userId);
 
     if (error) {
       throw error;
@@ -421,19 +398,15 @@ export class CardService {
    * Check if card with same front text exists in set (case-insensitive)
    * @param excludeCardId Optional card ID to exclude from check (for updates)
    */
-  private async checkDuplicate(
-    setId: string,
-    front: string,
-    excludeCardId?: string
-  ): Promise<boolean> {
+  private async checkDuplicate(setId: string, front: string, excludeCardId?: string): Promise<boolean> {
     let query = this.supabase
-      .from('cards')
-      .select('id', { count: 'exact', head: true })
-      .eq('set_id', setId)
-      .ilike('front', front);
+      .from("cards")
+      .select("id", { count: "exact", head: true })
+      .eq("set_id", setId)
+      .ilike("front", front);
 
     if (excludeCardId) {
-      query = query.neq('id', excludeCardId);
+      query = query.neq("id", excludeCardId);
     }
 
     const { count } = await query;
@@ -457,4 +430,3 @@ export class CardService {
     return Array.from(seen.values());
   }
 }
-

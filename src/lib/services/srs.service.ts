@@ -1,5 +1,5 @@
 // src/lib/services/srs.service.ts
-import type { SupabaseClient } from '../db/supabase.client';
+import type { SupabaseClient } from '../../db/supabase.client';
 import type {
   GetDueCardsResponseDto,
   DueCardDto,
@@ -9,7 +9,7 @@ import type {
   SubmitReviewResponseDto,
   SessionSummaryDto,
 } from '../../types';
-import type { Enums } from '../db/database.types';
+import type { Enums } from '../../db/database.types';
 import { NotFoundError, UnauthorizedError, DailyLimitError } from '../errors';
 import { CardService } from './card.service';
 
@@ -72,25 +72,31 @@ export class SrsService {
     }
 
     // Count new cards
-    const { count: newCount } = await this.supabase
+    let newQuery = this.supabase
       .from('cards')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
-      .eq('status', 'new')
-      .modify((query) => {
-        if (setId) query.eq('set_id', setId);
-      });
+      .eq('status', 'new');
+    
+    if (setId) {
+      newQuery = newQuery.eq('set_id', setId);
+    }
+    
+    const { count: newCount } = await newQuery;
 
     // Count review cards (due today)
-    const { count: reviewCount } = await this.supabase
+    let reviewQuery = this.supabase
       .from('cards')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
       .neq('status', 'new')
-      .lte('due_at', now)
-      .modify((query) => {
-        if (setId) query.eq('set_id', setId);
-      });
+      .lte('due_at', now);
+    
+    if (setId) {
+      reviewQuery = reviewQuery.eq('set_id', setId);
+    }
+    
+    const { count: reviewCount } = await reviewQuery;
 
     // Get daily progress
     const dailyProgress = this.getDailyProgress(userId);

@@ -121,6 +121,8 @@ export function jsonResponse<T>(data: T, status: number = 200): Response {
  */
 export function errorResponse(error: unknown): Response {
   console.error('API Error:', error);
+  console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+  console.error('Error details:', JSON.stringify(error, null, 2));
 
   if (error instanceof ApiError) {
     return new Response(JSON.stringify(error.toJSON()), {
@@ -129,10 +131,10 @@ export function errorResponse(error: unknown): Response {
     });
   }
 
-  // Unknown error - don't leak internal details
+  // Unknown error - don't leak internal details (but log them)
   const errorDto: ErrorResponseDto = {
     error: 'InternalError',
-    message: 'An unexpected error occurred',
+    message: error instanceof Error ? error.message : 'An unexpected error occurred',
     timestamp: new Date().toISOString(),
   };
 

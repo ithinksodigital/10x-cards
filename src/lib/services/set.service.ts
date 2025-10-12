@@ -1,5 +1,5 @@
 // src/lib/services/set.service.ts
-import type { SupabaseClient } from '../db/supabase.client';
+import type { SupabaseClient } from '../../db/supabase.client';
 import type { SetDto, CreateSetCommand, UpdateSetCommand, PaginationDto } from '../../types';
 import { NotFoundError, ConflictError } from '../errors';
 

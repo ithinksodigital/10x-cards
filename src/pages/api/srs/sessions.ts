@@ -48,7 +48,11 @@ export const POST = withErrorHandling(async (context: APIContext) => {
   // 3. Start session via service
   const cardService = new CardService(context.locals.supabase);
   const srsService = new SrsService(context.locals.supabase, cardService);
-  const result = await srsService.startSession(command, userId);
+  const result = await srsService.startSession({
+    set_id: command.set_id,
+    new_cards_limit: command.new_cards_limit ?? 20,
+    review_cards_limit: command.review_cards_limit ?? 100,
+  }, userId);
 
   // 4. Return response with 201 Created status
   return jsonResponse(result, 201);
