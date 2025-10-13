@@ -1,11 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { AuthProvider } from '../../components/auth/AuthProvider';
 import { AuthContainer } from '../../components/auth/AuthContainer';
 
-// Mock user data - will be replaced with actual Supabase integration
-const user = null;
-const session = null;
+export const prerender = false;
 ---
 
 <Layout title="Rejestracja - 10x Cards">
@@ -17,10 +14,7 @@ const session = null;
           Utwórz konto, aby zapisywać i synchronizować swoje fiszki
         </p>
       </div>
-      
-      <AuthProvider client:load initialUser={user} initialSession={session}>
-        <AuthContainer client:load initialMode="register" />
-      </AuthProvider>
+      <AuthContainer client:load initialMode="register" />
     </div>
   </div>
 </Layout>
