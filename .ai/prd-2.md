@@ -5,7 +5,7 @@ Cel: Webowa aplikacja do szybkiego tworzenia i nauki fiszek przy użyciu AI i pr
 
 **NOWA ARCHITEKTURA:** Aplikacja oferuje tryb anonimowy (bez logowania) dla podstawowej funkcjonalności generowania i przeglądu fiszek, oraz tryb uwierzytelniony dla pełnej funkcjonalności z persystencją danych i systemem SRS.
 
-Zakres MVP obejmuje: generację 30 fiszek z tekstu (PL/EN/ES) w trybie anonimowym, manualne tworzenie/edycję/usuwanie fiszek, zarządzanie zestawami, logowanie przez Google (Supabase Auth), integrację z otwartym algorytmem SRS (np. SM‑2), podstawową analitykę, limity danych i dzienne limity SRS.
+Zakres MVP obejmuje: generację 30 fiszek z tekstu (PL/EN/ES) w trybie anonimowym, manualne tworzenie/edycję/usuwanie fiszek, zarządzanie zestawami, logowanie przez email/password (Supabase Auth), integrację z otwartym algorytmem SRS (np. SM‑2), podstawową analitykę, limity danych i dzienne limity SRS.
 
 Docelowy użytkownik na start: osoby uczące się języków.
 
@@ -39,7 +39,7 @@ Manualne przygotowanie dobrych fiszek z dłuższych materiałów jest czasochło
 - **Prompt konwersji:** "Zapisz swoje fiszki do konta" z opcją utworzenia nowego zestawu.
 
 ### 3.4 Uwierzytelnianie i konto
-- Supabase Auth z logowaniem Google; wylogowanie; trwałość sesji; usunięcia konta
+- Supabase Auth z logowaniem email/password; wylogowanie; trwałość sesji; usunięcia konta
 - **Opcjonalne logowanie:** Użytkownicy mogą korzystać z aplikacji bez logowania
 
 ### 3.5 Analityka i jakość
@@ -92,7 +92,7 @@ Tytuł: Prompt do zapisania fiszek do konta
 Opis: Jako użytkownik anonimowy chcę otrzymać propozycję zapisania moich fiszek do konta, aby móc je zachować na stałe.
 Kryteria akceptacji:
 - Po zaakceptowaniu fiszek pojawia się CTA "Zapisz do konta"
-- Kliknięcie przekierowuje do logowania Google
+- Kliknięcie otwiera modal z formularzem email/password
 - Po zalogowaniu użytkownik może przenieść dane z sesji anonimowej
 - Opcja utworzenia nowego zestawu dla przenoszonych fiszek
 
@@ -128,17 +128,17 @@ Kryteria akceptacji:
 ### 5.3 Uwierzytelnianie (zaktualizowane)
 
 **US‑001**
-Tytuł: Opcjonalne logowanie przez Google
-Opis: Jako użytkownik chcę móc zalogować się przez Google, aby zachować moje fiszki i zestawy, ale nie chcę być do tego zmuszany.
+Tytuł: Opcjonalne logowanie przez email/password
+Opis: Jako użytkownik chcę móc zalogować się przez email i hasło, aby zachować moje fiszki i zestawy, ale nie chcę być do tego zmuszany.
 Kryteria akceptacji:
 - Logowanie jest opcjonalne - użytkownik może korzystać z aplikacji bez konta
-- Po zalogowaniu przez Google użytkownik ma dostęp do pełnej funkcjonalności
+- Po zalogowaniu przez email/password użytkownik ma dostęp do pełnej funkcjonalności
 - Sesja utrzymuje się między odświeżeniami przeglądarki
 - Wylogowanie kończy sesję we wszystkich zakładkach
 
 **US‑002**
 Tytuł: Rejestracja i pierwsze logowanie
-Opis: Jako nowy użytkownik chcę utworzyć konto przy pierwszym logowaniu Google, aby od razu rozpocząć pracę z pełną funkcjonalnością.
+Opis: Jako nowy użytkownik chcę utworzyć konto przy pierwszym logowaniu email/password, aby od razu rozpocząć pracę z pełną funkcjonalnością.
 Kryteria akceptacji:
 - Pierwsze logowanie zakłada konto użytkownika
 - Po rejestracji użytkownik widzi ekran bez zestawów (empty state) z CTA do utworzenia zestawu lub wklejenia tekstu do generacji
