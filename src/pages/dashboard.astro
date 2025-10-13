@@ -2,17 +2,10 @@
 import Layout from '../layouts/Layout.astro';
 import { DashboardWrapper } from '../components/auth/DashboardWrapper';
 
-// Mock user data - will be replaced with actual Supabase integration
-const user = {
-  id: 'mock-user-id',
-  email: 'user@example.com',
-  user_metadata: {
-    full_name: 'Jan Kowalski',
-    avatar_url: undefined,
-  },
-};
+// Use authenticated user from middleware (Supabase SSR)
+const user = Astro.locals.user;
 const session = null;
-const isAuthenticated = true; // For dashboard, we assume user is authenticated
+const isAuthenticated = !!user;
 ---
 
 <Layout title="Dashboard - 10x Cards" user={user} session={session} isAuthenticated={isAuthenticated}>

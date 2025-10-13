@@ -14,9 +14,9 @@ interface Props {
 const { 
   title = "10x Cards", 
   requireAuth = false,
-  user = null,
+  user = Astro.locals.user ?? null,
   session = null,
-  isAuthenticated = false
+  isAuthenticated = !!(Astro.locals.user)
 } = Astro.props;
 ---
 

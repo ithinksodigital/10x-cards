@@ -24,17 +24,22 @@ export const AuthContainer: React.FC<AuthContainerProps> = ({
     setError('');
     
     try {
-      // TODO: Implement actual login logic
-      console.log('Login attempt:', data);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Mock delay
-      
+      const resp = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(data),
+      });
+
+      if (!resp.ok) {
+        const payload = await resp.json().catch(() => ({}));
+        const message = payload?.message || 'Nieprawidłowy email lub hasło';
+        throw new Error(message);
+      }
+
       setSuccess(true);
       onSuccess?.('login');
-      
-      // Redirect to dashboard after successful login
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1500);
+      window.location.href = '/dashboard';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Wystąpił błąd logowania');
     } finally {
@@ -47,17 +52,22 @@ export const AuthContainer: React.FC<AuthContainerProps> = ({
     setError('');
     
     try {
-      // TODO: Implement actual registration logic
-      console.log('Registration attempt:', data);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Mock delay
-      
+      const resp = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email: data.email, password: data.password }),
+      });
+
+      if (!resp.ok) {
+        const payload = await resp.json().catch(() => ({}));
+        const message = payload?.message || 'Rejestracja nie powiodła się';
+        throw new Error(message);
+      }
+
       setSuccess(true);
       onSuccess?.('register');
-      
-      // Redirect to dashboard after successful registration
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1500);
+      window.location.href = '/dashboard';
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Wystąpił błąd rejestracji');
     } finally {
