@@ -1,10 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { AuthProvider } from '../../components/auth/AuthProvider';
 
-// Mock user data - will be replaced with actual Supabase integration
-const user = null;
-const session = null;
+export const prerender = false;
 ---
 
 <Layout title="Wylogowywanie - 10x Cards">
@@ -16,37 +13,40 @@ const session = null;
           Wylogowywanie...
         </p>
       </div>
-      
-      <AuthProvider client:load initialUser={user} initialSession={session}>
-        <div id="logout-container">
-          <!-- This will be handled by React component -->
-        </div>
-      </AuthProvider>
+
+      <div id="logout-container" class="text-center space-y-4">
+        <div class="mx-auto w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <p class="text-muted-foreground">Wylogowywanie...</p>
+        <noscript>
+          <form action="/api/auth/logout" method="post" class="mt-4">
+            <button type="submit" class="text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90 transition-colors">
+              Wyloguj teraz
+            </button>
+          </form>
+        </noscript>
+      </div>
     </div>
   </div>
 </Layout>
 
 <script>
-  // Handle logout
-  document.addEventListener('DOMContentLoaded', () => {
+  // Call backend logout API, then redirect
+  document.addEventListener('DOMContentLoaded', async () => {
     const container = document.getElementById('logout-container');
-    
-    if (container) {
-      // Show loading state
-      container.innerHTML = `
-        <div class="text-center space-y-4">
-          <div class="mx-auto w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-muted-foreground">Wylogowywanie...</p>
-        </div>
-      `;
-      
-      // Simulate logout process
-      setTimeout(() => {
-        // Clear any local storage
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+    } catch (e) {
+      // ignore, we still proceed to cleanup and redirect
+    } finally {
+      try {
         localStorage.removeItem('anonymous_session');
         sessionStorage.clear();
-        
-        // Show success message
+      } catch {}
+      if (container) {
         container.innerHTML = `
           <div class="text-center space-y-4">
             <div class="mx-auto w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
@@ -60,12 +60,10 @@ const session = null;
             </div>
           </div>
         `;
-        
-        // Redirect to home page
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1500);
-      }, 1000);
+      }
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 800);
     }
   });
 </script>
