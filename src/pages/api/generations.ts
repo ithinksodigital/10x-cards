@@ -6,7 +6,15 @@ import type { ErrorResponseDto, StartGenerationResponseDto } from "../../types";
 
 // Load environment variables from .env file
 import dotenv from 'dotenv';
-dotenv.config();
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// Get the directory of the current file
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Load .env file from project root
+dotenv.config({ path: join(__dirname, '../../../.env') });
 
 export const prerender = false;
 
@@ -34,16 +42,15 @@ const StartGenerationSchema = z.object({
  * Initiates asynchronous AI flashcard generation from source text.
  * Returns immediately with generation metadata (status "processing").
  *
- * NOTE: MVP version - uses hardcoded user ID for testing.
- * TODO: Implement proper JWT authentication before production.
+ * Allows both authenticated and anonymous users to generate cards.
+ * Anonymous users can generate but cannot save cards to sets.
  */
 export async function POST(context: APIContext): Promise<Response> {
   const supabase = context.locals.supabase;
 
-  // 1. MVP: Use hardcoded user ID for testing
-  // TODO: Replace with proper JWT authentication
-  const HARDCODED_USER_ID = "00000000-0000-0000-0000-000000000001";
-  const userId = HARDCODED_USER_ID;
+  // 1. Check if user is authenticated, otherwise use anonymous ID
+  const user = context.locals.user;
+  const userId = user ? user.id : "anonymous-user";
 
   // 2. Parse and validate request body
   let requestBody: unknown;

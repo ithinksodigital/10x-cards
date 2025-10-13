@@ -22,6 +22,17 @@ export class GenerationService {
    * @returns Configured OpenRouterService instance
    */
   private createOpenRouterService(): OpenRouterService {
+    // Load environment variables if not already loaded
+    if (typeof process !== 'undefined' && !process.env.OPENROUTER_API_KEY) {
+      try {
+        const dotenv = require('dotenv');
+        const path = require('path');
+        dotenv.config({ path: path.join(process.cwd(), '.env') });
+      } catch (e) {
+        console.warn('Could not load dotenv:', e);
+      }
+    }
+
     // Get API key from environment (works in both Deno and Node.js)
     // In Astro, use import.meta.env for client-side and process.env for server-side
     const apiKey = typeof Deno !== 'undefined' 
@@ -201,6 +212,17 @@ export class GenerationService {
 
       if (fetchError || !generation) {
         throw new Error(`Failed to fetch generation record: ${fetchError?.message || 'Generation not found'}`);
+      }
+
+      // Load environment variables if not already loaded
+      if (typeof process !== 'undefined' && !process.env.OPENROUTER_API_KEY) {
+        try {
+          const dotenv = require('dotenv');
+          const path = require('path');
+          dotenv.config({ path: path.join(process.cwd(), '.env') });
+        } catch (e) {
+          console.warn('Could not load dotenv in processGeneration:', e);
+        }
       }
 
       // Check if OpenRouter API key is available

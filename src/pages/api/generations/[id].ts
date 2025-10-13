@@ -26,10 +26,9 @@ export async function GET(context: APIContext): Promise<Response> {
     });
   }
 
-  // MVP: Use hardcoded user ID for testing
-  // TODO: Replace with proper JWT authentication
-  const HARDCODED_USER_ID = "00000000-0000-0000-0000-000000000001";
-  const userId = HARDCODED_USER_ID;
+  // Check if user is authenticated, otherwise use anonymous ID
+  const user = context.locals.user;
+  const userId = user ? user.id : "anonymous-user";
 
   try {
     const generationService = new GenerationService(supabase);

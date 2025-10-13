@@ -30,17 +30,31 @@ export const prerender = false;
  * }
  */
 export const GET = withErrorHandling(async (context: APIContext) => {
-  // 1. MVP: Get hardcoded user ID
-  const userId = getMvpUserId();
+  // 1. Check if user is authenticated
+  const user = context.locals.user;
+  if (!user) {
+    return new Response(JSON.stringify({
+      error: "Unauthorized",
+      message: "Authentication required to access sets",
+      code: "AUTHENTICATION_REQUIRED",
+      timestamp: new Date().toISOString(),
+    }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
-  // 2. Validate query parameters
+  // 2. Use authenticated user ID
+  const userId = user.id;
+
+  // 3. Validate query parameters
   const query = validateQuery(context.url, ListSetsQuerySchema);
 
-  // 3. Get sets via service
+  // 4. Get sets via service
   const setService = new SetService(context.locals.supabase);
   const result = await setService.listSets(userId, query);
 
-  // 4. Return response
+  // 5. Return response
   return jsonResponse(result, 200);
 });
 
@@ -63,17 +77,31 @@ export const GET = withErrorHandling(async (context: APIContext) => {
  * - 409 Conflict - Set name already exists
  */
 export const POST = withErrorHandling(async (context: APIContext) => {
-  // 1. MVP: Get hardcoded user ID
-  const userId = getMvpUserId();
+  // 1. Check if user is authenticated
+  const user = context.locals.user;
+  if (!user) {
+    return new Response(JSON.stringify({
+      error: "Unauthorized",
+      message: "Authentication required to create sets",
+      code: "AUTHENTICATION_REQUIRED",
+      timestamp: new Date().toISOString(),
+    }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
-  // 2. Parse and validate request body
+  // 2. Use authenticated user ID
+  const userId = user.id;
+
+  // 3. Parse and validate request body
   const command = await parseJsonBody(context.request, CreateSetSchema);
 
-  // 3. Create set via service
+  // 4. Create set via service
   const setService = new SetService(context.locals.supabase);
   const newSet = await setService.createSet(command, userId);
 
-  // 4. Return response with 201 Created status
+  // 5. Return response with 201 Created status
   return jsonResponse(newSet, 201);
 });
 

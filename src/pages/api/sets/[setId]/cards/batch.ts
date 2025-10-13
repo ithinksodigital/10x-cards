@@ -49,19 +49,33 @@ export const prerender = false;
  * - 422 Unprocessable Entity - Limit exceeded
  */
 export const POST = withErrorHandling(async (context: APIContext) => {
-  // 1. Validate UUID parameter
+  // 1. Check if user is authenticated
+  const user = context.locals.user;
+  if (!user) {
+    return new Response(JSON.stringify({
+      error: "Unauthorized",
+      message: "Authentication required to save cards to sets",
+      code: "AUTHENTICATION_REQUIRED",
+      timestamp: new Date().toISOString(),
+    }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // 2. Validate UUID parameter
   const setId = validateParam(context.params.setId, UuidSchema, "setId");
 
-  // 2. MVP: Get hardcoded user ID
-  const userId = getMvpUserId();
+  // 3. Use authenticated user ID
+  const userId = user.id;
 
-  // 3. Parse and validate request body
+  // 4. Parse and validate request body
   const command = await parseJsonBody(context.request, BatchCreateCardsSchema);
 
-  // 4. Batch create cards via service
+  // 5. Batch create cards via service
   const cardService = new CardService(context.locals.supabase);
   const result = await cardService.batchCreateCards(setId, command, userId);
 
-  // 5. Return response with 201 Created status
+  // 6. Return response with 201 Created status
   return jsonResponse(result, 201);
 });

@@ -9,6 +9,7 @@ const PUBLIC_PATHS = new Set([
   "/api/auth/login",
   "/api/auth/register",
   "/api/auth/logout",
+  "/api/generations", // Allow anonymous generation
 ]);
 
 export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
