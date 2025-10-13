@@ -1,12 +1,23 @@
 ---
 import "../styles/global.css";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
+import { StaticUserMenu } from "../components/auth/StaticUserMenu";
 
 interface Props {
   title?: string;
+  requireAuth?: boolean;
+  user?: any;
+  session?: any;
+  isAuthenticated?: boolean;
 }
 
-const { title = "10x Astro Starter" } = Astro.props;
+const { 
+  title = "10x Cards", 
+  requireAuth = false,
+  user = null,
+  session = null,
+  isAuthenticated = false
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -20,11 +31,45 @@ const { title = "10x Astro Starter" } = Astro.props;
   </head>
   <body>
     <div class="min-h-screen bg-background text-foreground">
-      <!-- Header with theme toggle -->
+      <!-- Header with theme toggle and auth -->
       <header class="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 class="text-xl font-semibold text-foreground">10x Cards</h1>
-          <ThemeToggle client:load />
+          <div class="flex items-center gap-4">
+            <a href="/" class="text-xl font-semibold text-foreground hover:text-primary transition-colors">
+              10x Cards
+            </a>
+            <nav class="hidden md:flex items-center gap-4">
+              <a href="/generate" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Generuj fiszki
+              </a>
+              {isAuthenticated && (
+                <a href="/dashboard" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Dashboard
+                </a>
+              )}
+            </nav>
+          </div>
+          <div class="flex items-center gap-2">
+            {isAuthenticated ? (
+              <StaticUserMenu client:load user={user} />
+            ) : (
+              <div class="flex items-center gap-2">
+                <a 
+                  href="/auth/login" 
+                  class="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Zaloguj się
+                </a>
+                <a 
+                  href="/auth/register" 
+                  class="text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90 transition-colors"
+                >
+                  Utwórz konto
+                </a>
+              </div>
+            )}
+            <ThemeToggle client:load />
+          </div>
         </div>
       </header>
       

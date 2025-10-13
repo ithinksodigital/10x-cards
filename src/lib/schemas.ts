@@ -194,3 +194,110 @@ export const StartGenerationSchema = z.object({
     .default(30),
 });
 
+// ============================================================================
+// Authentication Schemas
+// ============================================================================
+
+/**
+ * Schema for user login
+ */
+export const LoginFormSchema = z.object({
+  email: z.string()
+    .email('Nieprawidłowy adres email')
+    .min(1, 'Email jest wymagany'),
+  password: z.string()
+    .min(6, 'Hasło musi mieć co najmniej 6 znaków')
+    .max(100, 'Hasło nie może przekraczać 100 znaków'),
+});
+
+/**
+ * Schema for user registration
+ */
+export const RegisterFormSchema = z.object({
+  email: z.string()
+    .email('Nieprawidłowy adres email')
+    .min(1, 'Email jest wymagany'),
+  password: z.string()
+    .min(6, 'Hasło musi mieć co najmniej 6 znaków')
+    .max(100, 'Hasło nie może przekraczać 100 znaków'),
+  confirmPassword: z.string()
+    .min(1, 'Potwierdzenie hasła jest wymagane'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Hasła nie są identyczne",
+  path: ["confirmPassword"],
+});
+
+/**
+ * Schema for password reset request
+ */
+export const ForgotPasswordSchema = z.object({
+  email: z.string()
+    .email('Nieprawidłowy adres email')
+    .min(1, 'Email jest wymagany'),
+});
+
+/**
+ * Schema for password reset
+ */
+export const ResetPasswordSchema = z.object({
+  password: z.string()
+    .min(6, 'Hasło musi mieć co najmniej 6 znaków')
+    .max(100, 'Hasło nie może przekraczać 100 znaków'),
+  confirmPassword: z.string()
+    .min(1, 'Potwierdzenie hasła jest wymagane'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Hasła nie są identyczne",
+  path: ["confirmPassword"],
+});
+
+/**
+ * Schema for anonymous session data
+ */
+export const AnonymousSessionDataSchema = z.object({
+  sessionId: z.string().uuid('Nieprawidłowy ID sesji'),
+  generatedCards: z.array(z.object({
+    id: z.string().uuid(),
+    front: z.string().min(1).max(200),
+    back: z.string().min(1).max(500),
+    language: z.string(),
+    isAccepted: z.boolean(),
+    isEdited: z.boolean(),
+    editedFront: z.string().optional(),
+    editedBack: z.string().optional(),
+  })),
+  reviewState: z.object({
+    currentBatch: z.number().int().min(0),
+    totalBatches: z.number().int().min(1),
+    acceptedCards: z.array(z.string().uuid()),
+    rejectedCards: z.array(z.string().uuid()),
+    undoHistory: z.array(z.any()),
+  }),
+  createdAt: z.string().datetime(),
+  expiresAt: z.string().datetime(),
+});
+
+/**
+ * Schema for migration request
+ */
+export const MigrationRequestSchema = z.object({
+  anonymousData: AnonymousSessionDataSchema,
+  targetSetId: z.string().uuid('Nieprawidłowy ID zestawu').optional(),
+  newSetName: z.string()
+    .min(1, 'Nazwa zestawu jest wymagana')
+    .max(100, 'Nazwa zestawu zbyt długa')
+    .optional(),
+}).refine(
+  (data) => data.targetSetId || data.newSetName,
+  'Musisz wybrać zestaw docelowy lub podać nazwę nowego zestawu'
+);
+
+/**
+ * Schema for anonymous generation (without authentication)
+ */
+export const AnonymousGenerateSchema = z.object({
+  text: z.string()
+    .min(100, 'Tekst musi mieć co najmniej 100 znaków')
+    .max(15000, 'Tekst nie może przekraczać 15000 znaków'),
+  language: z.enum(['pl', 'en', 'es']).optional(),
+});
+
