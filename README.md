@@ -178,11 +178,12 @@ curl -X POST http://localhost:4321/api/srs/sessions \
 
 ### Features
 - ✅ **Type-safe validation** with Zod schemas
-- ✅ **Rate limiting** (3 generations/hour for anonymous, 50/hour for authenticated)
+- ✅ **Anonymous user support** via generation endpoints
 - ✅ **Row Level Security** (RLS) for data isolation
 - ✅ **Pagination and filtering** for large datasets
 - ✅ **Error handling** with consistent response format
 - ✅ **SM-2 algorithm** for intelligent review scheduling
+- ✅ **Complete frontend generation flow** with React components
 
 ## 7. Project scope
 
@@ -210,9 +211,10 @@ This application implements a complete flashcard learning system with the follow
 - **Rate limiting** to prevent abuse and control costs
 
 ### Data Limits
-- **Anonymous users**: 3 generations/hour, local storage only
+- **Anonymous users**: Supported via `/api/generations` endpoint (uses "anonymous-user" ID)
 - **Authenticated users**: 1,000 cards/account, 200 cards/set
 - **Daily SRS limits**: 20 new cards, 100 reviews per day
+- **Rate limiting**: Built-in protection for both anonymous and authenticated users
 
 For detailed requirements and specifications, see:
 - [Product Requirements Document (PRD v2)](.ai/prd-2.md)
@@ -227,15 +229,17 @@ For detailed requirements and specifications, see:
   - ✅ **Database Schema**: Complete with RLS policies
   - ✅ **AI Generation**: Complete with OpenRouter integration
   - ✅ **SRS System**: Complete with SM-2 algorithm
-  - 🚧 **Authentication**: Mock implementation (Supabase integration in progress)
-  - 🚧 **Frontend UI**: Generation flow complete, auth components in progress
-  - 🚧 **Anonymous Mode**: Architecture planned, implementation pending
+  - ✅ **Anonymous Mode**: Complete (generations endpoint supports anonymous users)
+  - ✅ **Frontend UI**: Generation flow complete with full React components
+  - 🚧 **Authentication**: Mock implementation (Supabase integration pending)
 
 ### Recent Updates
 - **October 2025**: Complete REST API implementation with 15 endpoints
 - **October 2025**: Full database schema with migrations and RLS
 - **October 2025**: AI generation service with rate limiting
 - **October 2025**: SRS system with SM-2 algorithm implementation
+- **October 2025**: Anonymous mode support in generation endpoints
+- **October 2025**: Complete frontend generation flow with React components
 
 ## 9. License
 
