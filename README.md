@@ -2,7 +2,7 @@
 
 ![Version](https://img.shields.io/badge/version-0.0.1-informational) ![Node](https://img.shields.io/badge/node-22.14.0-339933?logo=node.js&logoColor=white) ![Astro](https://img.shields.io/badge/astro-5-FF5D01?logo=astro&logoColor=white) ![React](https://img.shields.io/badge/react-19-61DAFB?logo=react&logoColor=061F2F) ![License](https://img.shields.io/badge/license-MIT-blue)
 
-A modern, opinionated starter for building fast, accessible, and AI‑friendly web applications with Astro and React.
+A modern web application for creating and learning flashcards using AI and spaced repetition system (SRS). Transform long text content into interactive flashcards with intelligent review scheduling.
 
 ### Table of contents
 - [1. Project name](#1-project-name)
@@ -21,18 +21,44 @@ A modern, opinionated starter for building fast, accessible, and AI‑friendly w
 
 ## 2. Project description
 
-An Astro 5 + React 19 starter template focused on performance, accessibility, and developer experience. It includes a sensible project structure, Tailwind 4 styling, and UI building blocks, along with linting and formatting for consistent code quality.
+**10x Cards** is a web application that enables users to quickly create high-quality flashcards from long text content using AI. The application features:
+
+- **AI-powered flashcard generation** from text input (PL/EN/ES languages)
+- **Anonymous mode** for immediate value without registration
+- **Authenticated mode** with full persistence and SRS (Spaced Repetition System)
+- **Smart review scheduling** using SM-2 algorithm
+- **Interactive card review** with swipe gestures and bulk actions
+- **Data migration** from anonymous to authenticated sessions
+
+The application follows a simple linear flow: **paste → generate → review/edit → save to set → start learning session**.
 
 ## 3. Tech stack
 
-- **Astro**: 5.x (app uses `astro` ^5.13.7)
-- **React**: 19.x (app uses `react` ^19.1.1)
+### Frontend
+- **Astro**: 5.x (SSR with islands architecture)
+- **React**: 19.x (interactive components)
 - **TypeScript**: 5.x
 - **Tailwind CSS**: 4.x (via `@tailwindcss/vite`)
-- **UI utilities**: `class-variance-authority`, `tailwind-merge`, `lucide-react`, Radix primitives
-- **Tooling**: ESLint 9, Prettier, Husky, lint-staged
+- **UI Components**: shadcn/ui with Radix primitives
+- **Form Handling**: react-hook-form with Zod validation
+- **Icons**: Lucide React
 
-See `src/components/ui/` for ready-to-use UI components and `src/styles/global.css` for base styles.
+### Backend & Database
+- **Supabase**: PostgreSQL + Auth + RLS + Edge Functions
+- **Authentication**: Supabase Auth (email/password)
+- **Database**: PostgreSQL with Row Level Security (RLS)
+- **API**: Astro API routes with server-side rendering
+
+### AI & Services
+- **AI Generation**: OpenRouter.ai integration
+- **SRS Algorithm**: SM-2 spaced repetition system
+- **Rate Limiting**: Built-in for anonymous and authenticated users
+
+### Development Tools
+- **Linting**: ESLint 9 with TypeScript support
+- **Formatting**: Prettier with Astro plugin
+- **Git Hooks**: Husky + lint-staged
+- **Type Safety**: Full TypeScript coverage
 
 ## 4. Getting started locally
 
@@ -91,74 +117,125 @@ npm run format    # Format with Prettier
 
 ## 6. API Endpoints
 
-### POST /api/generations
+The application provides a comprehensive REST API for flashcard management, AI generation, and spaced repetition learning.
 
-Inicjuje asynchroniczną generację fiszek AI z podanego tekstu źródłowego.
+### Core Endpoints
 
-**Dokumentacja:** Zobacz [API Endpoint: POST /api/generations](.ai/api-endpoint-generations.md) dla pełnej dokumentacji.
+#### Flashcard Generation
+- `POST /api/generations` - Start AI-powered flashcard generation from text
+- `GET /api/generations/:id` - Check generation status and retrieve results
 
-**Quick start (MVP - bez autoryzacji):**
+#### Sets Management
+- `GET /api/sets` - List user's flashcard sets (with pagination, search, sorting)
+- `POST /api/sets` - Create a new flashcard set
+- `GET /api/sets/:id` - Get specific set details
+- `PATCH /api/sets/:id` - Update set name
+- `DELETE /api/sets/:id` - Delete set and all associated cards
 
+#### Cards Management
+- `GET /api/sets/:setId/cards` - List cards in a set (with filtering)
+- `POST /api/sets/:setId/cards` - Create a new card manually
+- `POST /api/sets/:setId/cards/batch` - Batch create cards from AI generation
+- `GET /api/cards/:id` - Get specific card details
+- `PATCH /api/cards/:id` - Update card content
+- `DELETE /api/cards/:id` - Delete a card
+
+#### Spaced Repetition System (SRS)
+- `GET /api/srs/due` - Get cards due for review today
+- `POST /api/srs/sessions` - Start a new learning session
+- `POST /api/srs/reviews` - Submit card review with rating (SM-2 algorithm)
+- `GET /api/srs/sessions/:id/summary` - Get session summary and statistics
+
+### Authentication & User Management
+- `POST /api/auth/login` - User login (email/password)
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/logout` - User logout
+- `POST /api/migrate/anonymous-to-account` - Migrate anonymous session data
+
+### Example Usage
+
+**Generate flashcards from text:**
 ```bash
 curl -X POST http://localhost:4321/api/generations \
   -H "Content-Type: application/json" \
   -d '{
-    "source_text": "Twój tekst edukacyjny (100-15000 znaków)...",
-    "language": "pl",
-    "target_count": 20
+    "source_text": "Your educational text (100-15000 characters)...",
+    "language": "en",
+    "target_count": 30
   }'
 ```
 
-> **⚠️ MVP:** Endpoint używa hardcoded user ID. Autoryzacja JWT zostanie dodana w przyszłości.
-
-**Response (202 Accepted):**
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "user_id": "123e4567-e89b-12d3-a456-426614174000",
-  "model": "gpt-4o",
-  "source_text_hash": "a591a6d40bf420404a011733cfb7b190...",
-  "source_text_length": 456,
-  "created_at": "2025-10-09T12:34:56.789Z",
-  "status": "processing",
-  "estimated_duration_ms": 6500
-}
+**Start a learning session:**
+```bash
+curl -X POST http://localhost:4321/api/srs/sessions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "set_id": "550e8400-e29b-41d4-a716-446655440000",
+    "new_cards_limit": 20,
+    "review_cards_limit": 100
+  }'
 ```
 
-**Funkcje:**
-- ⚠️ Walidacja JWT (wyłączona w MVP - hardcoded user ID)
-- ✅ Walidacja request body (Zod schema)
-- ✅ Rate limiting (10 generacji/godzinę)
-- ✅ SHA-256 hash dla deduplikacji
-- ✅ Asynchroniczne przetwarzanie w tle
-
-**Przewodnik testowania:** Zobacz [Testing Guide](.ai/testing-guide.md) dla szczegółowych scenariuszy testowych.
-
-### Planowane endpointy
-
-- `GET /api/generations/:id` - Sprawdzenie statusu generacji
-- `GET /api/generations` - Lista generacji użytkownika
-- `POST /api/generations/:id/retry` - Ponowienie nieudanej generacji
-- `POST /api/cards/batch` - Batch create cards from generation
-- `GET /api/sets` - Lista zestawów fiszek
-- `POST /api/sets` - Utworzenie nowego zestawu
-- `GET /api/cards/due` - Fiszki do nauki (SRS)
-- `POST /api/sessions` - Rozpoczęcie sesji nauki
+### Features
+- ✅ **Type-safe validation** with Zod schemas
+- ✅ **Rate limiting** (3 generations/hour for anonymous, 50/hour for authenticated)
+- ✅ **Row Level Security** (RLS) for data isolation
+- ✅ **Pagination and filtering** for large datasets
+- ✅ **Error handling** with consistent response format
+- ✅ **SM-2 algorithm** for intelligent review scheduling
 
 ## 7. Project scope
 
-This repository serves as a foundation for building modern, content-focused applications using Astro and React:
-- Preconfigured styling with Tailwind 4
-- UI primitives and utilities to build accessible components
-- Opinionated code quality setup (ESLint + Prettier)
-- Clear, scalable file structure ready for pages, APIs, and middleware
+This application implements a complete flashcard learning system with the following key features:
 
-If your product requires additional domain specifics (features, user roles, or data model), capture them in a `PRD` and link it here.
+### Core Functionality
+- **AI-powered flashcard generation** from text content (100-15,000 characters)
+- **Anonymous mode** for immediate value without registration barriers
+- **Authenticated mode** with full data persistence and advanced features
+- **Spaced Repetition System (SRS)** using SM-2 algorithm for optimal learning
+- **Interactive card review** with swipe gestures and bulk actions
+- **Data migration** from anonymous sessions to user accounts
+
+### User Experience
+- **Progressive enhancement** - works without JavaScript for basic functionality
+- **Mobile-first design** with touch gesture support
+- **Real-time progress tracking** and learning analytics
+- **Multi-language support** (Polish, English, Spanish)
+
+### Technical Features
+- **Server-side rendering** with Astro for fast initial load
+- **Client-side interactivity** with React for rich user experience
+- **Type-safe API** with comprehensive validation
+- **Row Level Security** for data isolation and privacy
+- **Rate limiting** to prevent abuse and control costs
+
+### Data Limits
+- **Anonymous users**: 3 generations/hour, local storage only
+- **Authenticated users**: 1,000 cards/account, 200 cards/set
+- **Daily SRS limits**: 20 new cards, 100 reviews per day
+
+For detailed requirements and specifications, see:
+- [Product Requirements Document (PRD v2)](.ai/prd-2.md)
+- [Authentication Architecture](.ai/auth-spec.md)
 
 ## 8. Project status
 
-- Version: `0.0.1`
-- Status: Active development (pre-release)
+- **Version**: `0.0.1`
+- **Status**: Active development (MVP phase)
+- **Implementation Progress**:
+  - ✅ **Backend API**: Complete (15/15 endpoints implemented)
+  - ✅ **Database Schema**: Complete with RLS policies
+  - ✅ **AI Generation**: Complete with OpenRouter integration
+  - ✅ **SRS System**: Complete with SM-2 algorithm
+  - 🚧 **Authentication**: Mock implementation (Supabase integration in progress)
+  - 🚧 **Frontend UI**: Generation flow complete, auth components in progress
+  - 🚧 **Anonymous Mode**: Architecture planned, implementation pending
+
+### Recent Updates
+- **October 2025**: Complete REST API implementation with 15 endpoints
+- **October 2025**: Full database schema with migrations and RLS
+- **October 2025**: AI generation service with rate limiting
+- **October 2025**: SRS system with SM-2 algorithm implementation
 
 ## 9. License
 
