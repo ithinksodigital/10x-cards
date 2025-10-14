@@ -60,6 +60,14 @@ The application follows a simple linear flow: **paste → generate → review/ed
 - **Git Hooks**: Husky + lint-staged
 - **Type Safety**: Full TypeScript coverage
 
+### Testing Framework
+- **Unit/Integration Tests**: Vitest 2.x with React Testing Library
+- **E2E Tests**: Playwright 1.47.x (Chrome, Firefox, Safari)
+- **Mocking**: MSW (Mock Service Worker) for API mocking
+- **Accessibility**: @axe-core/playwright for automated a11y testing
+- **Coverage**: Vitest coverage with v8 provider
+- **Performance**: Lighthouse CLI for Core Web Vitals
+
 ## 4. Getting started locally
 
 ### Prerequisites
@@ -113,6 +121,12 @@ npm run astro     # Run Astro CLI directly
 npm run lint      # Run ESLint
 npm run lint:fix  # Auto-fix ESLint issues
 npm run format    # Format with Prettier
+
+# Testing commands (to be added)
+npm run test      # Run unit and integration tests (Vitest)
+npm run test:e2e  # Run end-to-end tests (Playwright)
+npm run test:coverage # Generate coverage report
+npm run test:ui   # Open Vitest UI for interactive testing
 ```
 
 ## 6. API Endpoints
@@ -184,6 +198,9 @@ curl -X POST http://localhost:4321/api/srs/sessions \
 - ✅ **Error handling** with consistent response format
 - ✅ **SM-2 algorithm** for intelligent review scheduling
 - ✅ **Complete frontend generation flow** with React components
+- ✅ **Comprehensive testing suite** with unit, integration, and E2E tests
+- ✅ **Automated accessibility testing** with axe-core
+- ✅ **Performance monitoring** with Lighthouse audits
 
 ## 7. Project scope
 
@@ -233,6 +250,7 @@ For detailed requirements and specifications, see:
   - ✅ **Frontend UI**: Generation flow complete with full React components
   - ✅ **Supabase Integration**: Complete (auth endpoints, middleware, services)
   - 🚧 **Frontend Auth Components**: Mock implementation (needs connection to Supabase endpoints)
+  - 🚧 **Testing Infrastructure**: Planned (Vitest + Playwright + MSW setup in progress)
 
 ### Recent Updates
 - **October 2025**: Complete REST API implementation with 15 endpoints
@@ -242,6 +260,7 @@ For detailed requirements and specifications, see:
 - **October 2025**: Anonymous mode support in generation endpoints
 - **October 2025**: Complete frontend generation flow with React components
 - **October 2025**: Full Supabase integration (auth endpoints, middleware, services)
+- **January 2025**: Comprehensive testing plan with Vitest, Playwright, and MSW
 
 ## 9. License
 

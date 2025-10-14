@@ -58,14 +58,24 @@ Reguły/ograniczenia:
 - Supabase JS v2
 - framer-motion ^11 lub @use-gesture/react ^10
 
+## Testowanie
+- **Unit/Integration**: Vitest 2.x + React Testing Library 16.x
+- **E2E**: Playwright 1.47.x (Chrome, Firefox, Safari)
+- **Mocking**: MSW 2.x (Mock Service Worker)
+- **Accessibility**: @axe-core/playwright 4.x
+- **Coverage**: @vitest/coverage-v8
+- **Performance**: Lighthouse CLI 12.x
+
 ## Niegotowe/poza MVP
 - Tailwind 4 i React 19 (rozważ po potwierdzeniu pełnej kompatybilności)
 - DigitalOcean + Docker (dopiero gdy potrzebny custom runtime)
 - Import plików (PDF/DOCX), współdzielenie zestawów, aplikacje natywne
+- **Testowanie zaawansowane**: k6/Artillery (load testing), ZAP/Burp (pentesting), Percy/Chromatic (visual regression)
 
 ## Ryzyka i mitigacje (skrót)
 - Latencja/koszt AI: backoff/fallback, ograniczanie tokenów, deduplikacja, cache promptów
 - Błędy/timeouty: retry z limitem, czytelne komunikaty + opcja ponowienia
 - Jakość generacji: walidacja limitów 200/500, wykrywanie duplikatów w batchu, ręczna edycja przed zapisem
+- **Testowanie**: kompleksowy plan testów (unit/integration/E2E) z coverage ≥90%, RLS verification, a11y compliance
 
 
