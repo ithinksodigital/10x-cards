@@ -25,8 +25,8 @@ test.describe('Home Page', () => {
     const homeLink = page.locator('a[href="/"]')
     await expect(homeLink).toBeVisible()
     
-    // Check for generate link (Polish text)
-    const generateLink = page.locator('a[href="/generate"]')
+    // Check for generate link (Polish text) - specifically the desktop version
+    const generateLink = page.locator('nav.hidden.md\\:flex a[href="/generate"]')
     await expect(generateLink).toBeVisible()
   })
 

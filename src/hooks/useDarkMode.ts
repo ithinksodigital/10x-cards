@@ -5,9 +5,6 @@ export function useDarkMode() {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    // Check if we're in the browser
-    if (typeof window === 'undefined') return;
-    
     // Check if user has a saved preference
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -24,9 +21,6 @@ export function useDarkMode() {
   }, []);
 
   const toggleDarkMode = () => {
-    // Check if we're in the browser
-    if (typeof window === 'undefined') return;
-    
     const newIsDark = !isDark;
     setIsDark(newIsDark);
     
