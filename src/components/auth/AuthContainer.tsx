@@ -39,7 +39,8 @@ export const AuthContainer: React.FC<AuthContainerProps> = ({
 
       setSuccess(true);
       onSuccess?.('login');
-      window.location.href = '/dashboard';
+      // Use window.location.replace to avoid back button issues
+      window.location.replace('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Wystąpił błąd logowania');
     } finally {
@@ -67,7 +68,8 @@ export const AuthContainer: React.FC<AuthContainerProps> = ({
 
       setSuccess(true);
       onSuccess?.('register');
-      window.location.href = '/dashboard';
+      // Use window.location.replace to avoid back button issues
+      window.location.replace('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Wystąpił błąd rejestracji');
     } finally {

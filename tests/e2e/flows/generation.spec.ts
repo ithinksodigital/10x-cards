@@ -7,8 +7,12 @@ test.describe('Card Generation Flow', () => {
     await page.waitForLoadState('networkidle')
     await page.fill('input[type="email"]', 'test@example.com')
     await page.fill('input[type="password"]', 'password123')
-    await page.click('button[type="submit"]')
-    await page.waitForURL('/dashboard')
+    
+    // Submit form and wait for navigation
+    await Promise.all([
+      page.waitForURL('/dashboard'),
+      page.click('button[type="submit"]')
+    ])
   })
 
   test('should navigate to generation page', async ({ page }) => {
