@@ -1,5 +1,5 @@
 // src/hooks/useGenerationApi.ts
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useApiRetry } from './useRetry';
 import type { 
   StartGenerationCommand, 
@@ -141,24 +141,78 @@ export function useProgressPolling(
   const { interval = 2000, timeout = 60000, onError } = options;
   const [isPolling, setIsPolling] = useState(false);
   const [pollingError, setPollingError] = useState<string | null>(null);
+  
+  // Use refs to track polling state and cleanup
+  const pollingRef = useRef<{
+    isActive: boolean;
+    timeoutId: NodeJS.Timeout | null;
+    consecutiveErrors: number;
+    lastRequestTime: number;
+    currentRequest: Promise<Response> | null;
+  }>({
+    isActive: false,
+    timeoutId: null,
+    consecutiveErrors: 0,
+    lastRequestTime: 0,
+    currentRequest: null,
+  });
 
   const startPolling = useCallback(async () => {
     if (!generationId) return;
 
+    // Clean up any existing polling
+    if (pollingRef.current.timeoutId) {
+      clearTimeout(pollingRef.current.timeoutId);
+    }
+
     setIsPolling(true);
     setPollingError(null);
+    pollingRef.current.isActive = true;
+    pollingRef.current.consecutiveErrors = 0;
+    pollingRef.current.lastRequestTime = 0;
     
     const startTime = Date.now();
     let backoffDelay = 1000; // Start with 1s delay
 
     const poll = async (): Promise<void> => {
+      // Check if polling was stopped
+      if (!pollingRef.current.isActive) {
+        return;
+      }
+
       try {
         // Check timeout
         if (Date.now() - startTime > timeout) {
           throw new Error('Generation timeout. Please try again.');
         }
 
-        const response = await fetch(`/api/generations/${generationId}`);
+        // Throttle requests to prevent resource exhaustion
+        const now = Date.now();
+        const timeSinceLastRequest = now - pollingRef.current.lastRequestTime;
+        const minInterval = 500; // Minimum 500ms between requests
+        
+        if (timeSinceLastRequest < minInterval) {
+          const delay = minInterval - timeSinceLastRequest;
+          pollingRef.current.timeoutId = setTimeout(poll, delay);
+          return;
+        }
+
+        pollingRef.current.lastRequestTime = now;
+
+        // Prevent duplicate requests
+        if (pollingRef.current.currentRequest) {
+          console.warn(`Request already in progress for generation ${generationId}, skipping...`);
+          pollingRef.current.timeoutId = setTimeout(poll, backoffDelay);
+          return;
+        }
+
+        const requestPromise = fetch(`/api/generations/${generationId}`, {
+          signal: AbortSignal.timeout(10000), // 10s timeout per request
+        });
+        
+        pollingRef.current.currentRequest = requestPromise;
+        const response = await requestPromise;
+        pollingRef.current.currentRequest = null;
         
         if (!response.ok) {
           if (response.status === 401) {
@@ -166,7 +220,11 @@ export function useProgressPolling(
           }
           
           if (response.status === 404) {
-            throw new Error('Generation not found.');
+            // For 404 errors, continue polling for a bit longer as the generation might still be processing
+            console.warn(`Generation ${generationId} not found yet, continuing to poll...`);
+            pollingRef.current.timeoutId = setTimeout(poll, backoffDelay);
+            backoffDelay = Math.min(backoffDelay * 1.2, 3000); // Slower backoff for 404s
+            return;
           }
           
           if (response.status >= 500) {
@@ -178,21 +236,50 @@ export function useProgressPolling(
 
         const data: ProcessingGenerationDto | CompletedGenerationDto | FailedGenerationDto = await response.json();
         
+        // Reset error counter on successful request
+        pollingRef.current.consecutiveErrors = 0;
         onUpdate(data);
 
         // Stop polling if generation is completed or failed
         if (data.status === 'completed' || data.status === 'failed') {
+          pollingRef.current.isActive = false;
           setIsPolling(false);
           return;
         }
 
         // Continue polling with exponential backoff
-        setTimeout(poll, backoffDelay);
+        pollingRef.current.timeoutId = setTimeout(poll, backoffDelay);
         backoffDelay = Math.min(backoffDelay * 1.5, 5000); // Max 5s delay
 
       } catch (err) {
+        // Clear current request on error
+        pollingRef.current.currentRequest = null;
+        pollingRef.current.consecutiveErrors++;
+        
+        // Circuit breaker: stop polling after too many consecutive errors
+        if (pollingRef.current.consecutiveErrors >= 10) {
+          console.error(`Too many consecutive errors (${pollingRef.current.consecutiveErrors}) for generation ${generationId}, stopping polling`);
+          pollingRef.current.isActive = false;
+          setIsPolling(false);
+          setPollingError('Too many connection errors. Please refresh the page and try again.');
+          if (onError) {
+            onError('Too many connection errors. Please refresh the page and try again.');
+          }
+          return;
+        }
+
+        // Handle network errors more gracefully
+        if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+          console.warn(`Network error while polling generation ${generationId} (attempt ${pollingRef.current.consecutiveErrors}), retrying...`);
+          // For network errors, retry with exponential backoff
+          pollingRef.current.timeoutId = setTimeout(poll, backoffDelay);
+          backoffDelay = Math.min(backoffDelay * 1.5, 5000);
+          return;
+        }
+        
         const errorMessage = err instanceof Error ? err.message : 'Polling error occurred';
         setPollingError(errorMessage);
+        pollingRef.current.isActive = false;
         setIsPolling(false);
         
         if (onError) {
@@ -206,8 +293,22 @@ export function useProgressPolling(
   }, [generationId, onUpdate, interval, timeout, onError]);
 
   const stopPolling = useCallback(() => {
+    pollingRef.current.isActive = false;
+    if (pollingRef.current.timeoutId) {
+      clearTimeout(pollingRef.current.timeoutId);
+      pollingRef.current.timeoutId = null;
+    }
+    // Clear any pending request
+    pollingRef.current.currentRequest = null;
     setIsPolling(false);
   }, []);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopPolling();
+    };
+  }, [stopPolling]);
 
   return {
     isPolling,

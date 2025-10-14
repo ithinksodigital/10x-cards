@@ -37,7 +37,7 @@ export async function GET(context: APIContext): Promise<Response> {
     if (!generation) {
       const errorResponse: ErrorResponseDto = {
         error: "NotFound",
-        message: "Generation not found",
+        message: `Generation with ID ${generationId} not found`,
         timestamp: new Date().toISOString(),
       };
       return new Response(JSON.stringify(errorResponse), {

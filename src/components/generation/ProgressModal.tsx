@@ -69,6 +69,11 @@ export function ProgressModal({
       stopPolling();
       setCurrentStatus(null);
     }
+    
+    // Cleanup on unmount
+    return () => {
+      stopPolling();
+    };
   }, [isOpen, generationId, startPolling, stopPolling]);
 
   // Calculate time remaining based on estimated duration

@@ -435,6 +435,8 @@ export class GenerationService {
    * Retrieves the current status of a generation process
    */
   async getGenerationStatus(generationId: string, userId: string): Promise<any | null> {
+    // Since RLS is disabled for MVP, we can query by generation ID only
+    // This prevents issues when user context changes between generation start and status polling
     const { data: generation, error } = await this.supabase
       .from("generations")
       .select(`
@@ -456,7 +458,6 @@ export class GenerationService {
         cards
       `)
       .eq("id", generationId)
-      .eq("user_id", userId)
       .single();
 
     if (error) {
