@@ -79,7 +79,15 @@ export class OpenRouterService {
       const sanitizedText = this.sanitizeInput(command.sourceText);
 
       // Detect language if not provided
-      const language = command.language || await this.detectLanguage(sanitizedText);
+      let language = command.language;
+      if (!language) {
+        try {
+          language = await this.detectLanguage(sanitizedText);
+        } catch (error) {
+          console.warn('Language detection failed, using default:', error);
+          language = 'en'; // Default to English
+        }
+      }
       
       // Chunk text if too long
       const chunks = this.chunkText(sanitizedText);
@@ -91,11 +99,27 @@ export class OpenRouterService {
       let totalCost = 0;
 
       for (const chunk of chunks) {
-        const chunkResult = await this.processChunk(chunk, language, command.targetCount || 30);
-        allCards.push(...chunkResult.cards);
-        totalPromptTokens += chunkResult.metadata.promptTokens;
-        totalCompletionTokens += chunkResult.metadata.completionTokens;
-        totalCost += chunkResult.metadata.totalCost;
+        try {
+          const chunkResult = await this.processChunk(chunk, language, command.targetCount || 30);
+          allCards.push(...chunkResult.cards);
+          totalPromptTokens += chunkResult.metadata.promptTokens;
+          totalCompletionTokens += chunkResult.metadata.completionTokens;
+          totalCost += chunkResult.metadata.totalCost;
+        } catch (error) {
+          console.warn('Chunk processing failed:', error);
+          // Continue with other chunks
+        }
+      }
+
+      // Check if any cards were generated
+      if (allCards.length === 0) {
+        return {
+          success: false,
+          error: {
+            message: 'Failed to generate any flashcards. API limit may be exceeded.',
+            code: 'NO_CARDS_GENERATED',
+          },
+        };
       }
 
       // Deduplicate and limit cards

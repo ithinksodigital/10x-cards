@@ -51,6 +51,18 @@ const {
                 </a>
               )}
             </nav>
+            
+            <!-- Mobile navigation -->
+            <nav class="md:hidden flex items-center gap-4">
+              <a href="/generate" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Generuj fiszki
+              </a>
+              {isAuthenticated && (
+                <a href="/dashboard" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Dashboard
+                </a>
+              )}
+            </nav>
           </div>
           <div class="flex items-center gap-2">
             {isAuthenticated ? (

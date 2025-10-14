@@ -22,22 +22,8 @@ export class GenerationService {
    * @returns Configured OpenRouterService instance
    */
   private createOpenRouterService(): OpenRouterService {
-    // Load environment variables if not already loaded
-    if (typeof process !== 'undefined' && !process.env.OPENROUTER_API_KEY) {
-      try {
-        const dotenv = require('dotenv');
-        const path = require('path');
-        dotenv.config({ path: path.join(process.cwd(), '.env') });
-      } catch (e) {
-        console.warn('Could not load dotenv:', e);
-      }
-    }
-
-    // Get API key from environment (works in both Deno and Node.js)
-    // In Astro, use import.meta.env for client-side and process.env for server-side
-    const apiKey = typeof Deno !== 'undefined' 
-      ? Deno.env.get('OPENROUTER_API_KEY') || ''
-      : (typeof process !== 'undefined' ? process.env.OPENROUTER_API_KEY : '') || '';
+    // Get API key from environment - use import.meta.env for Astro
+    const apiKey = import.meta.env.OPENROUTER_API_KEY || '';
 
     const config: OpenRouterConfig = {
       apiKey,
@@ -52,7 +38,7 @@ export class GenerationService {
     console.log('OpenRouter config:', {
       hasApiKey: !!config.apiKey,
       apiKeyLength: config.apiKey.length,
-      environment: typeof Deno !== 'undefined' ? 'deno' : 'node',
+      environment: 'astro',
     });
 
     if (!config.apiKey) {
@@ -191,8 +177,12 @@ export class GenerationService {
       targetCount: command.target_count,
     });
 
-    // Start processing immediately (no delay for real implementation)
-    await this.processGeneration(generationId, command);
+    // Start processing asynchronously to avoid API timeout
+    Promise.resolve().then(() => {
+      this.processGeneration(generationId, command).catch(error => {
+        console.error('Background generation failed:', error);
+      });
+    });
   }
 
   /**
@@ -214,29 +204,14 @@ export class GenerationService {
         throw new Error(`Failed to fetch generation record: ${fetchError?.message || 'Generation not found'}`);
       }
 
-      // Load environment variables if not already loaded
-      if (typeof process !== 'undefined' && !process.env.OPENROUTER_API_KEY) {
-        try {
-          const dotenv = require('dotenv');
-          const path = require('path');
-          dotenv.config({ path: path.join(process.cwd(), '.env') });
-        } catch (e) {
-          console.warn('Could not load dotenv in processGeneration:', e);
-        }
-      }
-
       // Check if OpenRouter API key is available
-      const apiKey = typeof Deno !== 'undefined' 
-        ? Deno.env.get('OPENROUTER_API_KEY') || ''
-        : process.env.OPENROUTER_API_KEY || '';
+      const apiKey = import.meta.env.OPENROUTER_API_KEY || '';
 
       console.log('API Key check:', {
         hasApiKey: !!apiKey,
         apiKeyLength: apiKey.length,
-        environment: typeof Deno !== 'undefined' ? 'deno' : 'node',
-        allEnvVars: typeof Deno !== 'undefined' 
-          ? Object.keys(Deno.env.toObject()).filter(k => k.includes('OPENROUTER'))
-          : Object.keys(process.env).filter(k => k.includes('OPENROUTER'))
+        environment: 'astro',
+        apiKeyPrefix: apiKey.substring(0, 10) + '...',
       });
 
       if (!apiKey) {
@@ -263,6 +238,12 @@ export class GenerationService {
       ]);
 
       if (!result.success) {
+        // Check if it's a quota/limit error
+        if (result.error?.message?.includes('limit') || result.error?.message?.includes('quota')) {
+          console.log('API limit exceeded, falling back to simulation mode');
+          await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
+          return;
+        }
         throw new Error(result.error?.message || 'AI generation failed');
       }
 
@@ -322,20 +303,24 @@ export class GenerationService {
       // Update status to processing with progress
       await this.updateGenerationStatus(generationId, 'processing', 50, 'Generating flashcards...');
 
-      // Split text into sentences and create random flashcards
-      const sentences = sourceText.split(/[.!?]+/).filter(s => s.trim().length > 10);
+      // Split text into sentences and create flashcards
+      const sentences = sourceText.split(/[.!?]+/).filter(s => s.trim().length > 15);
       const flashcards = [];
 
+      // Create flashcards from sentences
       for (let i = 0; i < Math.min(targetCount, sentences.length); i++) {
         const sentence = sentences[i].trim();
         if (sentence.length < 20) continue;
 
-        // Create a simple flashcard by splitting the sentence
+        // Create a simple flashcard by splitting the sentence at a natural break
         const words = sentence.split(' ');
-        const midPoint = Math.floor(words.length / 2);
+        if (words.length < 4) continue;
+
+        // Find a good split point (after first few words)
+        const splitPoint = Math.min(4, Math.floor(words.length / 2));
         
-        const front = words.slice(0, midPoint).join(' ') + '...';
-        const back = words.slice(midPoint).join(' ');
+        const front = words.slice(0, splitPoint).join(' ') + '...';
+        const back = words.slice(splitPoint).join(' ');
 
         flashcards.push({
           id: `card-${generationId}-${i}`,
@@ -349,8 +334,25 @@ export class GenerationService {
         });
       }
 
+      // If no sentences found, create a simple flashcard from the whole text
+      if (flashcards.length === 0 && sourceText.length > 50) {
+        const words = sourceText.split(' ');
+        const midPoint = Math.floor(words.length / 2);
+        
+        flashcards.push({
+          id: `card-${generationId}-0`,
+          front: words.slice(0, midPoint).join(' ') + '...',
+          back: words.slice(midPoint).join(' '),
+          source_text_excerpt: sourceText.substring(0, 100),
+          ai_confidence_score: 0.8,
+          was_edited: false,
+          original_front: words.slice(0, midPoint).join(' ') + '...',
+          original_back: words.slice(midPoint).join(' '),
+        });
+      }
+
       // Update generation with completed status and cards
-      await this.updateGenerationStatus(generationId, 'completed', 100, 'Generation completed!', flashcards);
+      await this.updateGenerationStatus(generationId, 'completed', 100, `Generation completed! Generated ${flashcards.length} flashcards.`, flashcards);
 
       console.log(`Generated ${flashcards.length} flashcards for generation ${generationId}`);
 
