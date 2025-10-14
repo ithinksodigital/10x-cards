@@ -16,8 +16,8 @@ test.describe('Card Generation Flow', () => {
   })
 
   test('should navigate to generation page', async ({ page }) => {
-    // Click on generate button or link (Polish text)
-    await page.click('text=Generuj fiszki')
+    // Click on generate button or link (English text)
+    await page.click('text=Generate New Cards')
     
     // Should navigate to generation page
     await page.waitForURL('/generate')
@@ -27,18 +27,22 @@ test.describe('Card Generation Flow', () => {
     
     // Check if generation form is visible
     await expect(page.locator('textarea')).toBeVisible()
-    await expect(page.locator('button:has-text("Generuj")')).toBeVisible()
+    await expect(page.locator('button:has-text("Generate Flashcards")')).toBeVisible()
   })
 
   test('should show validation for empty text input', async ({ page }) => {
     await page.goto('/generate')
     await page.waitForLoadState('networkidle')
     
-    // Try to submit empty form
-    await page.click('button:has-text("Generuj")')
+    // Check that submit button is disabled for empty form
+    const submitButton = page.locator('button:has-text("Generate Flashcards")')
+    await expect(submitButton).toBeDisabled()
     
-    // Check for validation error (Polish text)
-    await expect(page.locator('text=Tekst jest wymagany')).toBeVisible()
+    // Type some text but not enough (less than 100 characters)
+    await page.fill('textarea', 'Short text')
+    
+    // Check for validation message (English text)
+    await expect(page.locator('text=Text must be at least 100 characters')).toBeVisible()
   })
 
   test('should show character count', async ({ page }) => {
@@ -51,9 +55,9 @@ test.describe('Card Generation Flow', () => {
     // Type text
     await textarea.fill(testText)
     
-    // Check if character count is displayed (Polish text)
-    await expect(page.locator('text=Znaki:')).toBeVisible()
-    await expect(page.locator('text=Znaki:')).toContainText(testText.length.toString())
+    // Check if character count is displayed (English text)
+    await expect(page.locator('text=/\\d+ / 15,000/')).toBeVisible()
+    await expect(page.locator('text=/\\d+ / 15,000/')).toContainText(testText.length.toString())
   })
 
   test('should handle text input limits', async ({ page }) => {
@@ -61,16 +65,16 @@ test.describe('Card Generation Flow', () => {
     await page.waitForLoadState('networkidle')
     
     const textarea = page.locator('textarea')
-    const longText = 'a'.repeat(10001) // Exceed 10k character limit
+    const longText = 'a'.repeat(15001) // Exceed 15k character limit
     
     // Try to input text exceeding limit
     await textarea.fill(longText)
     
-    // Check for limit warning (Polish text)
-    await expect(page.locator('text=Tekst przekracza maksymalną długość')).toBeVisible()
+    // Check for limit warning (English text)
+    await expect(page.locator('text=Text must not exceed 15000 characters')).toBeVisible()
     
     // Submit button should be disabled
-    const submitButton = page.locator('button:has-text("Generuj")')
+    const submitButton = page.locator('button:has-text("Generate Flashcards")')
     await expect(submitButton).toBeDisabled()
   })
 
@@ -85,10 +89,10 @@ test.describe('Card Generation Flow', () => {
     await textarea.fill(testText)
     
     // Submit form
-    await page.click('button:has-text("Generuj")')
+    await page.click('button:has-text("Generate Flashcards")')
     
-    // Wait for generation to complete (Polish text)
-    await expect(page.locator('text=Generowanie fiszek...')).toBeVisible()
+    // Wait for generation to complete (English text)
+    await expect(page.locator('text=Generating...')).toBeVisible()
     
     // Wait for results
     await expect(page.locator('[data-testid="generated-cards"]')).toBeVisible({ timeout: 30000 })
@@ -104,8 +108,8 @@ test.describe('Card Generation Flow', () => {
     
     // Generate cards first
     const textarea = page.locator('textarea')
-    await textarea.fill('Test text for card generation.')
-    await page.click('button:has-text("Generuj")')
+    await textarea.fill('React is a JavaScript library for building user interfaces. It was created by Facebook and is now maintained by the community. React allows developers to create reusable UI components and build complex applications with ease. The library uses a virtual DOM to optimize rendering performance and provides a declarative approach to building user interfaces.')
+    await page.click('button:has-text("Generate Flashcards")')
     
     // Wait for cards to be generated
     await expect(page.locator('[data-testid="generated-cards"]')).toBeVisible({ timeout: 30000 })
@@ -125,8 +129,8 @@ test.describe('Card Generation Flow', () => {
     
     // Generate cards first
     const textarea = page.locator('textarea')
-    await textarea.fill('Test text for card generation.')
-    await page.click('button:has-text("Generuj")')
+    await textarea.fill('React is a JavaScript library for building user interfaces. It was created by Facebook and is now maintained by the community. React allows developers to create reusable UI components and build complex applications with ease. The library uses a virtual DOM to optimize rendering performance and provides a declarative approach to building user interfaces.')
+    await page.click('button:has-text("Generate Flashcards")')
     
     // Wait for cards to be generated
     await expect(page.locator('[data-testid="generated-cards"]')).toBeVisible({ timeout: 30000 })
@@ -162,13 +166,13 @@ test.describe('Card Generation Flow', () => {
     })
     
     const textarea = page.locator('textarea')
-    await textarea.fill('Test text for card generation.')
-    await page.click('button:has-text("Generuj")')
+    await textarea.fill('React is a JavaScript library for building user interfaces. It was created by Facebook and is now maintained by the community. React allows developers to create reusable UI components and build complex applications with ease. The library uses a virtual DOM to optimize rendering performance and provides a declarative approach to building user interfaces.')
+    await page.click('button:has-text("Generate Flashcards")')
     
-    // Check for error message (Polish text)
-    await expect(page.locator('text=Generowanie fiszek nie powiodło się')).toBeVisible()
+    // Check for error message (English text)
+    await expect(page.locator('text=Generation Failed')).toBeVisible()
     
-    // Check if retry button is available (Polish text)
-    await expect(page.locator('button:has-text("Spróbuj ponownie")')).toBeVisible()
+    // Check if retry button is available (English text)
+    await expect(page.locator('button:has-text("Try Again")')).toBeVisible()
   })
 })
