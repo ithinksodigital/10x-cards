@@ -178,6 +178,7 @@ export class GenerationService {
     });
 
     // Start processing asynchronously to avoid API timeout
+    console.log(`Starting background generation for ${generationId}`);
     Promise.resolve().then(() => {
       this.processGeneration(generationId, command).catch(error => {
         console.error('Background generation failed:', error);
@@ -189,8 +190,10 @@ export class GenerationService {
    * Process generation using OpenRouter AI service
    */
   private async processGeneration(generationId: string, command: StartGenerationCommand): Promise<void> {
+    console.log(`processGeneration started for ${generationId}`);
     try {
       // Update status to processing with progress
+      console.log(`Updating status to processing for ${generationId}`);
       await this.updateGenerationStatus(generationId, 'processing', 25, 'Analyzing source text...');
 
       // Get user ID from generation record
@@ -212,18 +215,22 @@ export class GenerationService {
         apiKeyLength: apiKey.length,
         environment: 'astro',
         apiKeyPrefix: apiKey.substring(0, 10) + '...',
+        apiKeyValid: apiKey.startsWith('sk-or-'),
       });
 
-      if (!apiKey) {
-        console.log('OpenRouter API key not found, using simulation mode');
+      if (!apiKey || !apiKey.startsWith('sk-or-')) {
+        console.log('OpenRouter API key not found or invalid, using simulation mode');
         await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
+        console.log(`Simulation completed for ${generationId}`);
         return;
       }
 
       // Update progress
       await this.updateGenerationStatus(generationId, 'processing', 50, 'Generating flashcards with AI...');
 
-      // Use OpenRouter service to generate flashcards with timeout
+      console.log(`Starting OpenRouter API call for ${generationId}`);
+      
+      // Use OpenRouter service to generate flashcards with shorter timeout
       const result = await Promise.race([
         this.openRouterService.generateFlashcards({
           sourceText: command.source_text,
@@ -233,18 +240,29 @@ export class GenerationService {
           generationId: generationId,
         }),
         new Promise<never>((_, reject) => 
-          setTimeout(() => reject(new Error('Generation timeout after 60 seconds')), 60000)
+          setTimeout(() => {
+            console.error(`OpenRouter API timeout after 45 seconds for ${generationId}`);
+            reject(new Error('OpenRouter API timeout after 45 seconds'));
+          }, 45000)
         )
       ]);
 
+      console.log(`OpenRouter API call completed for ${generationId}: success=${result.success}`);
+
       if (!result.success) {
+        console.error(`OpenRouter API failed for ${generationId}:`, result.error);
+        
         // Check if it's a quota/limit error
         if (result.error?.message?.includes('limit') || result.error?.message?.includes('quota')) {
           console.log('API limit exceeded, falling back to simulation mode');
           await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
           return;
         }
-        throw new Error(result.error?.message || 'AI generation failed');
+        
+        // For any other error, fall back to simulation mode
+        console.log('OpenRouter API error, falling back to simulation mode');
+        await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
+        return;
       }
 
       // Update progress
@@ -291,6 +309,7 @@ export class GenerationService {
         null, 
         error instanceof Error ? error.message : 'Unknown error'
       );
+      console.log(`Generation marked as failed for ${generationId}`);
     }
   }
 

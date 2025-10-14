@@ -1,5 +1,8 @@
 // src/hooks/useGenerationApi.ts
 import { useState, useCallback, useRef, useEffect } from 'react';
+
+// Global polling state to prevent multiple instances
+const globalPollingState = new Map<string, boolean>();
 import { useApiRetry } from './useRetry';
 import type { 
   StartGenerationCommand, 
@@ -138,7 +141,7 @@ export function useProgressPolling(
     onError?: (error: string) => void;
   } = {}
 ) {
-  const { interval = 2000, timeout = 60000, onError } = options;
+  const { interval = 5000, timeout = 60000, onError } = options; // Reduced from 2s to 5s
   const [isPolling, setIsPolling] = useState(false);
   const [pollingError, setPollingError] = useState<string | null>(null);
   
@@ -160,11 +163,27 @@ export function useProgressPolling(
   const startPolling = useCallback(async () => {
     if (!generationId) return;
 
+    // Global check to prevent multiple polling instances across components
+    if (globalPollingState.get(generationId)) {
+      console.warn(`Global polling already active for generation ${generationId}, ignoring start request`);
+      return;
+    }
+
+    // Prevent multiple polling instances
+    if (pollingRef.current.isActive) {
+      console.warn(`Polling already active for generation ${generationId}, ignoring start request`);
+      return;
+    }
+
+    // Mark as active globally
+    globalPollingState.set(generationId, true);
+
     // Clean up any existing polling
     if (pollingRef.current.timeoutId) {
       clearTimeout(pollingRef.current.timeoutId);
     }
 
+    console.log(`Starting polling for generation ${generationId}`);
     setIsPolling(true);
     setPollingError(null);
     pollingRef.current.isActive = true;
@@ -172,7 +191,9 @@ export function useProgressPolling(
     pollingRef.current.lastRequestTime = 0;
     
     const startTime = Date.now();
-    let backoffDelay = 1000; // Start with 1s delay
+    let backoffDelay = 15000; // Start with 15s delay - AI needs time to process
+    let lastProgress = 0;
+    let pollCount = 0;
 
     const poll = async (): Promise<void> => {
       // Check if polling was stopped
@@ -189,7 +210,7 @@ export function useProgressPolling(
         // Throttle requests to prevent resource exhaustion
         const now = Date.now();
         const timeSinceLastRequest = now - pollingRef.current.lastRequestTime;
-        const minInterval = 500; // Minimum 500ms between requests
+        const minInterval = 2000; // Minimum 2s between requests (AI needs time)
         
         if (timeSinceLastRequest < minInterval) {
           const delay = minInterval - timeSinceLastRequest;
@@ -242,14 +263,71 @@ export function useProgressPolling(
 
         // Stop polling if generation is completed or failed
         if (data.status === 'completed' || data.status === 'failed') {
+          console.log(`Generation ${generationId} finished with status: ${data.status}`);
           pollingRef.current.isActive = false;
+          globalPollingState.delete(generationId);
           setIsPolling(false);
           return;
         }
 
-        // Continue polling with exponential backoff
+        // Add polling counter and strict limits
+        pollCount++;
+        console.log(`Poll #${pollCount} for generation ${generationId}: status=${data.status}, progress=${(data as any).progress || 'N/A'}`);
+        
+        // EMERGENCY BRAKE: Stop after 6 polls (should be enough for AI generation)
+        if (pollCount > 6) {
+          console.error(`EMERGENCY STOP: Too many polls (${pollCount}) for generation ${generationId}`);
+          pollingRef.current.isActive = false;
+          globalPollingState.delete(generationId);
+          setIsPolling(false);
+          setPollingError('Generation is taking too long. Please refresh and try again.');
+          if (onError) {
+            onError('Generation is taking too long. Please refresh and try again.');
+          }
+          return;
+        }
+
+        // Time-based emergency brake: Stop after 1 minute regardless
+        if (Date.now() - startTime > 60000) {
+          console.error(`EMERGENCY STOP: Timeout after 1 minute for generation ${generationId}`);
+          pollingRef.current.isActive = false;
+          globalPollingState.delete(generationId);
+          setIsPolling(false);
+          setPollingError('Generation timeout. Please refresh and try again.');
+          if (onError) {
+            onError('Generation timeout. Please refresh and try again.');
+          }
+          return;
+        }
+
+        // Smart polling: adjust frequency based on progress and time elapsed
+        if (data.status === 'processing') {
+          const processingData = data as ProcessingGenerationDto;
+          const currentProgress = processingData.progress || 0;
+          const timeElapsed = Date.now() - startTime;
+          
+          // If progress is moving, poll more frequently
+          if (currentProgress > lastProgress) {
+            backoffDelay = 10000; // 10s when making progress
+          } else {
+            // If no progress, poll less frequently - AI needs time
+            // Increase delay as time passes (AI might be working harder)
+            if (timeElapsed > 30000) { // After 30s, poll less frequently
+              backoffDelay = Math.min(backoffDelay * 1.3, 25000); // Max 25s when stalled
+            } else {
+              backoffDelay = Math.min(backoffDelay * 1.2, 20000); // Max 20s when stalled
+            }
+          }
+          
+          lastProgress = currentProgress;
+        } else {
+          // For other statuses, use standard backoff
+          backoffDelay = Math.min(backoffDelay * 1.2, 15000);
+        }
+
+        // Continue polling with smart delay
+        console.log(`Next poll in ${backoffDelay}ms`);
         pollingRef.current.timeoutId = setTimeout(poll, backoffDelay);
-        backoffDelay = Math.min(backoffDelay * 1.5, 5000); // Max 5s delay
 
       } catch (err) {
         // Clear current request on error
@@ -293,7 +371,9 @@ export function useProgressPolling(
   }, [generationId, onUpdate, interval, timeout, onError]);
 
   const stopPolling = useCallback(() => {
+    console.log(`Stopping polling for generation ${generationId}`);
     pollingRef.current.isActive = false;
+    globalPollingState.delete(generationId);
     if (pollingRef.current.timeoutId) {
       clearTimeout(pollingRef.current.timeoutId);
       pollingRef.current.timeoutId = null;
@@ -301,7 +381,7 @@ export function useProgressPolling(
     // Clear any pending request
     pollingRef.current.currentRequest = null;
     setIsPolling(false);
-  }, []);
+  }, [generationId]);
 
   // Cleanup on unmount
   useEffect(() => {

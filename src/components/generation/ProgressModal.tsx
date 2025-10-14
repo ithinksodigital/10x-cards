@@ -54,7 +54,8 @@ export function ProgressModal({
       }
     },
     {
-      timeout: 60000, // 60 seconds
+      interval: 15000, // 15 seconds base interval - AI needs time
+      timeout: 180000, // 3 minutes timeout (AI generation can take longer)
       onError: (error) => {
         onFailed(error);
       },
@@ -63,15 +64,20 @@ export function ProgressModal({
 
   // Start polling when modal opens
   useEffect(() => {
+    console.log(`ProgressModal effect: isOpen=${isOpen}, generationId=${generationId}`);
+    
     if (isOpen && generationId) {
+      console.log(`Starting polling for modal with generation ${generationId}`);
       startPolling();
     } else {
+      console.log(`Stopping polling for modal`);
       stopPolling();
       setCurrentStatus(null);
     }
     
     // Cleanup on unmount
     return () => {
+      console.log(`ProgressModal cleanup: stopping polling`);
       stopPolling();
     };
   }, [isOpen, generationId, startPolling, stopPolling]);
@@ -80,7 +86,7 @@ export function ProgressModal({
   useEffect(() => {
     if (currentStatus?.status === 'processing') {
       const processingData = currentStatus as ProcessingGenerationDto;
-      const estimatedTotal = 30000; // 30 seconds estimated
+      const estimatedTotal = 60000; // 60 seconds estimated for AI generation
       const elapsed = (100 - processingData.progress) / 100 * estimatedTotal;
       setTimeRemaining(Math.max(0, Math.round(elapsed / 1000)));
     } else {
