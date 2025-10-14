@@ -14,6 +14,9 @@ test.describe('Home Page', () => {
   })
 
   test('should have proper navigation', async ({ page }) => {
+    // Set desktop viewport to ensure navigation is visible
+    await page.setViewportSize({ width: 1024, height: 768 })
+    
     // Check if navigation elements are present (desktop only)
     const nav = page.locator('nav.hidden.md\\:flex')
     await expect(nav).toBeVisible()

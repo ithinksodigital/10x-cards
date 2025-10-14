@@ -16,8 +16,8 @@ test.describe('Card Generation Flow', () => {
   })
 
   test('should navigate to generation page', async ({ page }) => {
-    // Click on generate button or link (English text)
-    await page.click('text=Generate New Cards')
+    // Click on generate link (Polish text)
+    await page.click('text=Generuj fiszki')
     
     // Should navigate to generation page
     await page.waitForURL('/generate')
@@ -107,8 +107,12 @@ test.describe('Card Generation Flow', () => {
     await textarea.fill('React is a JavaScript library for building user interfaces. It was created by Facebook and is now maintained by the community. React allows developers to create reusable UI components and build complex applications with ease. The library uses a virtual DOM to optimize rendering performance and provides a declarative approach to building user interfaces.')
     await page.click('button:has-text("Generate Flashcards")')
     
+    // Wait for progress modal to appear and disappear
+    await expect(page.locator('text=Generating...')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('text=Generating...')).not.toBeVisible({ timeout: 30000 })
+    
     // Wait for cards to be generated
-    await expect(page.locator('[data-testid="generated-cards"]')).toBeVisible({ timeout: 30000 })
+    await expect(page.locator('[data-testid="generated-cards"]')).toBeVisible({ timeout: 10000 })
     
     // Click edit button on first card (using aria-label)
     const firstCard = page.locator('[data-testid="card"]').first()
@@ -128,8 +132,12 @@ test.describe('Card Generation Flow', () => {
     await textarea.fill('React is a JavaScript library for building user interfaces. It was created by Facebook and is now maintained by the community. React allows developers to create reusable UI components and build complex applications with ease. The library uses a virtual DOM to optimize rendering performance and provides a declarative approach to building user interfaces.')
     await page.click('button:has-text("Generate Flashcards")')
     
+    // Wait for progress modal to appear and disappear
+    await expect(page.locator('text=Generating...')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('text=Generating...')).not.toBeVisible({ timeout: 30000 })
+    
     // Wait for cards to be generated
-    await expect(page.locator('[data-testid="card"]').first()).toBeVisible({ timeout: 30000 })
+    await expect(page.locator('[data-testid="card"]').first()).toBeVisible({ timeout: 10000 })
     
     // Accept several cards first (click accept button on multiple cards)
     const cards = page.locator('[data-testid="card"]')

@@ -13,7 +13,7 @@ export type SupabaseClient = typeof supabaseClient;
 
 export const cookieOptions: CookieOptionsWithName = {
   path: "/",
-  secure: true,
+  secure: false, // Changed to false for localhost testing
   httpOnly: true,
   sameSite: "lax",
 };
