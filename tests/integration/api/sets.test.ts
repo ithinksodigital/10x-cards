@@ -24,7 +24,7 @@ describe('Sets API Integration', () => {
 
       expect(response.status).toBe(200)
       expect(Array.isArray(data)).toBe(true)
-      expect(data).toHaveLength(2) // Based on mock data
+      expect(data).toHaveLength(3) // Based on mock data
     })
 
     it('should handle server errors', async () => {
@@ -186,7 +186,7 @@ describe('Sets API Integration', () => {
     })
 
     it('should return empty array for set with no cards', async () => {
-      const setId = 'set-1' // Use empty set
+      const setId = 'set-3' // Use set with no cards
 
       const response = await fetch(`${API_BASE}/sets/${setId}/cards`)
       const data = await response.json()

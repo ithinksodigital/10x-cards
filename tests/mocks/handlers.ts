@@ -24,6 +24,14 @@ const mockSets = [
     user_id: 'test-user-id',
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: 'set-3',
+    name: 'Empty Set',
+    description: 'Set with no cards',
+    user_id: 'test-user-id',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z'
   }
 ]
 
@@ -33,6 +41,15 @@ const mockCards = [
     front: 'Test front',
     back: 'Test back',
     set_id: 'set-1',
+    user_id: 'test-user-id',
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z'
+  },
+  {
+    id: 'card-2',
+    front: 'Test front 2',
+    back: 'Test back 2',
+    set_id: 'set-2',
     user_id: 'test-user-id',
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z'
