@@ -64,23 +64,23 @@ export function ProgressModal({
 
   // Start polling when modal opens
   useEffect(() => {
-    console.log(`ProgressModal effect: isOpen=${isOpen}, generationId=${generationId}`);
+    console.log(`📱 ProgressModal effect: isOpen=${isOpen}, generationId=${generationId}`);
     
     if (isOpen && generationId) {
-      console.log(`Starting polling for modal with generation ${generationId}`);
+      console.log(`🚀 Starting polling for modal with generation ${generationId}`);
       startPolling();
     } else {
-      console.log(`Stopping polling for modal`);
+      console.log(`🛑 Stopping polling for modal`);
       stopPolling();
       setCurrentStatus(null);
     }
     
     // Cleanup on unmount
     return () => {
-      console.log(`ProgressModal cleanup: stopping polling`);
+      console.log(`🧹 ProgressModal cleanup: stopping polling`);
       stopPolling();
     };
-  }, [isOpen, generationId, startPolling, stopPolling]);
+  }, [isOpen, generationId]); // Remove startPolling and stopPolling from dependencies!
 
   // Calculate time remaining based on estimated duration
   useEffect(() => {

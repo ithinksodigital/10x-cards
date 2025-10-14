@@ -165,7 +165,7 @@ export function useProgressPolling(
 
     // Global check to prevent multiple polling instances across components
     if (globalPollingState.get(generationId)) {
-      console.warn(`Global polling already active for generation ${generationId}, ignoring start request`);
+      console.warn(`⚠️ Global polling already active for generation ${generationId}, ignoring start request`);
       return;
     }
 
@@ -183,7 +183,7 @@ export function useProgressPolling(
       clearTimeout(pollingRef.current.timeoutId);
     }
 
-    console.log(`Starting polling for generation ${generationId}`);
+    console.log(`🚀 Starting polling for generation ${generationId}`);
     setIsPolling(true);
     setPollingError(null);
     pollingRef.current.isActive = true;
@@ -263,7 +263,7 @@ export function useProgressPolling(
 
         // Stop polling if generation is completed or failed
         if (data.status === 'completed' || data.status === 'failed') {
-          console.log(`Generation ${generationId} finished with status: ${data.status}`);
+          console.log(`✅ Generation ${generationId} finished with status: ${data.status}`);
           pollingRef.current.isActive = false;
           globalPollingState.delete(generationId);
           setIsPolling(false);
@@ -272,11 +272,11 @@ export function useProgressPolling(
 
         // Add polling counter and strict limits
         pollCount++;
-        console.log(`Poll #${pollCount} for generation ${generationId}: status=${data.status}, progress=${(data as any).progress || 'N/A'}`);
+        console.log(`🔍 Poll #${pollCount} for generation ${generationId}: status=${data.status}, progress=${(data as any).progress || 'N/A'}, timeElapsed=${Math.round((Date.now() - startTime) / 1000)}s`);
         
         // EMERGENCY BRAKE: Stop after 6 polls (should be enough for AI generation)
         if (pollCount > 6) {
-          console.error(`EMERGENCY STOP: Too many polls (${pollCount}) for generation ${generationId}`);
+          console.error(`🚨 EMERGENCY STOP: Too many polls (${pollCount}) for generation ${generationId}`);
           pollingRef.current.isActive = false;
           globalPollingState.delete(generationId);
           setIsPolling(false);
@@ -326,7 +326,7 @@ export function useProgressPolling(
         }
 
         // Continue polling with smart delay
-        console.log(`Next poll in ${backoffDelay}ms`);
+        console.log(`⏰ Next poll in ${backoffDelay}ms (${Math.round(backoffDelay / 1000)}s)`);
         pollingRef.current.timeoutId = setTimeout(poll, backoffDelay);
 
       } catch (err) {
@@ -371,7 +371,7 @@ export function useProgressPolling(
   }, [generationId, onUpdate, interval, timeout, onError]);
 
   const stopPolling = useCallback(() => {
-    console.log(`Stopping polling for generation ${generationId}`);
+    console.log(`🛑 Stopping polling for generation ${generationId}`);
     pollingRef.current.isActive = false;
     globalPollingState.delete(generationId);
     if (pollingRef.current.timeoutId) {
