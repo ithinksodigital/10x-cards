@@ -25,3 +25,14 @@ pnpm-debug.log*
 
 # .ai folder
 .ai/test-api-endpoints.sh
+
+# Test results and coverage
+test-results/
+coverage/
+playwright-report/
+test-results.xml
+
+# Test artifacts
+screenshots/
+videos/
+traces/
