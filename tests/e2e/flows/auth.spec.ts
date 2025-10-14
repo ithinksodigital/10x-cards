@@ -7,9 +7,12 @@ test.describe('Authentication Flow', () => {
 
   test('should display login form when not authenticated', async ({ page }) => {
     // Navigate to auth page
-    await page.goto('/auth/signin')
+    await page.goto('/auth/login')
     
-    // Check if login form is visible
+    // Wait for React components to load
+    await page.waitForLoadState('networkidle')
+    
+    // Check if login form is visible (React component)
     await expect(page.locator('form')).toBeVisible()
     
     // Check for email input
@@ -26,18 +29,20 @@ test.describe('Authentication Flow', () => {
   })
 
   test('should show validation errors for empty form', async ({ page }) => {
-    await page.goto('/auth/signin')
+    await page.goto('/auth/login')
+    await page.waitForLoadState('networkidle')
     
     // Try to submit empty form
     await page.click('button[type="submit"]')
     
-    // Check for validation errors
-    await expect(page.locator('text=Email is required')).toBeVisible()
-    await expect(page.locator('text=Password is required')).toBeVisible()
+    // Check for validation errors (Polish text)
+    await expect(page.locator('text=Email jest wymagany')).toBeVisible()
+    await expect(page.locator('text=Hasło jest wymagane')).toBeVisible()
   })
 
   test('should show validation error for invalid email', async ({ page }) => {
-    await page.goto('/auth/signin')
+    await page.goto('/auth/login')
+    await page.waitForLoadState('networkidle')
     
     // Fill in invalid email
     await page.fill('input[type="email"]', 'invalid-email')
@@ -46,12 +51,13 @@ test.describe('Authentication Flow', () => {
     // Submit form
     await page.click('button[type="submit"]')
     
-    // Check for email validation error
-    await expect(page.locator('text=Please enter a valid email')).toBeVisible()
+    // Check for email validation error (Polish text)
+    await expect(page.locator('text=Wprowadź prawidłowy adres email')).toBeVisible()
   })
 
   test('should handle successful login', async ({ page }) => {
-    await page.goto('/auth/signin')
+    await page.goto('/auth/login')
+    await page.waitForLoadState('networkidle')
     
     // Fill in valid credentials
     await page.fill('input[type="email"]', 'test@example.com')
@@ -68,7 +74,8 @@ test.describe('Authentication Flow', () => {
   })
 
   test('should handle login error', async ({ page }) => {
-    await page.goto('/auth/signin')
+    await page.goto('/auth/login')
+    await page.waitForLoadState('networkidle')
     
     // Fill in invalid credentials
     await page.fill('input[type="email"]', 'wrong@example.com')
@@ -77,41 +84,40 @@ test.describe('Authentication Flow', () => {
     // Submit form
     await page.click('button[type="submit"]')
     
-    // Check for error message
-    await expect(page.locator('text=Invalid credentials')).toBeVisible()
+    // Check for error message (Polish text)
+    await expect(page.locator('text=Nieprawidłowy email lub hasło')).toBeVisible()
   })
 
   test('should allow password reset', async ({ page }) => {
-    await page.goto('/auth/signin')
+    await page.goto('/auth/login')
+    await page.waitForLoadState('networkidle')
     
-    // Click forgot password link
-    await page.click('text=Forgot password?')
+    // Click forgot password link (Polish text)
+    await page.click('text=Zapomniałeś hasła?')
     
-    // Should navigate to reset password page
-    await page.waitForURL('/auth/reset-password')
-    
-    // Check if reset form is visible
+    // Should switch to forgot password form (no navigation, just form switch)
     await expect(page.locator('input[type="email"]')).toBeVisible()
     await expect(page.locator('button[type="submit"]')).toBeVisible()
   })
 
   test('should handle logout', async ({ page }) => {
     // First login (assuming we have a way to mock this)
-    await page.goto('/auth/signin')
+    await page.goto('/auth/login')
+    await page.waitForLoadState('networkidle')
     await page.fill('input[type="email"]', 'test@example.com')
     await page.fill('input[type="password"]', 'password123')
     await page.click('button[type="submit"]')
     await page.waitForURL('/dashboard')
     
-    // Find and click logout button
-    const logoutButton = page.locator('button:has-text("Logout")')
+    // Find and click logout button (Polish text)
+    const logoutButton = page.locator('button:has-text("Wyloguj się")')
     await expect(logoutButton).toBeVisible()
     await logoutButton.click()
     
     // Should redirect to home page
     await page.waitForURL('/')
     
-    // Check if user is logged out
-    await expect(page.locator('text=Sign In')).toBeVisible()
+    // Check if user is logged out (Polish text)
+    await expect(page.locator('text=Zaloguj się')).toBeVisible()
   })
 })

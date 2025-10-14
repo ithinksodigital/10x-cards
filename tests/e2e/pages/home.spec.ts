@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { injectAxe, checkA11y } from '@axe-core/playwright'
+import AxeBuilder from '@axe-core/playwright'
 
 test.describe('Home Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -14,13 +14,17 @@ test.describe('Home Page', () => {
   })
 
   test('should have proper navigation', async ({ page }) => {
-    // Check if navigation elements are present
-    const nav = page.locator('nav')
+    // Check if navigation elements are present (desktop only)
+    const nav = page.locator('nav.hidden.md\\:flex')
     await expect(nav).toBeVisible()
     
     // Check for common navigation links
     const homeLink = page.locator('a[href="/"]')
     await expect(homeLink).toBeVisible()
+    
+    // Check for generate link (Polish text)
+    const generateLink = page.locator('a[href="/generate"]')
+    await expect(generateLink).toBeVisible()
   })
 
   test('should be responsive on mobile', async ({ page }) => {
@@ -30,20 +34,20 @@ test.describe('Home Page', () => {
     // Check if content is still visible and properly laid out
     await expect(page.locator('main')).toBeVisible()
     
-    // Check if navigation is accessible on mobile
-    const nav = page.locator('nav')
-    await expect(nav).toBeVisible()
+    // Check if navigation is hidden on mobile (as designed)
+    const nav = page.locator('nav.hidden.md\\:flex')
+    await expect(nav).not.toBeVisible()
+    
+    // Check if auth buttons are still visible on mobile
+    const loginLink = page.locator('a[href="/auth/login"]')
+    await expect(loginLink).toBeVisible()
   })
 
   test('should have proper accessibility', async ({ page }) => {
-    // Inject axe-core
-    await injectAxe(page)
-    
     // Check for accessibility violations
-    await checkA11y(page, null, {
-      detailedReport: true,
-      detailedReportOptions: { html: true }
-    })
+    const accessibilityScanResults = await new AxeBuilder({ page }).analyze()
+    
+    expect(accessibilityScanResults.violations).toEqual([])
   })
 
   test('should have proper meta tags', async ({ page }) => {

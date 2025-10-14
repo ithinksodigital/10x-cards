@@ -5,6 +5,7 @@ import { StaticUserMenu } from "../components/auth/StaticUserMenu";
 
 interface Props {
   title?: string;
+  description?: string;
   requireAuth?: boolean;
   user?: any;
   session?: any;
@@ -13,6 +14,7 @@ interface Props {
 
 const { 
   title = "10x Cards", 
+  description = "Generuj i zarządzaj fiszkami do nauki z pomocą AI. Twórz skuteczne zestawy fiszek z dowolnego tekstu.",
   requireAuth = false,
   user = Astro.locals.user ?? null,
   session = null,
@@ -24,7 +26,8 @@ const {
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
