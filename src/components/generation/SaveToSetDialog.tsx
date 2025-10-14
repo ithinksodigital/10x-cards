@@ -134,7 +134,7 @@ export function SaveToSetDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={cn('sm:max-w-lg', className)}>
+      <DialogContent className={cn('sm:max-w-lg', className)} data-testid="set-selection-modal">
         <DialogHeader>
           <DialogTitle>Save Flashcards to Set</DialogTitle>
           <DialogDescription>

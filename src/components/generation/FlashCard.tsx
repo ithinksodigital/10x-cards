@@ -179,6 +179,7 @@ export function FlashCard({
   return (
     <Card
       ref={cardRef}
+      data-testid="card"
       className={cn(
         "relative w-full h-72 cursor-pointer transition-all duration-300",
         "hover:shadow-lg focus-within:ring-2 focus-within:ring-primary",
@@ -279,6 +280,7 @@ export function FlashCard({
                 <label className="text-sm font-medium text-foreground mb-1 block">Front</label>
                 <Textarea
                   ref={frontTextareaRef}
+                  data-testid="card-front"
                   value={editFront}
                   onChange={(e) => setEditFront(e.target.value)}
                   className={cn("min-h-[60px] resize-none", editErrors.front && "border-red-300 focus:border-red-500")}
@@ -297,6 +299,7 @@ export function FlashCard({
                 <label className="text-sm font-medium text-foreground mb-1 block">Back</label>
                 <Textarea
                   ref={backTextareaRef}
+                  data-testid="card-back"
                   value={editBack}
                   onChange={(e) => setEditBack(e.target.value)}
                   className={cn("min-h-[80px] resize-none", editErrors.back && "border-red-300 focus:border-red-500")}
