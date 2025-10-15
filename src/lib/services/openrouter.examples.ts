@@ -1,7 +1,7 @@
 // src/lib/services/openrouter.examples.ts
-import { OpenRouterService } from "./openrouter.service";
+// import { OpenRouterService } from "./openrouter.service";
 // import { createClient } from "../../db/supabase.client";
-import type { GenerateFlashcardsCommand } from "../../types";
+// import type { GenerateFlashcardsCommand } from "../../types";
 
 /**
  * Example usage of OpenRouterService
@@ -12,15 +12,15 @@ import type { GenerateFlashcardsCommand } from "../../types";
 // const supabase = createClient();
 
 // Example configuration
-const config = {
-  apiKey: process.env.OPENROUTER_API_KEY || "",
-  baseUrl: "https://openrouter.ai/api/v1",
-  defaultModel: "gpt-4o",
-  maxRetries: 3,
-  timeoutMs: 30000,
-  chunkSize: 10000,
-  maxTokens: 4000,
-};
+// const config = {
+//   apiKey: process.env.OPENROUTER_API_KEY || "",
+//   baseUrl: "https://openrouter.ai/api/v1",
+//   defaultModel: "gpt-4o",
+//   maxRetries: 3,
+//   timeoutMs: 30000,
+//   chunkSize: 10000,
+//   maxTokens: 4000,
+// };
 
 // Create service instance
 // const openRouterService = new OpenRouterService(supabase, config);
@@ -29,18 +29,18 @@ const config = {
  * Example 1: Basic flashcard generation
  */
 export async function exampleBasicGeneration() {
-  const command: GenerateFlashcardsCommand = {
-    sourceText: `
-      Machine learning is a subset of artificial intelligence that focuses on algorithms 
-      that can learn from data. It includes supervised learning, where models are trained 
-      on labeled data, unsupervised learning, which finds patterns in unlabeled data, 
-      and reinforcement learning, where agents learn through interaction with an environment.
-    `,
-    language: "en",
-    targetCount: 5,
-    userId: "user-123",
-    generationId: "gen-456",
-  };
+  // const command: GenerateFlashcardsCommand = {
+  //   sourceText: `
+  //     Machine learning is a subset of artificial intelligence that focuses on algorithms
+  //     that can learn from data. It includes supervised learning, where models are trained
+  //     on labeled data, unsupervised learning, which finds patterns in unlabeled data,
+  //     and reinforcement learning, where agents learn through interaction with an environment.
+  //   `,
+  //   language: "en",
+  //   targetCount: 5,
+  //   userId: "user-123",
+  //   generationId: "gen-456",
+  // };
 
   try {
     // const result = await openRouterService.generateFlashcards(command);
@@ -51,7 +51,7 @@ export async function exampleBasicGeneration() {
     // } else {
     //   Generation failed: result.error
     // }
-  } catch (_error) {
+  } catch {
     // Error occurred during generation
   }
 }
@@ -82,22 +82,24 @@ export async function exampleMultiLanguageGeneration() {
     },
   ];
 
-  for (const example of examples) {
-    const command: GenerateFlashcardsCommand = {
-      sourceText: example.text,
-      language: example.language,
-      targetCount: 3,
-      userId: "user-123",
-      generationId: `gen-${Date.now()}`,
-    };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  for (const _ of examples) {
+    // Process example
+    // const command: GenerateFlashcardsCommand = {
+    //   sourceText: example.text,
+    //   language: example.language,
+    //   targetCount: 3,
+    //   userId: "user-123",
+    //   generationId: `gen-${Date.now()}`,
+    // };
 
     try {
-      // const _result = await openRouterService.generateFlashcards(command);
+      // const result = await openRouterService.generateFlashcards(command);
       // Generated cards for example.expected
-      // Success: _result.success
-      // Language: _result.metadata.language
-      // Cards generated: _result.cards.length
-    } catch (_error) {
+      // Success: result.success
+      // Language: result.metadata.language
+      // Cards generated: result.cards.length
+    } catch {
       // Error generating example.expected
     }
   }
@@ -113,12 +115,14 @@ export async function exampleLanguageDetection() {
     "To jest tekst w języku polskim o algorytmach uczenia maszynowego.",
   ];
 
-  for (const text of texts) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  for (const _ of texts) {
+    // Process text
     try {
-      // const _detectedLanguage = await openRouterService.detectLanguage(text);
+      // const detectedLanguage = await openRouterService.detectLanguage(text);
       // Text: text.substring(0, 50)
-      // Detected language: _detectedLanguage
-    } catch (_error) {
+      // Detected language: detectedLanguage
+    } catch {
       // Language detection failed
     }
   }
@@ -129,31 +133,31 @@ export async function exampleLanguageDetection() {
  */
 export async function exampleLargeTextProcessing() {
   // Generate a large text (simulate a long article)
-  const largeText = `
-    Machine learning is a subset of artificial intelligence that focuses on algorithms 
-    that can learn from data. It includes supervised learning, where models are trained 
-    on labeled data, unsupervised learning, which finds patterns in unlabeled data, 
-    and reinforcement learning, where agents learn through interaction with an environment.
-    
-    Supervised learning algorithms build a mathematical model of training data that contains 
-    both inputs and desired outputs. The data is known as training data and consists of a 
-    set of training examples. Each training example has one or more inputs and a desired 
-    output, also known as a supervisory signal.
-    
-    Unsupervised learning algorithms take a set of data that contains only inputs, and find 
-    structure in the data, like grouping or clustering of data points. The algorithms, 
-    therefore, learn from test data that has not been labeled, classified or categorized.
-    
-    Reinforcement learning is an area of machine learning concerned with how software agents 
-    ought to take actions in an environment in order to maximize the notion of cumulative reward.
-  `.repeat(10); // Make it large enough to trigger chunking
+  // const largeText = `
+  //     Machine learning is a subset of artificial intelligence that focuses on algorithms
+  //     that can learn from data. It includes supervised learning, where models are trained
+  //     on labeled data, unsupervised learning, which finds patterns in unlabeled data,
+  //     and reinforcement learning, where agents learn through interaction with an environment.
+  //
+  //   Supervised learning algorithms build a mathematical model of training data that contains
+  //   both inputs and desired outputs. The data is known as training data and consists of a
+  //   set of training examples. Each training example has one or more inputs and a desired
+  //   output, also known as a supervisory signal.
+  //
+  //   Unsupervised learning algorithms take a set of data that contains only inputs, and find
+  //   structure in the data, like grouping or clustering of data points. The algorithms,
+  //   therefore, learn from test data that has not been labeled, classified or categorized.
+  //
+  //   Reinforcement learning is an area of machine learning concerned with how software agents
+  //   ought to take actions in an environment in order to maximize the notion of cumulative reward.
+  // `.repeat(10); // Make it large enough to trigger chunking
 
-  const command: GenerateFlashcardsCommand = {
-    sourceText: largeText,
-    targetCount: 15,
-    userId: "user-123",
-    generationId: `gen-large-${Date.now()}`,
-  };
+  // const command: GenerateFlashcardsCommand = {
+  //   sourceText: largeText,
+  //   targetCount: 15,
+  //   userId: "user-123",
+  //   generationId: `gen-large-${Date.now()}`,
+  // };
 
   try {
     // Processing large text (largeText.length characters)
@@ -165,7 +169,7 @@ export async function exampleLargeTextProcessing() {
     // } else {
     //   Large text processing failed: result.error
     // }
-  } catch (_error) {
+  } catch {
     // Error processing large text
   }
 }
@@ -174,12 +178,12 @@ export async function exampleLargeTextProcessing() {
  * Example 5: Error handling and retry logic
  */
 export async function exampleErrorHandling() {
-  const command: GenerateFlashcardsCommand = {
-    sourceText: "This is a test text for error handling.",
-    targetCount: 5,
-    userId: "user-123",
-    generationId: `gen-error-${Date.now()}`,
-  };
+  // const command: GenerateFlashcardsCommand = {
+  //   sourceText: "This is a test text for error handling.",
+  //   targetCount: 5,
+  //   userId: "user-123",
+  //   generationId: `gen-error-${Date.now()}`,
+  // };
 
   try {
     // const result = await openRouterService.generateFlashcards(command);
@@ -190,7 +194,7 @@ export async function exampleErrorHandling() {
     //   Retryable: result.error.retryable
     //   Retry after: result.error.retryAfter seconds (if applicable)
     // }
-  } catch (_error) {
+  } catch {
     // Unexpected error occurred
   }
 }
@@ -203,14 +207,14 @@ export async function exampleServiceStats() {
   await exampleBasicGeneration();
 
   // Get service statistics
-  // const _stats = openRouterService.readonlyStats;
+  // const stats = openRouterService.readonlyStats;
   // Service Statistics:
-  // Total calls: _stats.totalCalls
-  // Successful calls: _stats.successfulCalls
-  // Failed calls: _stats.failedCalls
-  // Total cost: _stats.totalCost
-  // Average response time: _stats.averageResponseTime
-  // Last call: _stats.lastCallAt
+  // Total calls: stats.totalCalls
+  // Successful calls: stats.successfulCalls
+  // Failed calls: stats.failedCalls
+  // Total cost: stats.totalCost
+  // Average response time: stats.averageResponseTime
+  // Last call: stats.lastCallAt
 }
 
 /**

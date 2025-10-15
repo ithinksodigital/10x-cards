@@ -65,7 +65,7 @@ export class GenerationService {
         source_text_hash: sourceTextHash,
         source_text_length: sourceTextLength,
         model: this.DEFAULT_MODEL,
-        set_id: null, // Will be set when cards are accepted
+        set_id: undefined, // Will be set when cards are accepted
         generated_count: 0,
         accepted_count: 0,
         rejected_count: 0,
@@ -164,7 +164,15 @@ export class GenerationService {
     // Starting background generation
     Promise.resolve().then(() => {
       this.processGeneration(generationId, command).catch((error) => {
-        console.error("Background generation failed:", error);
+        // Background generation failed
+        this.updateGenerationStatus(
+          generationId,
+          "failed",
+          0,
+          "Background generation failed",
+          undefined,
+          error instanceof Error ? error.message : "Unknown error"
+        );
       });
     });
   }
@@ -173,10 +181,8 @@ export class GenerationService {
    * Process generation using OpenRouter AI service
    */
   private async processGeneration(generationId: string, command: StartGenerationCommand): Promise<void> {
-    console.log(`processGeneration started for ${generationId}`);
     try {
       // Update status to processing with progress
-      console.log(`Updating status to processing for ${generationId}`);
       await this.updateGenerationStatus(generationId, "processing", 25, "Analyzing source text...");
 
       // Get user ID from generation record
@@ -231,7 +237,6 @@ export class GenerationService {
 
         // Check if it's a quota/limit error
         if (result.error?.message?.includes("limit") || result.error?.message?.includes("quota")) {
-          console.log("API limit exceeded, falling back to simulation mode");
           await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
           return;
         }
@@ -274,18 +279,16 @@ export class GenerationService {
         }
       );
 
-      console.log(`Successfully generated ${flashcards.length} flashcards for generation ${generationId}`);
+      // Successfully generated flashcards
     } catch (error) {
-      console.error("AI generation failed:", error);
       await this.updateGenerationStatus(
         generationId,
         "failed",
         0,
         "Generation failed",
-        null,
+        undefined,
         error instanceof Error ? error.message : "Unknown error"
       );
-      console.log(`Generation marked as failed for ${generationId}`);
     }
   }
 
@@ -355,15 +358,14 @@ export class GenerationService {
         flashcards
       );
 
-      console.log(`Generated ${flashcards.length} flashcards for generation ${generationId}`);
+      // Generated flashcards via simulation
     } catch (error) {
-      console.error("Simulation generation failed:", error);
       await this.updateGenerationStatus(
         generationId,
         "failed",
         0,
         "Generation failed",
-        null,
+        undefined,
         error instanceof Error ? error.message : "Unknown error"
       );
     }
@@ -418,7 +420,7 @@ export class GenerationService {
     const { error } = await this.supabase.from("generations").update(updateData).eq("id", generationId);
 
     if (error) {
-      console.error("Failed to update generation status:", error);
+      // Failed to update generation status
     }
   }
 
@@ -438,7 +440,7 @@ export class GenerationService {
   /**
    * Retrieves the current status of a generation process
    */
-  async getGenerationStatus(generationId: string, _userId: string): Promise<unknown | null> {
+  async getGenerationStatus(generationId: string): Promise<unknown | null> {
     // Since RLS is disabled for MVP, we can query by generation ID only
     // This prevents issues when user context changes between generation start and status polling
     const { data: generation, error } = await this.supabase
