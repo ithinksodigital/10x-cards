@@ -9,7 +9,7 @@
 -- create generation_error_logs table to track ai generation failures
 create table generation_error_logs (
   -- unique identifier for the error log entry
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   
   -- user who experienced the error
   -- cascading delete ensures error logs are removed when user profile is deleted

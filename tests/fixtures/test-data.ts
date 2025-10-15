@@ -4,8 +4,8 @@
 
 export const userFixtures = {
   validUser: {
-    id: 'user-1',
-    email: 'test@example.com',
+    id: process.env.E2E_USERNAME_ID!,
+    email: process.env.E2E_USERNAME!,
     name: 'Test User',
     created_at: '2024-01-01T00:00:00Z'
   },
@@ -146,8 +146,8 @@ export const apiResponseFixtures = {
 
 export const formFixtures = {
   validSignIn: {
-    email: 'test@example.com',
-    password: 'password123'
+    email: process.env.E2E_USERNAME!,
+    password: process.env.E2E_PASSWORD!
   },
   invalidSignIn: {
     email: 'invalid-email',

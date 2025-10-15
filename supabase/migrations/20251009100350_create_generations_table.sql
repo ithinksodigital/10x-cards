@@ -9,7 +9,7 @@
 -- create generations table to track ai flashcard generation sessions
 create table generations (
   -- unique identifier for the generation session
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   
   -- user who initiated the generation
   -- cascading delete ensures generations are removed when user profile is deleted

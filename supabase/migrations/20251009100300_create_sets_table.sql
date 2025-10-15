@@ -9,7 +9,7 @@
 -- create sets table to organize flashcards into collections
 create table sets (
   -- unique identifier for the set
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   
   -- owner of this set
   -- cascading delete ensures sets are removed when user profile is deleted

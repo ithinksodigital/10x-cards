@@ -1,4 +1,4 @@
-import { Page, expect } from '@playwright/test'
+import { Page, expect } from "@playwright/test";
 
 /**
  * Helper functions for common test operations
@@ -11,19 +11,19 @@ export class TestHelpers {
    * Wait for page to be fully loaded
    */
   async waitForPageLoad() {
-    await this.page.waitForLoadState('networkidle')
-    await this.page.waitForFunction(() => document.readyState === 'complete')
+    await this.page.waitForLoadState("networkidle");
+    await this.page.waitForFunction(() => document.readyState === "complete");
   }
 
   /**
    * Mock authentication state
    */
-  async mockAuth(user: { email: string; name: string } = { email: 'test@example.com', name: 'Test User' }) {
+  async mockAuth(user: { email: string; name: string } = { email: process.env.E2E_USERNAME!, name: "Test User" }) {
     await this.page.addInitScript((user) => {
       // Mock localStorage with auth data
-      localStorage.setItem('auth-token', 'mock-token')
-      localStorage.setItem('user', JSON.stringify(user))
-    }, user)
+      localStorage.setItem("auth-token", "mock-token");
+      localStorage.setItem("user", JSON.stringify(user));
+    }, user);
   }
 
   /**
@@ -31,9 +31,9 @@ export class TestHelpers {
    */
   async clearAuth() {
     await this.page.addInitScript(() => {
-      localStorage.removeItem('auth-token')
-      localStorage.removeItem('user')
-    })
+      localStorage.removeItem("auth-token");
+      localStorage.removeItem("user");
+    });
   }
 
   /**
@@ -41,7 +41,7 @@ export class TestHelpers {
    */
   async fillForm(formData: Record<string, string>) {
     for (const [selector, value] of Object.entries(formData)) {
-      await this.page.fill(selector, value)
+      await this.page.fill(selector, value);
     }
   }
 
@@ -49,89 +49,86 @@ export class TestHelpers {
    * Wait for element to be visible and clickable
    */
   async waitAndClick(selector: string, timeout = 10000) {
-    await this.page.waitForSelector(selector, { state: 'visible', timeout })
-    await this.page.click(selector)
+    await this.page.waitForSelector(selector, { state: "visible", timeout });
+    await this.page.click(selector);
   }
 
   /**
    * Wait for text to appear on page
    */
   async waitForText(text: string, timeout = 10000) {
-    await this.page.waitForSelector(`text=${text}`, { timeout })
+    await this.page.waitForSelector(`text=${text}`, { timeout });
   }
 
   /**
    * Take screenshot with timestamp
    */
   async takeScreenshot(name: string) {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-    await this.page.screenshot({ 
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    await this.page.screenshot({
       path: `test-results/screenshots/${name}-${timestamp}.png`,
-      fullPage: true 
-    })
+      fullPage: true,
+    });
   }
 
   /**
    * Check for console errors
    */
   async checkConsoleErrors() {
-    const errors: string[] = []
-    
-    this.page.on('console', msg => {
-      if (msg.type() === 'error') {
-        errors.push(msg.text())
+    const errors: string[] = [];
+
+    this.page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        errors.push(msg.text());
       }
-    })
-    
-    return errors
+    });
+
+    return errors;
   }
 
   /**
    * Mock API response
    */
   async mockApiResponse(url: string, response: any, status = 200) {
-    await this.page.route(url, route => {
+    await this.page.route(url, (route) => {
       route.fulfill({
         status,
-        contentType: 'application/json',
-        body: JSON.stringify(response)
-      })
-    })
+        contentType: "application/json",
+        body: JSON.stringify(response),
+      });
+    });
   }
 
   /**
    * Wait for API call to complete
    */
   async waitForApiCall(url: string, timeout = 10000) {
-    await this.page.waitForResponse(response => 
-      response.url().includes(url) && response.status() < 400,
-      { timeout }
-    )
+    await this.page.waitForResponse((response) => response.url().includes(url) && response.status() < 400, { timeout });
   }
 
   /**
    * Generate random test data
    */
   generateTestData() {
-    const timestamp = Date.now()
+    const timestamp = Date.now();
     return {
       email: `test-${timestamp}@example.com`,
       name: `Test User ${timestamp}`,
       text: `Test text content ${timestamp}`,
-      set: `Test Set ${timestamp}`
-    }
+      set: `Test Set ${timestamp}`,
+    };
   }
 
   /**
    * Check accessibility with axe-core
    */
   async checkAccessibility() {
-    const { injectAxe, checkA11y } = await import('@axe-core/playwright')
-    await injectAxe(this.page)
+    const { injectAxe, checkA11y } = await import("@axe-core/playwright");
+    await injectAxe(this.page);
     await checkA11y(this.page, null, {
       detailedReport: true,
-      detailedReportOptions: { html: true }
-    })
+      detailedReportOptions: { html: true },
+    });
   }
 }
 
@@ -139,7 +136,7 @@ export class TestHelpers {
  * Create test helper instance
  */
 export function createTestHelper(page: Page) {
-  return new TestHelpers(page)
+  return new TestHelpers(page);
 }
 
 /**
@@ -147,17 +144,18 @@ export function createTestHelper(page: Page) {
  */
 export const testData = {
   validUser: {
-    email: 'test@example.com',
-    password: 'password123',
-    name: 'Test User'
+    email: process.env.E2E_USERNAME!,
+    password: "password123",
+    name: "Test User",
   },
   invalidUser: {
-    email: 'invalid@example.com',
-    password: 'wrongpassword'
+    email: "invalid@example.com",
+    password: "wrongpassword",
   },
-  sampleText: 'React is a JavaScript library for building user interfaces. It was created by Facebook and is now maintained by the community. React uses a virtual DOM to efficiently update the user interface.',
+  sampleText:
+    "React is a JavaScript library for building user interfaces. It was created by Facebook and is now maintained by the community. React uses a virtual DOM to efficiently update the user interface.",
   sampleSet: {
-    name: 'Test Set',
-    description: 'A test set for flash cards'
-  }
-}
+    name: "Test Set",
+    description: "A test set for flash cards",
+  },
+};

@@ -11,7 +11,7 @@ create extension if not exists citext;
 -- used for fuzzy searching on cards.front and cards.back columns
 create extension if not exists pg_trgm;
 
--- enable uuid-ossp for uuid generation
--- used for generating primary keys
-create extension if not exists "uuid-ossp";
+-- enable pgcrypto for uuid generation
+-- used for generating primary keys with gen_random_uuid()
+create extension if not exists pgcrypto;
 

@@ -3,7 +3,7 @@ import { http, HttpResponse } from 'msw'
 // Mock data
 const mockUser = {
   id: 'test-user-id',
-  email: 'test@example.com',
+  email: process.env.E2E_USERNAME!,
   name: 'Test User',
   created_at: '2024-01-01T00:00:00Z'
 }

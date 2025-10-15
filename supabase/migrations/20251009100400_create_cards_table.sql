@@ -10,7 +10,7 @@
 -- create cards table to store individual flashcards with srs metadata
 create table cards (
   -- unique identifier for the card
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   
   -- owner of this card (denormalized for efficient rls checks)
   user_id uuid not null,
