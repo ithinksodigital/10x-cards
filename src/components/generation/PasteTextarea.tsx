@@ -2,7 +2,6 @@
 import React, { useState, useCallback } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import type { PasteFormState } from "@/lib/view-models";
 
 interface PasteTextareaProps {
   value: string;
