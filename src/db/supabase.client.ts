@@ -7,7 +7,15 @@ import type { Database } from "./database.types.ts";
 const supabaseUrl = import.meta.env.SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
 
-export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
+// Validate environment variables
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn("Supabase environment variables are not set. Using mock values for development.");
+}
+
+export const supabaseClient = createClient<Database>(
+  supabaseUrl || "https://mock.supabase.co",
+  supabaseAnonKey || "mock-anon-key"
+);
 
 export type SupabaseClient = typeof supabaseClient;
 
@@ -29,7 +37,10 @@ function parseCookieHeader(cookieHeader: string): { name: string; value: string 
 }
 
 export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
-  const supabase = createServerClient<Database>(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+  const url = import.meta.env.SUPABASE_URL || "https://mock.supabase.co";
+  const key = import.meta.env.SUPABASE_KEY || "mock-anon-key";
+
+  const supabase = createServerClient<Database>(url, key, {
     cookieOptions,
     cookies: {
       getAll() {

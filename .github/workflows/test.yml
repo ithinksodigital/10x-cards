@@ -44,6 +44,7 @@ jobs:
   e2e-tests:
     name: E2E Tests
     runs-on: ubuntu-latest
+    environment: test
     
     steps:
       - name: Checkout code
@@ -63,9 +64,15 @@ jobs:
         
       - name: Build application
         run: npm run build
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         
       - name: Run E2E tests
         run: npx playwright test --project=chromium
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         
       - name: Upload test results
         uses: actions/upload-artifact@v4
