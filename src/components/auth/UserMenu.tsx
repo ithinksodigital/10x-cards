@@ -25,8 +25,8 @@ export const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
     try {
       await signOut();
       setIsOpen(false);
-    } catch (error) {
-      console.error("Sign out error:", error);
+    } catch {
+      // Handle sign out error silently
     } finally {
       setIsSigningOut(false);
     }
@@ -65,7 +65,14 @@ export const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsOpen(false)}
+            onKeyDown={(e) => e.key === "Escape" && setIsOpen(false)}
+            role="button"
+            tabIndex={0}
+            aria-label="Close menu"
+          />
 
           {/* Menu */}
           <Card className="absolute right-0 top-full mt-2 w-64 z-50 shadow-lg">
@@ -96,7 +103,6 @@ export const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
                   onClick={() => {
                     setIsOpen(false);
                     // TODO: Navigate to profile/settings
-                    console.log("Navigate to profile");
                   }}
                 >
                   <SettingsIcon className="w-4 h-4" />

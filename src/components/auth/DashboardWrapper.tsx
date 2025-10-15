@@ -2,19 +2,27 @@ import React, { useEffect, useState } from "react";
 import { AuthProvider } from "./AuthProvider";
 import { AuthGuard } from "./AuthGuard";
 import { useSetsApi } from "../../hooks/useSetsApi";
-import type { SetDto } from "../../types";
 
 interface DashboardWrapperProps {
-  user: any;
-  session: any;
+  user: {
+    user_metadata?: {
+      full_name?: string;
+    };
+    email?: string;
+  } | null;
+  session: unknown;
 }
 
-const DashboardContent: React.FC<{ user: any }> = ({ user }) => {
+const DashboardContent: React.FC<{
+  user: { user_metadata?: { full_name?: string }; email?: string } | null;
+}> = ({ user }) => {
   const { sets, fetchSets, isLoading, error } = useSetsApi();
   const [totalCards, setTotalCards] = useState(0);
 
   useEffect(() => {
-    fetchSets().catch(console.error);
+    fetchSets().catch(() => {
+      // Handle error silently
+    });
   }, [fetchSets]);
 
   useEffect(() => {
@@ -41,7 +49,7 @@ const DashboardContent: React.FC<{ user: any }> = ({ user }) => {
       {/* Welcome section */}
       <div className="text-center">
         <h2 className="text-3xl font-bold text-foreground mb-2">
-          Welcome, {user.user_metadata?.full_name || user.email}!
+          Welcome, {user?.user_metadata?.full_name || user?.email || "User"}!
         </h2>
         <p className="text-muted-foreground">Manage your flashcards and sets</p>
       </div>
@@ -177,7 +185,7 @@ const DashboardContent: React.FC<{ user: any }> = ({ user }) => {
 
 export const DashboardWrapper: React.FC<DashboardWrapperProps> = ({ user, session }) => {
   return (
-    <AuthProvider initialUser={user} initialSession={session}>
+    <AuthProvider initialUser={user as any} initialSession={session as any}>
       <AuthGuard requireAuth={true}>
         <DashboardContent user={user} />
       </AuthGuard>
