@@ -35,14 +35,10 @@ export class GenerationService {
       maxTokens: 4000,
     };
 
-    console.log("OpenRouter config:", {
-      hasApiKey: !!config.apiKey,
-      apiKeyLength: config.apiKey.length,
-      environment: "astro",
-    });
+    // OpenRouter config initialized
 
     if (!config.apiKey) {
-      console.warn("OPENROUTER_API_KEY not found in environment variables. Using simulation mode.");
+      // OPENROUTER_API_KEY not found in environment variables. Using simulation mode.
     }
 
     return new OpenRouterService(this.supabase, config);
@@ -86,14 +82,7 @@ export class GenerationService {
       .single();
 
     if (insertError || !generation) {
-      console.error("Failed to create generation record:", {
-        error: insertError,
-        code: insertError?.code,
-        message: insertError?.message,
-        details: insertError?.details,
-        hint: insertError?.hint,
-        userId,
-      });
+      // Failed to create generation record
 
       // More specific error messages
       if (insertError?.code === "42501") {
@@ -154,11 +143,7 @@ export class GenerationService {
       .gte("created_at", oneHourAgo);
 
     if (error) {
-      console.error("Error checking rate limit:", {
-        error,
-        code: error?.code,
-        message: error?.message,
-      });
+      // Error checking rate limit
       // Don't block user if we can't check rate limit
       return;
     }
@@ -173,14 +158,10 @@ export class GenerationService {
    * This will call an Edge Function or enqueue a job in a queue
    */
   private async enqueueGenerationJob(generationId: string, command: StartGenerationCommand): Promise<void> {
-    console.log("Starting AI generation:", {
-      generationId,
-      language: command.language,
-      targetCount: command.target_count,
-    });
+    // Starting AI generation
 
     // Start processing asynchronously to avoid API timeout
-    console.log(`Starting background generation for ${generationId}`);
+    // Starting background generation
     Promise.resolve().then(() => {
       this.processGeneration(generationId, command).catch((error) => {
         console.error("Background generation failed:", error);
@@ -212,25 +193,19 @@ export class GenerationService {
       // Check if OpenRouter API key is available
       const apiKey = import.meta.env.OPENROUTER_API_KEY || "";
 
-      console.log("API Key check:", {
-        hasApiKey: !!apiKey,
-        apiKeyLength: apiKey.length,
-        environment: "astro",
-        apiKeyPrefix: apiKey.substring(0, 10) + "...",
-        apiKeyValid: apiKey.startsWith("sk-or-"),
-      });
+      // API Key check completed
 
       if (!apiKey || !apiKey.startsWith("sk-or-")) {
-        console.log("OpenRouter API key not found or invalid, using simulation mode");
+        // OpenRouter API key not found or invalid, using simulation mode
         await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
-        console.log(`Simulation completed for ${generationId}`);
+        // Simulation completed
         return;
       }
 
       // Update progress
       await this.updateGenerationStatus(generationId, "processing", 50, "Generating flashcards with AI...");
 
-      console.log(`Starting OpenRouter API call for ${generationId}`);
+      // Starting OpenRouter API call
 
       // Use OpenRouter service to generate flashcards with shorter timeout
       const result = await Promise.race([
@@ -243,16 +218,16 @@ export class GenerationService {
         }),
         new Promise<never>((_, reject) =>
           setTimeout(() => {
-            console.error(`OpenRouter API timeout after 45 seconds for ${generationId}`);
+            // OpenRouter API timeout after 45 seconds
             reject(new Error("OpenRouter API timeout after 45 seconds"));
           }, 45000)
         ),
       ]);
 
-      console.log(`OpenRouter API call completed for ${generationId}: success=${result.success}`);
+      // OpenRouter API call completed
 
       if (!result.success) {
-        console.error(`OpenRouter API failed for ${generationId}:`, result.error);
+        // OpenRouter API failed
 
         // Check if it's a quota/limit error
         if (result.error?.message?.includes("limit") || result.error?.message?.includes("quota")) {
@@ -262,7 +237,7 @@ export class GenerationService {
         }
 
         // For any other error, fall back to simulation mode
-        console.log("OpenRouter API error, falling back to simulation mode");
+        // OpenRouter API error, falling back to simulation mode
         await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
         return;
       }
@@ -402,7 +377,7 @@ export class GenerationService {
     status: "processing" | "completed" | "failed",
     progress: number,
     message: string,
-    cards?: any[],
+    cards?: unknown[],
     errorMessage?: string,
     metadata?: {
       model: string;
@@ -412,7 +387,7 @@ export class GenerationService {
       generation_duration_ms: number;
     }
   ): Promise<void> {
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       status,
       progress,
       message,
@@ -463,7 +438,7 @@ export class GenerationService {
   /**
    * Retrieves the current status of a generation process
    */
-  async getGenerationStatus(generationId: string, userId: string): Promise<any | null> {
+  async getGenerationStatus(generationId: string, _userId: string): Promise<unknown | null> {
     // Since RLS is disabled for MVP, we can query by generation ID only
     // This prevents issues when user context changes between generation start and status polling
     const { data: generation, error } = await this.supabase
@@ -492,7 +467,7 @@ export class GenerationService {
       .single();
 
     if (error) {
-      console.error("Failed to fetch generation status:", error);
+      // Failed to fetch generation status
       return null;
     }
 
