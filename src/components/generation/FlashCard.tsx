@@ -50,7 +50,7 @@ export function FlashCard({
     setEditFront(proposal.front);
     setEditBack(proposal.back);
     setEditErrors({});
-  }, [proposal.id]);
+  }, [proposal.id, proposal.front, proposal.back]);
 
   // Focus textarea when entering edit mode
   useEffect(() => {
@@ -277,8 +277,9 @@ export function FlashCard({
           {isEditing ? (
             <div className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-foreground mb-1 block">Front</label>
+                <label htmlFor="card-front" className="text-sm font-medium text-foreground mb-1 block">Front</label>
                 <Textarea
+                  id="card-front"
                   ref={frontTextareaRef}
                   data-testid="card-front"
                   value={editFront}
@@ -296,8 +297,9 @@ export function FlashCard({
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-1 block">Back</label>
+                <label htmlFor="card-back" className="text-sm font-medium text-foreground mb-1 block">Back</label>
                 <Textarea
+                  id="card-back"
                   ref={backTextareaRef}
                   data-testid="card-back"
                   value={editBack}
