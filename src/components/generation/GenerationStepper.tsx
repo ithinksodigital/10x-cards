@@ -1,7 +1,6 @@
 // src/components/generation/GenerationStepper.tsx
 import React, { useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 
 export type GenerationStep = "paste" | "review" | "save";
 

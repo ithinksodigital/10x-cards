@@ -1,6 +1,6 @@
 // src/components/generation/GenerationContext.tsx
 import React, { createContext, useContext, useReducer, useEffect, type ReactNode } from "react";
-import type { GenerationState, FlashCardProposal, UndoAction } from "@/lib/view-models";
+import type { GenerationState, FlashCardProposal } from "@/lib/view-models";
 
 interface GenerationContextValue {
   state: GenerationState;
@@ -299,7 +299,7 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
           sessionStorage.removeItem("generation-state");
         }
       } catch (e) {
-        console.error("Failed to restore generation state", e);
+        // Failed to restore generation state, clear it
         sessionStorage.removeItem("generation-state");
       }
     }
