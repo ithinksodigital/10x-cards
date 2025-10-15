@@ -37,7 +37,7 @@ export const AuthContainer: React.FC<AuthContainerProps> = ({ initialMode = "log
       setSuccess(true);
       onSuccess?.("login");
       // Use window.location.replace to avoid back button issues
-      window.location.replace("/dashboard");
+      window.location.replace("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Wystąpił błąd logowania");
     } finally {
@@ -66,7 +66,7 @@ export const AuthContainer: React.FC<AuthContainerProps> = ({ initialMode = "log
       setSuccess(true);
       onSuccess?.("register");
       // Use window.location.replace to avoid back button issues
-      window.location.replace("/dashboard");
+      window.location.replace("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Wystąpił błąd rejestracji");
     } finally {

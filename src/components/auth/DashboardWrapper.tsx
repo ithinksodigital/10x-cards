@@ -27,7 +27,7 @@ const DashboardContent: React.FC<{ user: User | null }> = ({ user }) => {
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-500 mb-4">Error loading dashboard: {error}</p>
+        <p className="text-red-500 mb-4">Error loading page: {error}</p>
         <button
           onClick={() => fetchSets()}
           className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"

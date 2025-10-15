@@ -30,8 +30,8 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
 
     // Gate protected routes (basic example, extend as needed)
     const isPublic = PUBLIC_PATHS.has(url.pathname);
-    const isProtected = url.pathname.startsWith("/dashboard");
-    if (isProtected && !user && !isPublic) {
+    const isProtected = url.pathname === "/" && !user;
+    if (isProtected && !isPublic) {
       return redirect("/auth/login");
     }
 

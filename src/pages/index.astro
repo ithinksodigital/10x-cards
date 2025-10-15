@@ -1,8 +1,15 @@
 ---
-import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+import { DashboardWrapper } from "../components/auth/DashboardWrapper";
+
+// Use authenticated user from middleware (Supabase SSR)
+const user = Astro.locals.user;
+const session = null;
+const isAuthenticated = !!user;
 ---
 
-<Layout>
-  <Welcome />
+<Layout title="10x Cards" user={user} session={session} isAuthenticated={isAuthenticated}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <DashboardWrapper client:load user={user || null} session={session} />
+  </div>
 </Layout>
