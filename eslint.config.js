@@ -59,7 +59,20 @@ const reactConfig = tseslint.config({
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   {
-    ignores: [".ai/**/*.js", ".ai/**/*.ts"], // Ignore JS/TS files in .ai folder
+    ignores: [
+      ".ai/**/*.js",
+      ".ai/**/*.ts",
+      "html/**/*.js",
+      "html/**/*.ts",
+      "dist/**/*.js",
+      "dist/**/*.ts",
+      "coverage/**/*.js",
+      "coverage/**/*.ts",
+      "test-results/**/*.js",
+      "test-results/**/*.ts",
+      "playwright-report/**/*.js",
+      "playwright-report/**/*.ts",
+    ],
   },
   baseConfig,
   jsxA11yConfig,
