@@ -113,8 +113,11 @@ export function jsonResponse<T>(data: T, status = 200): Response {
  * Create error JSON response
  */
 export function errorResponse(error: unknown): Response {
+  // eslint-disable-next-line no-console
   console.error("API Error:", error);
+  // eslint-disable-next-line no-console
   console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace");
+  // eslint-disable-next-line no-console
   console.error("Error details:", JSON.stringify(error, null, 2));
 
   if (error instanceof ApiError) {

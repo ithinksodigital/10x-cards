@@ -11,7 +11,7 @@ export class ApiError extends Error {
     public error: string,
     message: string,
     public code?: string,
-    public details?: Record<string, any>
+    public details?: Record<string, unknown>
   ) {
     super(message);
     this.name = "ApiError";
@@ -80,7 +80,7 @@ export class DuplicateCardError extends ConflictError {
  * 422 Unprocessable Entity - Limit exceeded
  */
 export class LimitExceededError extends ApiError {
-  constructor(message: string, details?: Record<string, any>) {
+  constructor(message: string, details?: Record<string, unknown>) {
     super(422, "LimitExceeded", message, "LIMIT_EXCEEDED", details);
   }
 }
@@ -89,7 +89,7 @@ export class LimitExceededError extends ApiError {
  * 422 Unprocessable Entity - Daily limit reached
  */
 export class DailyLimitError extends ApiError {
-  constructor(message: string, details?: Record<string, any>) {
+  constructor(message: string, details?: Record<string, unknown>) {
     super(422, "DailyLimitReached", message, "DAILY_LIMIT_REACHED", details);
   }
 }
@@ -118,7 +118,7 @@ export class InternalError extends ApiError {
  * 402 Payment Required - API quota exceeded
  */
 export class QuotaExceededError extends ApiError {
-  constructor(message = "API quota exceeded", details?: Record<string, any>) {
+  constructor(message = "API quota exceeded", details?: Record<string, unknown>) {
     super(402, "QuotaExceeded", message, "QUOTA_EXCEEDED", details);
   }
 }
@@ -127,7 +127,7 @@ export class QuotaExceededError extends ApiError {
  * Timeout Error - Request timeout
  */
 export class TimeoutError extends ApiError {
-  constructor(message = "Request timeout", details?: Record<string, any>) {
+  constructor(message = "Request timeout", details?: Record<string, unknown>) {
     super(408, "TimeoutError", message, "TIMEOUT", details);
   }
 }
@@ -136,7 +136,7 @@ export class TimeoutError extends ApiError {
  * Language Detection Error
  */
 export class LanguageDetectionError extends ApiError {
-  constructor(message = "Failed to detect language", details?: Record<string, any>) {
+  constructor(message = "Failed to detect language", details?: Record<string, unknown>) {
     super(422, "LanguageDetectionError", message, "LANGUAGE_DETECTION_FAILED", details);
   }
 }
@@ -145,7 +145,7 @@ export class LanguageDetectionError extends ApiError {
  * Text Processing Error
  */
 export class TextProcessingError extends ApiError {
-  constructor(message = "Text processing failed", details?: Record<string, any>) {
+  constructor(message = "Text processing failed", details?: Record<string, unknown>) {
     super(422, "TextProcessingError", message, "TEXT_PROCESSING_FAILED", details);
   }
 }
@@ -154,7 +154,7 @@ export class TextProcessingError extends ApiError {
  * API Response Validation Error
  */
 export class ResponseValidationError extends ApiError {
-  constructor(message = "API response validation failed", details?: Record<string, any>) {
+  constructor(message = "API response validation failed", details?: Record<string, unknown>) {
     super(422, "ResponseValidationError", message, "RESPONSE_VALIDATION_FAILED", details);
   }
 }
@@ -163,7 +163,7 @@ export class ResponseValidationError extends ApiError {
  * Unknown Error - Fallback for unexpected errors
  */
 export class UnknownError extends ApiError {
-  constructor(message = "Unknown error occurred", details?: Record<string, any>) {
+  constructor(message = "Unknown error occurred", details?: Record<string, unknown>) {
     super(500, "UnknownError", message, "UNKNOWN_ERROR", details);
   }
 }

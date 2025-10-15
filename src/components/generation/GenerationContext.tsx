@@ -265,7 +265,7 @@ const GenerationContext = createContext<GenerationContextValue | undefined>(unde
 
 export function GenerationProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(generationReducer, initialState);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [_isInitialized, setIsInitialized] = useState(false);
 
   // Persist state to sessionStorage (with TTL 24h)
   useEffect(() => {
@@ -304,7 +304,6 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
         sessionStorage.removeItem("generation-state");
       }
     }
-    
     // Mark as initialized after restoration attempt
     setIsInitialized(true);
   }, []);
@@ -333,18 +332,21 @@ export function useGeneration() {
   const context = useContext(GenerationContext);
   if (!context) {
     // Provide more helpful error message with debugging info
-    const errorMessage = "useGeneration must be used within a GenerationProvider. " +
+    const errorMessage =
+      "useGeneration must be used within a GenerationProvider. " +
       "Make sure to wrap your component with <GenerationProvider> or use <GenerationApp> instead of <GeneratePage> directly.";
-    
+
     // In development, provide more context
-    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+    if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+      // eslint-disable-next-line no-console
       console.error(errorMessage);
+      // eslint-disable-next-line no-console
       console.error("Current component tree:", {
         location: window.location?.href,
-        userAgent: navigator.userAgent
+        userAgent: navigator.userAgent,
       });
     }
-    
+
     throw new Error(errorMessage);
   }
   return context;

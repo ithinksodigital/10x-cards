@@ -8,12 +8,12 @@ import { cn } from "@/lib/utils";
 import { useSetsApi } from "@/hooks/useSetsApi";
 import type { BatchCreateCardsCommand } from "@/types";
 import type { FlashCardProposal } from "@/lib/view-models";
-import type { SetDto, CreateSetCommand } from "@/types";
+import type { CreateSetCommand } from "@/types";
 
 interface SaveToSetDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSaveSuccess: (response: any) => void;
+  onSaveSuccess: (response: unknown) => void;
   selectedCards: FlashCardProposal[];
   generationId: string;
   className?: string;
@@ -43,7 +43,10 @@ export function SaveToSetDialog({
   // Fetch sets when dialog opens
   useEffect(() => {
     if (isOpen) {
-      fetchSets().catch(console.error);
+      fetchSets().catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error(error);
+      });
     }
   }, [isOpen, fetchSets]);
 
@@ -164,8 +167,11 @@ export function SaveToSetDialog({
           {!isCreatingNew && (
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Search sets</label>
+                <label htmlFor="search-sets" className="text-sm font-medium text-foreground mb-2 block">
+                  Search sets
+                </label>
                 <Input
+                  id="search-sets"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by name..."
@@ -174,9 +180,11 @@ export function SaveToSetDialog({
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Select set</label>
+                <label htmlFor="select-set" className="text-sm font-medium text-foreground mb-2 block">
+                  Select set
+                </label>
                 <Select value={selectedSetId} onValueChange={setSelectedSetId}>
-                  <SelectTrigger>
+                  <SelectTrigger id="select-set">
                     <SelectValue placeholder="Choose a set..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -210,8 +218,11 @@ export function SaveToSetDialog({
           {isCreatingNew && (
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Set name</label>
+                <label htmlFor="set-name" className="text-sm font-medium text-foreground mb-2 block">
+                  Set name
+                </label>
                 <Input
+                  id="set-name"
                   value={newSetName}
                   onChange={(e) => setNewSetName(e.target.value)}
                   placeholder="Enter set name..."
@@ -220,9 +231,11 @@ export function SaveToSetDialog({
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">Language</label>
+                <label htmlFor="set-language" className="text-sm font-medium text-foreground mb-2 block">
+                  Language
+                </label>
                 <Select value={newSetLanguage} onValueChange={(value: "pl" | "en" | "es") => setNewSetLanguage(value)}>
-                  <SelectTrigger>
+                  <SelectTrigger id="set-language">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

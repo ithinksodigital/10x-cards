@@ -17,7 +17,7 @@ interface RetryState {
   canRetry: boolean;
 }
 
-export function useRetry<T extends (...args: any[]) => Promise<any>>(fn: T, options: RetryOptions = {}) {
+export function useRetry<T extends (...args: unknown[]) => Promise<unknown>>(fn: T, options: RetryOptions = {}) {
   const {
     maxRetries = 3,
     initialDelay = 1000,
@@ -136,7 +136,7 @@ export function useRetry<T extends (...args: any[]) => Promise<any>>(fn: T, opti
 /**
  * Hook for network retry with exponential backoff
  */
-export function useNetworkRetry<T extends (...args: any[]) => Promise<any>>(fn: T, options: RetryOptions = {}) {
+export function useNetworkRetry<T extends (...args: unknown[]) => Promise<unknown>>(fn: T, options: RetryOptions = {}) {
   const retryOptions = {
     maxRetries: 3,
     initialDelay: 1000,
@@ -151,7 +151,7 @@ export function useNetworkRetry<T extends (...args: any[]) => Promise<any>>(fn: 
 /**
  * Hook for API retry with specific error handling
  */
-export function useApiRetry<T extends (...args: any[]) => Promise<any>>(fn: T, options: RetryOptions = {}) {
+export function useApiRetry<T extends (...args: unknown[]) => Promise<unknown>>(fn: T, options: RetryOptions = {}) {
   const retryOptions = {
     maxRetries: 2,
     initialDelay: 2000,

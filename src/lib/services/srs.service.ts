@@ -2,7 +2,6 @@
 import type { SupabaseClient } from "../../db/supabase.client";
 import type {
   GetDueCardsResponseDto,
-  DueCardDto,
   StartSessionCommand,
   StartSessionResponseDto,
   SubmitReviewCommand,
@@ -53,7 +52,9 @@ export class SrsService {
   constructor(
     private supabase: SupabaseClient,
     private cardService: CardService
-  ) {}
+  ) {
+    // Constructor intentionally empty
+  }
 
   /**
    * Get cards due for review today

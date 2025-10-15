@@ -60,11 +60,11 @@ export const StaticUserMenu: React.FC<StaticUserMenuProps> = ({ user, onSignOut 
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div 
-            className="fixed inset-0 z-40" 
+          <div
+            className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
             onKeyDown={(e) => {
-              if (e.key === 'Escape') {
+              if (e.key === "Escape") {
                 setIsOpen(false);
               }
             }}

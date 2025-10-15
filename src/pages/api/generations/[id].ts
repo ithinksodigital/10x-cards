@@ -96,6 +96,7 @@ export async function GET(context: APIContext): Promise<Response> {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Error fetching generation status:", error);
 
     const errorResponse: ErrorResponseDto = {

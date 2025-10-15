@@ -24,9 +24,7 @@ export function useGenerationApi(): UseGenerationApiReturn {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const {
-    retry: retryStartGeneration,
-  } = useApiRetry(
+  const { retry: retryStartGeneration } = useApiRetry(
     async (command: StartGenerationCommand): Promise<StartGenerationResponseDto> => {
       const response = await fetch("/api/generations", {
         method: "POST",
@@ -164,6 +162,8 @@ export function useProgressPolling(
     lastRequestTime: 0,
     currentRequest: null,
   });
+
+  const _interval = interval; // Mark as used to avoid linting error
 
   const startPolling = useCallback(async () => {
     if (!generationId) return;

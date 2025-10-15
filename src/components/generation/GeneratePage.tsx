@@ -107,15 +107,12 @@ export function GeneratePage() {
   );
 
   // Handle save to set
-  const handleSaveSuccess = useCallback(
-    () => {
-      // Show success message and redirect or reset
-      reset();
-      resetStepper();
-      setPasteText("");
-    },
-    [reset, resetStepper]
-  );
+  const handleSaveSuccess = useCallback(() => {
+    // Show success message and redirect or reset
+    reset();
+    resetStepper();
+    setPasteText("");
+  }, [reset, resetStepper]);
 
   // Handle batch change
   const handleBatchChange = useCallback(

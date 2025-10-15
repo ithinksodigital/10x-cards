@@ -56,12 +56,15 @@ export function ProgressModal({
 
   // Start polling when modal opens
   useEffect(() => {
+    // eslint-disable-next-line no-console
     console.log(`📱 ProgressModal effect: isOpen=${isOpen}, generationId=${generationId}`);
 
     if (isOpen && generationId) {
+      // eslint-disable-next-line no-console
       console.log(`🚀 Starting polling for modal with generation ${generationId}`);
       startPolling();
     } else {
+      // eslint-disable-next-line no-console
       console.log(`🛑 Stopping polling for modal`);
       stopPolling();
       setCurrentStatus(null);
@@ -69,10 +72,11 @@ export function ProgressModal({
 
     // Cleanup on unmount
     return () => {
+      // eslint-disable-next-line no-console
       console.log(`🧹 ProgressModal cleanup: stopping polling`);
       stopPolling();
     };
-  }, [isOpen, generationId]); // Remove startPolling and stopPolling from dependencies!
+  }, [isOpen, generationId, startPolling, stopPolling]);
 
   // Calculate time remaining based on estimated duration
   useEffect(() => {
@@ -92,9 +96,10 @@ export function ProgressModal({
     }
 
     switch (currentStatus.status) {
-      case "processing":
+      case "processing": {
         const processingData = currentStatus as ProcessingGenerationDto;
         return processingData.message || "Processing your text...";
+      }
       case "completed":
         return "Generation completed successfully!";
       case "failed":

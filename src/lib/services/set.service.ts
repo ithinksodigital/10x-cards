@@ -18,7 +18,9 @@ export interface ListSetsQuery {
  * Service for managing flashcard sets
  */
 export class SetService {
-  constructor(private supabase: SupabaseClient) {}
+  constructor(private supabase: SupabaseClient) {
+    // Constructor intentionally empty
+  }
 
   /**
    * List sets for a user with pagination and filtering

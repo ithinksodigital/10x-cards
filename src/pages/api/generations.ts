@@ -93,6 +93,7 @@ export async function POST(context: APIContext): Promise<Response> {
 
   // 3. Call GenerationService to start generation
   try {
+    // eslint-disable-next-line no-console
     console.log("Starting generation with command:", {
       source_text_length: command.source_text.length,
       language: command.language,
@@ -101,6 +102,7 @@ export async function POST(context: APIContext): Promise<Response> {
     });
 
     // Check environment variables
+    // eslint-disable-next-line no-console
     console.log("Environment check:", {
       hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
       openRouterKeyLength: process.env.OPENROUTER_API_KEY?.length || 0,
@@ -110,6 +112,7 @@ export async function POST(context: APIContext): Promise<Response> {
     const generationService = new GenerationService(supabase);
     const result: StartGenerationResponseDto = await generationService.startGeneration(command, userId);
 
+    // eslint-disable-next-line no-console
     console.log("Generation started successfully:", {
       generation_id: result.id,
       status: result.status,
@@ -124,6 +127,7 @@ export async function POST(context: APIContext): Promise<Response> {
   } catch (error) {
     // Handle specific errors
     if (error instanceof Error) {
+      // eslint-disable-next-line no-console
       console.error("Error starting generation:", {
         message: error.message,
         stack: error.stack,
@@ -172,6 +176,7 @@ export async function POST(context: APIContext): Promise<Response> {
     }
 
     // Unknown error type
+    // eslint-disable-next-line no-console
     console.error("Unknown error starting generation:", error);
     const errorResponse: ErrorResponseDto = {
       error: "InternalError",

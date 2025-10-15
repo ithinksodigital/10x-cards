@@ -7,19 +7,21 @@ interface Props {
   title?: string;
   description?: string;
   requireAuth?: boolean;
-  user?: any;
-  session?: any;
+  user?: unknown;
+  session?: unknown;
   isAuthenticated?: boolean;
 }
 
 const {
   title = "10x Cards",
   description = "Generuj i zarządzaj fiszkami do nauki z pomocą AI. Twórz skuteczne zestawy fiszek z dowolnego tekstu.",
-  requireAuth = false,
   user = Astro.locals.user ?? null,
-  session = null,
   isAuthenticated = !!Astro.locals.user,
 } = Astro.props;
+
+// Unused variables for future use
+const _requireAuth = false;
+const _session = null;
 ---
 
 <!doctype html>

@@ -199,7 +199,9 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
 
             {migrationType === "existing" && existingSets.length > 0 && (
               <div className="space-y-2">
-                <label htmlFor="set-select" className="text-sm font-medium">Wybierz zestaw:</label>
+                <label htmlFor="set-select" className="text-sm font-medium">
+                  Wybierz zestaw:
+                </label>
                 <select
                   id="set-select"
                   value={selectedSetId}
@@ -219,7 +221,9 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
 
             {migrationType === "new" && (
               <div className="space-y-2">
-                <label htmlFor="new-set-name" className="text-sm font-medium">Nazwa nowego zestawu:</label>
+                <label htmlFor="new-set-name" className="text-sm font-medium">
+                  Nazwa nowego zestawu:
+                </label>
                 <Input
                   id="new-set-name"
                   value={newSetName}

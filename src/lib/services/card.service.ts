@@ -28,7 +28,9 @@ export interface ListCardsQuery {
  * Service for managing flashcards
  */
 export class CardService {
-  constructor(private supabase: SupabaseClient) {}
+  constructor(private supabase: SupabaseClient) {
+    // Constructor intentionally empty
+  }
 
   /**
    * List cards in a set with pagination and filtering
@@ -309,6 +311,7 @@ export class CardService {
       .eq("id", command.generation_id);
 
     if (updateGenError) {
+      // eslint-disable-next-line no-console
       console.error("Failed to update generation stats:", updateGenError);
     }
 
@@ -330,7 +333,7 @@ export class CardService {
     const currentCard = await this.getCard(cardId, userId);
 
     // 2. Prepare update data
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
 
     // 3. If first edit from AI generation, save originals
     if (!currentCard.was_edited_after_generation && currentCard.generation_id) {
@@ -417,11 +420,12 @@ export class CardService {
   /**
    * Remove duplicate cards from batch based on front text (case-insensitive)
    */
-  private deduplicateBatch(cards: any[]): any[] {
-    const seen = new Map<string, any>();
+  private deduplicateBatch(cards: unknown[]): unknown[] {
+    const seen = new Map<string, unknown>();
 
     for (const card of cards) {
-      const normalizedFront = card.front.toLowerCase().trim();
+      const cardObj = card as { front: string };
+      const normalizedFront = cardObj.front.toLowerCase().trim();
       if (!seen.has(normalizedFront)) {
         seen.set(normalizedFront, card);
       }

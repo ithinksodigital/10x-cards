@@ -27,16 +27,16 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log additional context for generation context errors
     if (error.message.includes("useGeneration must be used within a GenerationProvider")) {
+      // eslint-disable-next-line no-console
       console.error("Generation Context Error:", {
         error: error.message,
         errorInfo,
         componentStack: errorInfo.componentStack,
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
-        url: window.location.href
+        url: window.location.href,
       });
     }
-    
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }

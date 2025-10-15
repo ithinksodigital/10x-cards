@@ -31,7 +31,7 @@ export class OpenRouterService {
   private readonly supabase: SupabaseClient;
   private readonly config: OpenRouterConfig;
   private readonly stats: ServiceStats;
-  private readonly cache: Map<string, any>;
+  private readonly cache: Map<string, unknown>;
 
   constructor(supabase: SupabaseClient, config: OpenRouterConfig) {
     this.supabase = supabase;
@@ -84,6 +84,7 @@ export class OpenRouterService {
         try {
           language = await this.detectLanguage(sanitizedText);
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.warn("Language detection failed, using default:", error);
           language = "en"; // Default to English
         }
@@ -106,6 +107,7 @@ export class OpenRouterService {
           totalCompletionTokens += chunkResult.metadata.completionTokens;
           totalCost += chunkResult.metadata.totalCost;
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.warn("Chunk processing failed:", error);
           // Continue with other chunks
         }
@@ -218,6 +220,7 @@ export class OpenRouterService {
 
       return validLanguage;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Language detection failed:", error);
       // Try simple heuristic fallback
       const fallbackLanguage = this.detectLanguageHeuristic(text);
@@ -231,7 +234,7 @@ export class OpenRouterService {
    * @param schema - JSON schema for validation
    * @returns Validation result with success status and errors
    */
-  validateResponse(response: any, schema: any): ValidationResult {
+  validateResponse(response: unknown, _schema: unknown): ValidationResult {
     try {
       // Basic JSON structure validation
       if (!response || typeof response !== "object") {
@@ -251,17 +254,25 @@ export class OpenRouterService {
 
       // Validate each card
       const errors: string[] = [];
-      response.cards.forEach((card: any, index: number) => {
-        if (!card.front || typeof card.front !== "string") {
+      (response as { cards: unknown[] }).cards.forEach((card: unknown, index: number) => {
+        const cardObj = card as { front?: string; back?: string };
+        if (!cardObj.front || typeof cardObj.front !== "string") {
           errors.push(`Card ${index}: missing or invalid "front" field`);
         }
-        if (!card.back || typeof card.back !== "string") {
+        if (!cardObj.back || typeof cardObj.back !== "string") {
           errors.push(`Card ${index}: missing or invalid "back" field`);
         }
-        if (typeof card.confidence !== "number" || card.confidence < 0 || card.confidence > 1) {
+        if (
+          typeof (cardObj as { confidence?: number }).confidence !== "number" ||
+          (cardObj as { confidence?: number }).confidence! < 0 ||
+          (cardObj as { confidence?: number }).confidence! > 1
+        ) {
           errors.push(`Card ${index}: invalid "confidence" field (must be number 0-1)`);
         }
-        if (!card.excerpt || typeof card.excerpt !== "string") {
+        if (
+          !(cardObj as { excerpt?: string }).excerpt ||
+          typeof (cardObj as { excerpt?: string }).excerpt !== "string"
+        ) {
           errors.push(`Card ${index}: missing or invalid "excerpt" field`);
         }
       });
@@ -333,12 +344,14 @@ export class OpenRouterService {
     const startTime = Date.now();
 
     try {
+      // eslint-disable-next-line no-console
       console.log("Processing chunk:", { chunkLength: chunk.length, language, targetCount });
 
       // Build prompts for this chunk
       const systemPrompt = this.buildSystemPrompt(language);
       const userPrompt = this.buildUserPrompt(chunk, targetCount, language);
 
+      // eslint-disable-next-line no-console
       console.log("Built prompts:", { systemPromptLength: systemPrompt.length, userPromptLength: userPrompt.length });
 
       // Create API request
@@ -353,11 +366,13 @@ export class OpenRouterService {
         response_format: this.getResponseFormat(),
       };
 
+      // eslint-disable-next-line no-console
       console.log("Making API request to OpenRouter...");
 
       // Make API request with retry logic
       const response = await this.retryWithBackoff(() => this.makeApiRequest(request));
 
+      // eslint-disable-next-line no-console
       console.log("Received API response:", { responseId: response.id, choicesCount: response.choices.length });
 
       // Parse and validate response
@@ -379,13 +394,16 @@ export class OpenRouterService {
 
       return {
         success: true,
-        cards: parsedResponse.cards.map((card: any) => ({
-          front: card.front,
-          back: card.back,
-          confidence: card.confidence,
-          excerpt: card.excerpt,
-          language,
-        })),
+        cards: parsedResponse.cards.map((card: unknown) => {
+          const cardObj = card as { front: string; back: string; confidence: number; excerpt: string };
+          return {
+            front: cardObj.front,
+            back: cardObj.back,
+            confidence: cardObj.confidence,
+            excerpt: cardObj.excerpt,
+            language,
+          };
+        }),
         metadata: {
           model: this.config.defaultModel,
           promptTokens: response.usage.prompt_tokens,
@@ -578,7 +596,7 @@ Utwórz fiszki w formacie JSON z tablicą "cards".`;
    * Get JSON schema for structured response format
    * @returns Response format configuration
    */
-  private getResponseFormat(): any {
+  private getResponseFormat(): unknown {
     return {
       type: "json_schema",
       json_schema: {
@@ -633,7 +651,7 @@ Utwórz fiszki w formacie JSON z tablicą "cards".`;
    * @param response - OpenRouter API response
    * @returns Parsed response data
    */
-  private parseResponse(response: OpenRouterResponse): any {
+  private parseResponse(response: OpenRouterResponse): unknown {
     try {
       const content = response.choices[0]?.message?.content;
       if (!content) {
@@ -654,18 +672,25 @@ Utwórz fiszki w formacie JSON z tablicą "cards".`;
    * @param error - API error object
    * @returns Appropriate error instance
    */
-  private handleApiError(error: any): Error {
-    const status = error.status || error.statusCode;
-    const message = error.data?.error?.message || error.message || "Unknown API error";
+  private handleApiError(error: unknown): Error {
+    const errorObj = error as {
+      status?: number;
+      statusCode?: number;
+      data?: { error?: { message?: string } };
+      message?: string;
+    };
+    const status = errorObj.status || errorObj.statusCode;
+    const message = errorObj.data?.error?.message || errorObj.message || "Unknown API error";
 
     switch (status) {
       case 401:
         throw new UnauthorizedError("Invalid API key or authentication failed");
       case 402:
-        throw new QuotaExceededError("API quota exceeded", error.data);
-      case 429:
-        const retryAfter = error.data?.retry_after || 60;
+        throw new QuotaExceededError("API quota exceeded", errorObj.data);
+      case 429: {
+        const retryAfter = errorObj.data?.retry_after || 60;
         throw new RateLimitError("API rate limit exceeded", retryAfter);
+      }
       case 500:
       case 502:
       case 503:
@@ -676,7 +701,7 @@ Utwórz fiszki w formacie JSON z tablicą "cards".`;
     }
   }
 
-  private mapToGenerationError(error: any): GenerationError {
+  private mapToGenerationError(error: unknown): GenerationError {
     if (error instanceof RateLimitError) {
       return {
         code: "RATE_LIMIT_EXCEEDED",
@@ -774,6 +799,7 @@ Utwórz fiszki w formacie JSON z tablicą "cards".`;
         created_at: new Date().toISOString(),
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Failed to log generation metrics:", error);
       // Don't throw - logging failure shouldn't break the main flow
     }
@@ -794,6 +820,7 @@ Utwórz fiszki w formacie JSON z tablicą "cards".`;
       .gte("created_at", oneHourAgo);
 
     if (error) {
+      // eslint-disable-next-line no-console
       console.error("Error checking user rate limit:", error);
       // Don't block user if we can't check rate limit
       return;
@@ -862,6 +889,7 @@ Utwórz fiszki w formacie JSON z tablicą "cards".`;
         }
 
         const delay = this.calculateRetryDelay(attempt);
+        // eslint-disable-next-line no-console
         console.log(`Retry attempt ${attempt}/${maxRetries} after ${delay}ms delay`);
         await this.sleep(delay);
       }
@@ -875,7 +903,7 @@ Utwórz fiszki w formacie JSON z tablicą "cards".`;
    * @param error - Error to check
    * @returns True if error is retryable
    */
-  private isRetryableError(error: any): boolean {
+  private isRetryableError(error: unknown): boolean {
     if (error instanceof RateLimitError) {
       return true;
     }

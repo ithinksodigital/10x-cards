@@ -25,7 +25,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
     try {
       await signOut();
       setIsOpen(false);
-    } catch (error) {
+    } catch {
       // Sign out error handled silently
     } finally {
       setIsSigningOut(false);
@@ -65,11 +65,11 @@ export const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div 
-            className="fixed inset-0 z-40" 
+          <div
+            className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
             onKeyDown={(e) => {
-              if (e.key === 'Escape') {
+              if (e.key === "Escape") {
                 setIsOpen(false);
               }
             }}

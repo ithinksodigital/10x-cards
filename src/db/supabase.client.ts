@@ -9,6 +9,7 @@ const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
 
 // Validate environment variables
 if (!supabaseUrl || !supabaseAnonKey) {
+  // eslint-disable-next-line no-console
   console.warn("Supabase environment variables are not set. Using mock values for development.");
 }
 
