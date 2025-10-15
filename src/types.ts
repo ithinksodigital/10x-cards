@@ -227,13 +227,13 @@ export interface GenerationError {
   message: string;
   retryable: boolean;
   retryAfter?: number;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 export interface ValidationResult {
   valid: boolean;
   errors: string[];
-  data?: any;
+  data?: unknown;
 }
 
 export interface ServiceStats {
@@ -258,7 +258,7 @@ export interface OpenRouterRequest {
     json_schema: {
       name: string;
       strict: boolean;
-      schema: any;
+      schema: Record<string, unknown>;
     };
   };
 }

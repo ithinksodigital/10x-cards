@@ -2,7 +2,7 @@
 import type { APIContext } from "astro";
 import { SetService } from "../../lib/services/set.service";
 import { CreateSetSchema, ListSetsQuerySchema } from "../../lib/schemas";
-import { getMvpUserId, parseJsonBody, validateQuery, jsonResponse, withErrorHandling } from "../../lib/api-utils";
+import { parseJsonBody, validateQuery, jsonResponse, withErrorHandling } from "../../lib/api-utils";
 
 export const prerender = false;
 

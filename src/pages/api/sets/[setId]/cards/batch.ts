@@ -3,7 +3,6 @@ import type { APIContext } from "astro";
 import { CardService } from "../../../../../lib/services/card.service";
 import { UuidSchema, BatchCreateCardsSchema } from "../../../../../lib/schemas";
 import {
-  getMvpUserId,
   parseJsonBody,
   validateParam,
   jsonResponse,
