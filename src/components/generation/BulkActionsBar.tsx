@@ -10,7 +10,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import type { FlashCardProposal } from "@/lib/view-models";
@@ -27,7 +26,6 @@ interface BulkActionsBarProps {
   onAcceptAllBatch: () => void;
   onRejectAllBatch: () => void;
   onUndo: () => void;
-  onSelectAllInBatch: () => void;
   className?: string;
 }
 
@@ -45,7 +43,6 @@ export function BulkActionsBar({
   onAcceptAllBatch,
   onRejectAllBatch,
   onUndo,
-  onSelectAllInBatch,
   className,
 }: BulkActionsBarProps) {
   const [showAcceptAllDialog, setShowAcceptAllDialog] = useState(false);
@@ -292,12 +289,9 @@ export function useBulkActions(
   selectedIds: Set<string>,
   rejectedIds: Set<string>,
   currentBatch: number,
-  undoStack: any[],
+  undoStack: unknown[],
   onAcceptCard: (cardId: string) => void,
-  onRejectCard: (cardId: string) => void,
-  onAcceptAllBatch: () => void,
-  onRejectAllBatch: () => void,
-  onUndo: () => void
+  onRejectCard: (cardId: string) => void
 ) {
   const canUndo = undoStack.length > 0;
   const undoCount = undoStack.length;
