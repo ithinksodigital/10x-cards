@@ -92,7 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
-  const migrateAnonymousData = async (_data: unknown): Promise<void> => {
+  const migrateAnonymousData = async (): Promise<void> => {
     // TODO: Implement actual data migration
     // Mock success
     await new Promise((resolve) => setTimeout(resolve, 1000));

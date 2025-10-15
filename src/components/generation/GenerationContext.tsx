@@ -265,7 +265,7 @@ const GenerationContext = createContext<GenerationContextValue | undefined>(unde
 
 export function GenerationProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(generationReducer, initialState);
-  const [_isInitialized, setIsInitialized] = useState(false);
+  const [, setIsInitialized] = useState(false);
 
   // Persist state to sessionStorage (with TTL 24h)
   useEffect(() => {

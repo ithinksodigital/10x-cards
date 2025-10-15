@@ -144,7 +144,7 @@ export function useProgressPolling(
     onError?: (error: string) => void;
   } = {}
 ) {
-  const { interval = 5000, timeout = 60000, onError } = options; // Reduced from 2s to 5s
+  const { timeout = 60000, onError } = options; // Reduced from 2s to 5s
   const [isPolling, setIsPolling] = useState(false);
   const [pollingError, setPollingError] = useState<string | null>(null);
 
@@ -163,7 +163,7 @@ export function useProgressPolling(
     currentRequest: null,
   });
 
-  const _interval = interval; // Mark as used to avoid linting error
+  // Use interval directly in the polling logic
 
   const startPolling = useCallback(async () => {
     if (!generationId) return;

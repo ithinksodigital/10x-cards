@@ -234,7 +234,7 @@ export class OpenRouterService {
    * @param schema - JSON schema for validation
    * @returns Validation result with success status and errors
    */
-  validateResponse(response: unknown, _schema: unknown): ValidationResult {
+  validateResponse(response: unknown): ValidationResult {
     try {
       // Basic JSON structure validation
       if (!response || typeof response !== "object") {
@@ -262,11 +262,8 @@ export class OpenRouterService {
         if (!cardObj.back || typeof cardObj.back !== "string") {
           errors.push(`Card ${index}: missing or invalid "back" field`);
         }
-        if (
-          typeof (cardObj as { confidence?: number }).confidence !== "number" ||
-          (cardObj as { confidence?: number }).confidence! < 0 ||
-          (cardObj as { confidence?: number }).confidence! > 1
-        ) {
+        const confidence = (cardObj as { confidence?: number }).confidence;
+        if (typeof confidence !== "number" || confidence < 0 || confidence > 1) {
           errors.push(`Card ${index}: invalid "confidence" field (must be number 0-1)`);
         }
         if (
