@@ -111,7 +111,7 @@ describe('Button component', () => {
 ```typescript
 import { test, expect } from '@playwright/test'
 
-test('should navigate to dashboard', async ({ page }) => {
+test('should navigate to home page after login', async ({ page }) => {
   await page.goto('/')
   await page.click('text=Sign In')
   await expect(page).toHaveURL('/auth/signin')
