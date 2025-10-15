@@ -1,9 +1,7 @@
 import React, { useEffect } from "react";
 import type { ReactNode } from "react";
 import { useAuth } from "./AuthProvider";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Loader2Icon, LockIcon } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 
 interface AuthGuardProps {
   children: ReactNode;

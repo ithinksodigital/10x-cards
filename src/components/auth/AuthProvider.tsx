@@ -50,11 +50,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     return () => clearTimeout(timer);
   }, []);
 
-  const signInWithEmail = async (email: string, _password: string): Promise<void> => {
+  const signInWithEmail = async (email: string): Promise<void> => {
     setIsLoading(true);
     try {
       // TODO: Implement actual Supabase sign in
-      console.log("Sign in with email:", email);
       // Mock success
       await new Promise((resolve) => setTimeout(resolve, 1000));
       // setUser(mockUser);
