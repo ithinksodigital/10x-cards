@@ -80,7 +80,6 @@ export const AuthContainer: React.FC<AuthContainerProps> = ({ initialMode = "log
 
     try {
       // TODO: Implement actual password reset logic
-      console.log("Password reset attempt:", data);
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Mock delay
 
       setSuccess(true);

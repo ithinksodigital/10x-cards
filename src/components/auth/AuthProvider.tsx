@@ -4,8 +4,8 @@ import type { User, Session } from "@supabase/supabase-js";
 
 // Types for authentication context
 interface AuthContextType {
-  user: User | null | any; // Allow any type for mock data
-  session: Session | null | any; // Allow any type for mock data
+  user: User | null;
+  session: Session | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   signInWithEmail: (email: string, password: string) => Promise<void>;
@@ -13,7 +13,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;
-  migrateAnonymousData: (anonymousData: any) => Promise<void>;
+  migrateAnonymousData: (anonymousData: unknown) => Promise<void>;
 }
 
 // Create the context
@@ -31,13 +31,13 @@ export const useAuth = (): AuthContextType => {
 // AuthProvider component
 interface AuthProviderProps {
   children: ReactNode;
-  initialUser?: User | null | any; // Allow any type for mock data
-  initialSession?: Session | null | any; // Allow any type for mock data
+  initialUser?: User | null;
+  initialSession?: Session | null;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUser = null, initialSession = null }) => {
-  const [user, setUser] = useState<User | null | any>(initialUser);
-  const [session, setSession] = useState<Session | null | any>(initialSession);
+  const [user, setUser] = useState<User | null>(initialUser);
+  const [session, setSession] = useState<Session | null>(initialSession);
   const [isLoading, setIsLoading] = useState(true);
 
   // Mock implementation - will be replaced with actual Supabase integration
@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     return () => clearTimeout(timer);
   }, []);
 
-  const signInWithEmail = async (email: string, password: string): Promise<void> => {
+  const signInWithEmail = async (email: string, _password: string): Promise<void> => {
     setIsLoading(true);
     try {
       // TODO: Implement actual Supabase sign in
@@ -125,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     }
   };
 
-  const migrateAnonymousData = async (anonymousData: any): Promise<void> => {
+  const migrateAnonymousData = async (anonymousData: unknown): Promise<void> => {
     try {
       // TODO: Implement actual data migration
       console.log("Migrate anonymous data:", anonymousData);
