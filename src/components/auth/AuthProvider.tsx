@@ -8,12 +8,12 @@ interface AuthContextType {
   session: Session | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string) => Promise<void>;
+  signInWithEmail: () => Promise<void>;
+  signUpWithEmail: () => Promise<void>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
-  updatePassword: (password: string) => Promise<void>;
-  migrateAnonymousData: (anonymousData: unknown) => Promise<void>;
+  resetPassword: () => Promise<void>;
+  updatePassword: () => Promise<void>;
+  migrateAnonymousData: () => Promise<void>;
 }
 
 // Create the context
@@ -50,79 +50,52 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     return () => clearTimeout(timer);
   }, []);
 
-  const signInWithEmail = async (_email: string): Promise<void> => {
+  const signInWithEmail = async (): Promise<void> => {
     setIsLoading(true);
-    try {
-      // TODO: Implement actual Supabase sign in
-      // Mock success
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // setUser(mockUser);
-      // setSession(mockSession);
-    } catch (error) {
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    // TODO: Implement actual Supabase sign in
+    // Mock success
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // setUser(mockUser);
+    // setSession(mockSession);
+    setIsLoading(false);
   };
 
-  const signUpWithEmail = async (_email: string, _password: string): Promise<void> => {
+  const signUpWithEmail = async (): Promise<void> => {
     setIsLoading(true);
-    try {
-      // TODO: Implement actual Supabase sign up
-      // Mock success
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      // setUser(mockUser);
-      // setSession(mockSession);
-    } catch (error) {
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    // TODO: Implement actual Supabase sign up
+    // Mock success
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // setUser(mockUser);
+    // setSession(mockSession);
+    setIsLoading(false);
   };
 
   const signOut = async (): Promise<void> => {
     setIsLoading(true);
-    try {
-      // TODO: Implement actual Supabase sign out
-      // Mock success
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setUser(null);
-      setSession(null);
-    } catch (error) {
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    // TODO: Implement actual Supabase sign out
+    // Mock success
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    setUser(null);
+    setSession(null);
+    setIsLoading(false);
   };
 
-  const resetPassword = async (_email: string): Promise<void> => {
-    try {
-      // TODO: Implement actual Supabase password reset
-      // Mock success
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    } catch (error) {
-      throw error;
-    }
+  const resetPassword = async (): Promise<void> => {
+    // TODO: Implement actual Supabase password reset
+    // Mock success
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
-  const updatePassword = async (_password: string): Promise<void> => {
-    try {
-      // TODO: Implement actual Supabase password update
-      // Mock success
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    } catch (error) {
-      throw error;
-    }
+  const updatePassword = async (): Promise<void> => {
+    // TODO: Implement actual Supabase password update
+    // Mock success
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
-  const migrateAnonymousData = async (_anonymousData: unknown): Promise<void> => {
-    try {
-      // TODO: Implement actual data migration
-      // Mock success
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    } catch (error) {
-      throw error;
-    }
+  const migrateAnonymousData = async (): Promise<void> => {
+    // TODO: Implement actual data migration
+    // Mock success
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
   const value: AuthContextType = {
