@@ -2,26 +2,20 @@ import React, { useEffect, useState } from "react";
 import { AuthProvider } from "./AuthProvider";
 import { AuthGuard } from "./AuthGuard";
 import { useSetsApi } from "../../hooks/useSetsApi";
+import type { User, Session } from "@supabase/supabase-js";
 
 interface DashboardWrapperProps {
-  user: {
-    user_metadata?: {
-      full_name?: string;
-    };
-    email?: string;
-  } | null;
-  session: unknown;
+  user: User | null;
+  session: Session | null;
 }
 
-const DashboardContent: React.FC<{
-  user: { user_metadata?: { full_name?: string }; email?: string } | null;
-}> = ({ user }) => {
+const DashboardContent: React.FC<{ user: User | null }> = ({ user }) => {
   const { sets, fetchSets, isLoading, error } = useSetsApi();
   const [totalCards, setTotalCards] = useState(0);
 
   useEffect(() => {
     fetchSets().catch(() => {
-      // Handle error silently
+      // Error handling is done in the useSetsApi hook
     });
   }, [fetchSets]);
 
@@ -185,7 +179,7 @@ const DashboardContent: React.FC<{
 
 export const DashboardWrapper: React.FC<DashboardWrapperProps> = ({ user, session }) => {
   return (
-    <AuthProvider initialUser={user as any} initialSession={session as any}>
+    <AuthProvider initialUser={user} initialSession={session}>
       <AuthGuard requireAuth={true}>
         <DashboardContent user={user} />
       </AuthGuard>

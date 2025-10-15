@@ -1,5 +1,5 @@
 // src/components/generation/AccessibilityProvider.tsx
-import React, { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 
 interface AccessibilityContextValue {
   announce: (message: string, priority?: "polite" | "assertive") => void;
@@ -16,6 +16,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
       priority: "polite" | "assertive";
     }[]
   >([]);
+  const [pageTitle, setPageTitleState] = useState<string>("");
 
   const announce = useCallback((message: string, priority: "polite" | "assertive" = "polite") => {
     const id = Math.random().toString(36).substr(2, 9);
@@ -28,8 +29,15 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setPageTitle = useCallback((title: string) => {
-    document.title = title;
+    setPageTitleState(title);
   }, []);
+
+  // Use useEffect to update document.title
+  useEffect(() => {
+    if (pageTitle) {
+      document.title = pageTitle;
+    }
+  }, [pageTitle]);
 
   const value: AccessibilityContextValue = {
     announce,
