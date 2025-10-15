@@ -5,16 +5,16 @@ import { GenerationService } from "../../lib/services/generation.service";
 import type { ErrorResponseDto, StartGenerationResponseDto } from "../../types";
 
 // Load environment variables from .env file
-import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
 // Get the directory of the current file
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Load .env file from project root
-dotenv.config({ path: join(__dirname, '../../../.env') });
+dotenv.config({ path: join(__dirname, "../../../.env") });
 
 export const prerender = false;
 
@@ -97,14 +97,14 @@ export async function POST(context: APIContext): Promise<Response> {
       source_text_length: command.source_text.length,
       language: command.language,
       target_count: command.target_count,
-      user_id: userId
+      user_id: userId,
     });
 
     // Check environment variables
     console.log("Environment check:", {
       hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
       openRouterKeyLength: process.env.OPENROUTER_API_KEY?.length || 0,
-      allEnvKeys: Object.keys(process.env).filter(k => k.includes('OPENROUTER'))
+      allEnvKeys: Object.keys(process.env).filter((k) => k.includes("OPENROUTER")),
     });
 
     const generationService = new GenerationService(supabase);
@@ -113,7 +113,7 @@ export async function POST(context: APIContext): Promise<Response> {
     console.log("Generation started successfully:", {
       generation_id: result.id,
       status: result.status,
-      estimated_duration_ms: result.estimated_duration_ms
+      estimated_duration_ms: result.estimated_duration_ms,
     });
 
     // 4. Return 202 Accepted with generation metadata
@@ -127,7 +127,7 @@ export async function POST(context: APIContext): Promise<Response> {
       console.error("Error starting generation:", {
         message: error.message,
         stack: error.stack,
-        name: error.name
+        name: error.name,
       });
 
       // Rate limiting error

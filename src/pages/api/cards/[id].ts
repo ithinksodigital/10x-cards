@@ -1,14 +1,8 @@
 // src/pages/api/cards/[id].ts
-import type { APIContext } from 'astro';
-import { CardService } from '../../../lib/services/card.service';
-import { UuidSchema, UpdateCardSchema } from '../../../lib/schemas';
-import {
-  getMvpUserId,
-  parseJsonBody,
-  validateParam,
-  jsonResponse,
-  withErrorHandling,
-} from '../../../lib/api-utils';
+import type { APIContext } from "astro";
+import { CardService } from "../../../lib/services/card.service";
+import { UuidSchema, UpdateCardSchema } from "../../../lib/schemas";
+import { getMvpUserId, parseJsonBody, validateParam, jsonResponse, withErrorHandling } from "../../../lib/api-utils";
 
 export const prerender = false;
 
@@ -29,7 +23,7 @@ export const prerender = false;
  */
 export const GET = withErrorHandling(async (context: APIContext) => {
   // 1. Validate UUID parameter
-  const cardId = validateParam(context.params.id, UuidSchema, 'id');
+  const cardId = validateParam(context.params.id, UuidSchema, "id");
 
   // 2. MVP: Get hardcoded user ID
   const userId = getMvpUserId();
@@ -67,7 +61,7 @@ export const GET = withErrorHandling(async (context: APIContext) => {
  */
 export const PATCH = withErrorHandling(async (context: APIContext) => {
   // 1. Validate UUID parameter
-  const cardId = validateParam(context.params.id, UuidSchema, 'id');
+  const cardId = validateParam(context.params.id, UuidSchema, "id");
 
   // 2. MVP: Get hardcoded user ID
   const userId = getMvpUserId();
@@ -102,7 +96,7 @@ export const PATCH = withErrorHandling(async (context: APIContext) => {
  */
 export const DELETE = withErrorHandling(async (context: APIContext) => {
   // 1. Validate UUID parameter
-  const cardId = validateParam(context.params.id, UuidSchema, 'id');
+  const cardId = validateParam(context.params.id, UuidSchema, "id");
 
   // 2. MVP: Get hardcoded user ID
   const userId = getMvpUserId();
@@ -112,8 +106,10 @@ export const DELETE = withErrorHandling(async (context: APIContext) => {
   await cardService.deleteCard(cardId, userId);
 
   // 4. Return response
-  return jsonResponse({
-    message: 'Card successfully deleted',
-  }, 200);
+  return jsonResponse(
+    {
+      message: "Card successfully deleted",
+    },
+    200
+  );
 });
-

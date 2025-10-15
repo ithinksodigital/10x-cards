@@ -29,17 +29,17 @@ export interface CardEditState {
 /**
  * Undo action types
  */
-export type UndoAction = 
-  | { type: 'accept'; cardId: string }
-  | { type: 'reject'; cardId: string }
-  | { type: 'edit'; cardId: string; previousState: { front: string; back: string } };
+export type UndoAction =
+  | { type: "accept"; cardId: string }
+  | { type: "reject"; cardId: string }
+  | { type: "edit"; cardId: string; previousState: { front: string; back: string } };
 
 /**
  * Generation flow state
  */
 export interface GenerationState {
   generationId: string | null;
-  status: 'idle' | 'processing' | 'completed' | 'failed';
+  status: "idle" | "processing" | "completed" | "failed";
   proposals: FlashCardProposal[];
   selectedIds: Set<string>;
   rejectedIds: Set<string>;
@@ -54,10 +54,9 @@ export interface GenerationState {
  */
 export interface PasteFormState {
   source_text: string;
-  language?: 'pl' | 'en' | 'es';
+  language?: "pl" | "en" | "es";
   target_count: number;
   charCount: number;
   isValid: boolean;
   errors?: Record<string, string>;
 }
-

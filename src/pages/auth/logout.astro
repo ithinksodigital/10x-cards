@@ -1,5 +1,5 @@
 ---
-import Layout from '../../layouts/Layout.astro';
+import Layout from "../../layouts/Layout.astro";
 
 export const prerender = false;
 ---
@@ -9,9 +9,7 @@ export const prerender = false;
     <div class="w-full max-w-md">
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-foreground">10x Cards</h1>
-        <p class="mt-2 text-muted-foreground">
-          Wylogowywanie...
-        </p>
+        <p class="mt-2 text-muted-foreground">Wylogowywanie...</p>
       </div>
 
       <div id="logout-container" class="text-center space-y-4">
@@ -19,7 +17,10 @@ export const prerender = false;
         <p class="text-muted-foreground">Wylogowywanie...</p>
         <noscript>
           <form action="/api/auth/logout" method="post" class="mt-4">
-            <button type="submit" class="text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90 transition-colors">
+            <button
+              type="submit"
+              class="text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90 transition-colors"
+            >
               Wyloguj teraz
             </button>
           </form>
@@ -31,19 +32,19 @@ export const prerender = false;
 
 <script>
   // Call backend logout API, then redirect
-  document.addEventListener('DOMContentLoaded', async () => {
-    const container = document.getElementById('logout-container');
+  document.addEventListener("DOMContentLoaded", async () => {
+    const container = document.getElementById("logout-container");
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
       });
     } catch (e) {
       // ignore, we still proceed to cleanup and redirect
     } finally {
       try {
-        localStorage.removeItem('anonymous_session');
+        localStorage.removeItem("anonymous_session");
         sessionStorage.clear();
       } catch {}
       if (container) {
@@ -62,7 +63,7 @@ export const prerender = false;
         `;
       }
       setTimeout(() => {
-        window.location.href = '/';
+        window.location.href = "/";
       }, 800);
     }
   });

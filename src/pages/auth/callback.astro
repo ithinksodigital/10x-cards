@@ -1,13 +1,13 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { AuthProvider } from '../../components/auth/AuthProvider';
+import Layout from "../../layouts/Layout.astro";
+import { AuthProvider } from "../../components/auth/AuthProvider";
 
 // Get URL parameters for OAuth callback
 const url = new URL(Astro.request.url);
-const code = url.searchParams.get('code');
-const state = url.searchParams.get('state');
-const error = url.searchParams.get('error');
-const errorDescription = url.searchParams.get('error_description');
+const code = url.searchParams.get("code");
+const state = url.searchParams.get("state");
+const error = url.searchParams.get("error");
+const errorDescription = url.searchParams.get("error_description");
 
 // Mock user data - will be replaced with actual Supabase integration
 const user = null;
@@ -19,11 +19,9 @@ const session = null;
     <div class="w-full max-w-md">
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-foreground">10x Cards</h1>
-        <p class="mt-2 text-muted-foreground">
-          Przetwarzanie autoryzacji...
-        </p>
+        <p class="mt-2 text-muted-foreground">Przetwarzanie autoryzacji...</p>
       </div>
-      
+
       <AuthProvider client:load initialUser={user} initialSession={session}>
         <div id="auth-callback-container">
           <!-- This will be handled by React component -->
@@ -35,9 +33,9 @@ const session = null;
 
 <script define:vars={{ error, errorDescription }}>
   // Handle OAuth callback
-  document.addEventListener('DOMContentLoaded', () => {
-    const container = document.getElementById('auth-callback-container');
-    
+  document.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("auth-callback-container");
+
     if (container) {
       // Show loading state
       container.innerHTML = `
@@ -46,7 +44,7 @@ const session = null;
           <p class="text-muted-foreground">Przetwarzanie autoryzacji...</p>
         </div>
       `;
-      
+
       // Simulate OAuth processing
       setTimeout(() => {
         if (error) {
@@ -84,10 +82,10 @@ const session = null;
               </div>
             </div>
           `;
-          
+
           // Redirect after a short delay
           setTimeout(() => {
-            window.location.href = '/dashboard';
+            window.location.href = "/dashboard";
           }, 1500);
         }
       }, 2000);

@@ -1,26 +1,26 @@
-import React, { useState } from 'react';
-import { useAuth } from './AuthProvider';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Alert, AlertDescription } from '../ui/alert';
-import { Badge } from '../ui/badge';
-import { Loader2Icon, DatabaseIcon, CheckIcon, XIcon } from 'lucide-react';
+import React, { useState } from "react";
+import { useAuth } from "./AuthProvider";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Alert, AlertDescription } from "../ui/alert";
+import { Badge } from "../ui/badge";
+import { Loader2Icon, DatabaseIcon, CheckIcon, XIcon } from "lucide-react";
 
 interface MigrationModalProps {
   isOpen: boolean;
   onClose: () => void;
   anonymousData: {
     sessionId: string;
-    generatedCards: Array<{
+    generatedCards: {
       id: string;
       front: string;
       back: string;
       language: string;
       isAccepted: boolean;
       isEdited: boolean;
-    }>;
+    }[];
     reviewState: {
       currentBatch: number;
       totalBatches: number;
@@ -30,12 +30,12 @@ interface MigrationModalProps {
     createdAt: string;
     expiresAt: string;
   };
-  existingSets?: Array<{
+  existingSets?: {
     id: string;
     name: string;
     language: string;
     card_count: number;
-  }>;
+  }[];
 }
 
 export const MigrationModal: React.FC<MigrationModalProps> = ({
@@ -46,32 +46,29 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
 }) => {
   const { migrateAnonymousData } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>('');
-  const [migrationType, setMigrationType] = useState<'existing' | 'new'>('existing');
-  const [selectedSetId, setSelectedSetId] = useState<string>('');
-  const [newSetName, setNewSetName] = useState<string>('');
+  const [error, setError] = useState<string>("");
+  const [migrationType, setMigrationType] = useState<"existing" | "new">("existing");
+  const [selectedSetId, setSelectedSetId] = useState<string>("");
+  const [newSetName, setNewSetName] = useState<string>("");
   const [migrationComplete, setMigrationComplete] = useState(false);
 
-  const acceptedCards = anonymousData.generatedCards.filter(card => card.isAccepted);
-  const rejectedCards = anonymousData.generatedCards.filter(card => !card.isAccepted);
+  const acceptedCards = anonymousData.generatedCards.filter((card) => card.isAccepted);
+  const rejectedCards = anonymousData.generatedCards.filter((card) => !card.isAccepted);
 
   const handleMigration = async () => {
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       const migrationData = {
         anonymousData,
-        ...(migrationType === 'existing' 
-          ? { targetSetId: selectedSetId }
-          : { newSetName }
-        ),
+        ...(migrationType === "existing" ? { targetSetId: selectedSetId } : { newSetName }),
       };
 
       await migrateAnonymousData(migrationData);
       setMigrationComplete(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Wystąpił błąd podczas migracji');
+      setError(err instanceof Error ? err.message : "Wystąpił błąd podczas migracji");
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +77,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
   const handleClose = () => {
     if (migrationComplete) {
       // Clear anonymous data after successful migration
-      localStorage.removeItem('anonymous_session');
+      localStorage.removeItem("anonymous_session");
       sessionStorage.clear();
     }
     onClose();
@@ -104,9 +101,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
               <p className="text-sm text-muted-foreground">
                 Przeniesiono <strong>{acceptedCards.length}</strong> fiszek
               </p>
-              <p className="text-xs text-muted-foreground">
-                Dane anonimowe zostały usunięte z przeglądarki
-              </p>
+              <p className="text-xs text-muted-foreground">Dane anonimowe zostały usunięte z przeglądarki</p>
             </div>
             <Button onClick={handleClose} className="w-full">
               Kontynuuj
@@ -135,9 +130,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Podsumowanie danych</CardTitle>
-              <CardDescription>
-                Dane z sesji anonimowej do przeniesienia
-              </CardDescription>
+              <CardDescription>Dane z sesji anonimowej do przeniesienia</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -152,7 +145,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
                   <Badge variant="outline">{rejectedCards.length}</Badge>
                 </div>
               </div>
-              
+
               {acceptedCards.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-sm font-medium">Przykładowe fiszki:</p>
@@ -186,16 +179,16 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
               <label className="text-sm font-medium">Wybierz opcję:</label>
               <div className="grid grid-cols-2 gap-2">
                 <Button
-                  variant={migrationType === 'existing' ? 'default' : 'outline'}
-                  onClick={() => setMigrationType('existing')}
+                  variant={migrationType === "existing" ? "default" : "outline"}
+                  onClick={() => setMigrationType("existing")}
                   disabled={isLoading || existingSets.length === 0}
                   className="justify-start"
                 >
                   Istniejący zestaw
                 </Button>
                 <Button
-                  variant={migrationType === 'new' ? 'default' : 'outline'}
-                  onClick={() => setMigrationType('new')}
+                  variant={migrationType === "new" ? "default" : "outline"}
+                  onClick={() => setMigrationType("new")}
                   disabled={isLoading}
                   className="justify-start"
                 >
@@ -204,7 +197,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
               </div>
             </div>
 
-            {migrationType === 'existing' && existingSets.length > 0 && (
+            {migrationType === "existing" && existingSets.length > 0 && (
               <div className="space-y-2">
                 <label className="text-sm font-medium">Wybierz zestaw:</label>
                 <select
@@ -223,7 +216,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
               </div>
             )}
 
-            {migrationType === 'new' && (
+            {migrationType === "new" && (
               <div className="space-y-2">
                 <label className="text-sm font-medium">Nazwa nowego zestawu:</label>
                 <Input
@@ -235,7 +228,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
               </div>
             )}
 
-            {existingSets.length === 0 && migrationType === 'existing' && (
+            {existingSets.length === 0 && migrationType === "existing" && (
               <Alert>
                 <AlertDescription>
                   Nie masz jeszcze żadnych zestawów. Utwórz nowy zestaw, aby zapisać fiszki.
@@ -246,19 +239,15 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
 
           {/* Actions */}
           <div className="flex gap-2 justify-end">
-            <Button
-              variant="outline"
-              onClick={onClose}
-              disabled={isLoading}
-            >
+            <Button variant="outline" onClick={onClose} disabled={isLoading}>
               Anuluj
             </Button>
             <Button
               onClick={handleMigration}
               disabled={
                 isLoading ||
-                (migrationType === 'existing' && !selectedSetId) ||
-                (migrationType === 'new' && !newSetName.trim()) ||
+                (migrationType === "existing" && !selectedSetId) ||
+                (migrationType === "new" && !newSetName.trim()) ||
                 acceptedCards.length === 0
               }
             >
@@ -268,7 +257,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
                   Przenoszenie...
                 </>
               ) : (
-                'Przenieś dane'
+                "Przenieś dane"
               )}
             </Button>
           </div>

@@ -1,7 +1,7 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { AuthProvider } from '../../components/auth/AuthProvider';
-import { AuthContainer } from '../../components/auth/AuthContainer';
+import Layout from "../../layouts/Layout.astro";
+import { AuthProvider } from "../../components/auth/AuthProvider";
+import { AuthContainer } from "../../components/auth/AuthContainer";
 
 // Mock user data - will be replaced with actual Supabase integration
 const user = null;
@@ -13,11 +13,9 @@ const session = null;
     <div class="w-full max-w-md">
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-foreground">10x Cards</h1>
-        <p class="mt-2 text-muted-foreground">
-          Zaloguj się, aby uzyskać dostęp do swoich fiszek
-        </p>
+        <p class="mt-2 text-muted-foreground">Zaloguj się, aby uzyskać dostęp do swoich fiszek</p>
       </div>
-      
+
       <AuthProvider client:load initialUser={user} initialSession={session}>
         <AuthContainer client:load initialMode="login" />
       </AuthProvider>
@@ -27,8 +25,8 @@ const session = null;
 
 <script>
   // Handle form switching and navigation
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     // This will be handled by the React components
-    console.log('Login page loaded');
+    console.log("Login page loaded");
   });
 </script>

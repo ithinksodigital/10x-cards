@@ -1,17 +1,17 @@
 // src/hooks/useGenerationApi.ts
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from "react";
 
 // Global polling state to prevent multiple instances
 const globalPollingState = new Map<string, boolean>();
-import { useApiRetry } from './useRetry';
-import type { 
-  StartGenerationCommand, 
+import { useApiRetry } from "./useRetry";
+import type {
+  StartGenerationCommand,
   StartGenerationResponseDto,
   ProcessingGenerationDto,
   CompletedGenerationDto,
-  FailedGenerationDto 
-} from '@/types';
-import type { FlashCardProposal } from '@/lib/view-models';
+  FailedGenerationDto,
+} from "@/types";
+import type { FlashCardProposal } from "@/lib/view-models";
 
 interface UseGenerationApiReturn {
   isGenerating: boolean;
@@ -24,36 +24,41 @@ export function useGenerationApi(): UseGenerationApiReturn {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { retry: retryStartGeneration, isRetrying, attempt, lastError } = useApiRetry(
+  const {
+    retry: retryStartGeneration,
+    isRetrying,
+    attempt,
+    lastError,
+  } = useApiRetry(
     async (command: StartGenerationCommand): Promise<StartGenerationResponseDto> => {
-      const response = await fetch('/api/generations', {
-        method: 'POST',
+      const response = await fetch("/api/generations", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(command),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        
+
         if (response.status === 401) {
-          throw new Error('Authentication required. Please log in.');
+          throw new Error("Authentication required. Please log in.");
         }
-        
+
         if (response.status === 429) {
-          throw new Error('Rate limit exceeded. Please try again later.');
+          throw new Error("Rate limit exceeded. Please try again later.");
         }
-        
+
         if (response.status === 400) {
-          const message = errorData.message || 'Invalid request. Please check your input.';
+          const message = errorData.message || "Invalid request. Please check your input.";
           throw new Error(message);
         }
-        
+
         if (response.status >= 500) {
-          throw new Error('Server error. Please try again later.');
+          throw new Error("Server error. Please try again later.");
         }
-        
+
         throw new Error(errorData.message || `Request failed with status ${response.status}`);
       }
 
@@ -67,21 +72,24 @@ export function useGenerationApi(): UseGenerationApiReturn {
     }
   );
 
-  const startGeneration = useCallback(async (command: StartGenerationCommand): Promise<StartGenerationResponseDto> => {
-    setIsGenerating(true);
-    setError(null);
+  const startGeneration = useCallback(
+    async (command: StartGenerationCommand): Promise<StartGenerationResponseDto> => {
+      setIsGenerating(true);
+      setError(null);
 
-    try {
-      const result = await retryStartGeneration(command);
-      return result;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [retryStartGeneration]);
+      try {
+        const result = await retryStartGeneration(command);
+        return result;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+        setError(errorMessage);
+        throw err;
+      } finally {
+        setIsGenerating(false);
+      }
+    },
+    [retryStartGeneration]
+  );
 
   const retryGeneration = useCallback(async (generationId: string): Promise<void> => {
     setIsGenerating(true);
@@ -89,31 +97,31 @@ export function useGenerationApi(): UseGenerationApiReturn {
 
     try {
       const response = await fetch(`/api/generations/${generationId}/retry`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        
+
         if (response.status === 401) {
-          throw new Error('Authentication required. Please log in.');
+          throw new Error("Authentication required. Please log in.");
         }
-        
+
         if (response.status === 429) {
-          throw new Error('Rate limit exceeded. Please try again later.');
+          throw new Error("Rate limit exceeded. Please try again later.");
         }
-        
+
         if (response.status >= 500) {
-          throw new Error('Server error. Please try again later.');
+          throw new Error("Server error. Please try again later.");
         }
-        
+
         throw new Error(errorData.message || `Retry failed with status ${response.status}`);
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
       setError(errorMessage);
       throw err;
     } finally {
@@ -144,7 +152,7 @@ export function useProgressPolling(
   const { interval = 5000, timeout = 60000, onError } = options; // Reduced from 2s to 5s
   const [isPolling, setIsPolling] = useState(false);
   const [pollingError, setPollingError] = useState<string | null>(null);
-  
+
   // Use refs to track polling state and cleanup
   const pollingRef = useRef<{
     isActive: boolean;
@@ -189,7 +197,7 @@ export function useProgressPolling(
     pollingRef.current.isActive = true;
     pollingRef.current.consecutiveErrors = 0;
     pollingRef.current.lastRequestTime = 0;
-    
+
     const startTime = Date.now();
     let backoffDelay = 15000; // Start with 15s delay - AI needs time to process
     let lastProgress = 0;
@@ -204,14 +212,14 @@ export function useProgressPolling(
       try {
         // Check timeout
         if (Date.now() - startTime > timeout) {
-          throw new Error('Generation timeout. Please try again.');
+          throw new Error("Generation timeout. Please try again.");
         }
 
         // Throttle requests to prevent resource exhaustion
         const now = Date.now();
         const timeSinceLastRequest = now - pollingRef.current.lastRequestTime;
         const minInterval = 2000; // Minimum 2s between requests (AI needs time)
-        
+
         if (timeSinceLastRequest < minInterval) {
           const delay = minInterval - timeSinceLastRequest;
           pollingRef.current.timeoutId = setTimeout(poll, delay);
@@ -230,16 +238,16 @@ export function useProgressPolling(
         const requestPromise = fetch(`/api/generations/${generationId}`, {
           signal: AbortSignal.timeout(10000), // 10s timeout per request
         });
-        
+
         pollingRef.current.currentRequest = requestPromise;
         const response = await requestPromise;
         pollingRef.current.currentRequest = null;
-        
+
         if (!response.ok) {
           if (response.status === 401) {
-            throw new Error('Authentication required. Please log in.');
+            throw new Error("Authentication required. Please log in.");
           }
-          
+
           if (response.status === 404) {
             // For 404 errors, continue polling for a bit longer as the generation might still be processing
             console.warn(`Generation ${generationId} not found yet, continuing to poll...`);
@@ -247,22 +255,22 @@ export function useProgressPolling(
             backoffDelay = Math.min(backoffDelay * 1.2, 3000); // Slower backoff for 404s
             return;
           }
-          
+
           if (response.status >= 500) {
-            throw new Error('Server error while checking status.');
+            throw new Error("Server error while checking status.");
           }
-          
+
           throw new Error(`Status check failed with status ${response.status}`);
         }
 
         const data: ProcessingGenerationDto | CompletedGenerationDto | FailedGenerationDto = await response.json();
-        
+
         // Reset error counter on successful request
         pollingRef.current.consecutiveErrors = 0;
         onUpdate(data);
 
         // Stop polling if generation is completed or failed
-        if (data.status === 'completed' || data.status === 'failed') {
+        if (data.status === "completed" || data.status === "failed") {
           console.log(`✅ Generation ${generationId} finished with status: ${data.status}`);
           pollingRef.current.isActive = false;
           globalPollingState.delete(generationId);
@@ -272,17 +280,19 @@ export function useProgressPolling(
 
         // Add polling counter and strict limits
         pollCount++;
-        console.log(`🔍 Poll #${pollCount} for generation ${generationId}: status=${data.status}, progress=${(data as any).progress || 'N/A'}, timeElapsed=${Math.round((Date.now() - startTime) / 1000)}s`);
-        
+        console.log(
+          `🔍 Poll #${pollCount} for generation ${generationId}: status=${data.status}, progress=${(data as any).progress || "N/A"}, timeElapsed=${Math.round((Date.now() - startTime) / 1000)}s`
+        );
+
         // EMERGENCY BRAKE: Stop after 6 polls (should be enough for AI generation)
         if (pollCount > 6) {
           console.error(`🚨 EMERGENCY STOP: Too many polls (${pollCount}) for generation ${generationId}`);
           pollingRef.current.isActive = false;
           globalPollingState.delete(generationId);
           setIsPolling(false);
-          setPollingError('Generation is taking too long. Please refresh and try again.');
+          setPollingError("Generation is taking too long. Please refresh and try again.");
           if (onError) {
-            onError('Generation is taking too long. Please refresh and try again.');
+            onError("Generation is taking too long. Please refresh and try again.");
           }
           return;
         }
@@ -293,32 +303,33 @@ export function useProgressPolling(
           pollingRef.current.isActive = false;
           globalPollingState.delete(generationId);
           setIsPolling(false);
-          setPollingError('Generation timeout. Please refresh and try again.');
+          setPollingError("Generation timeout. Please refresh and try again.");
           if (onError) {
-            onError('Generation timeout. Please refresh and try again.');
+            onError("Generation timeout. Please refresh and try again.");
           }
           return;
         }
 
         // Smart polling: adjust frequency based on progress and time elapsed
-        if (data.status === 'processing') {
+        if (data.status === "processing") {
           const processingData = data as ProcessingGenerationDto;
           const currentProgress = processingData.progress || 0;
           const timeElapsed = Date.now() - startTime;
-          
+
           // If progress is moving, poll more frequently
           if (currentProgress > lastProgress) {
             backoffDelay = 10000; // 10s when making progress
           } else {
             // If no progress, poll less frequently - AI needs time
             // Increase delay as time passes (AI might be working harder)
-            if (timeElapsed > 30000) { // After 30s, poll less frequently
+            if (timeElapsed > 30000) {
+              // After 30s, poll less frequently
               backoffDelay = Math.min(backoffDelay * 1.3, 25000); // Max 25s when stalled
             } else {
               backoffDelay = Math.min(backoffDelay * 1.2, 20000); // Max 20s when stalled
             }
           }
-          
+
           lastProgress = currentProgress;
         } else {
           // For other statuses, use standard backoff
@@ -328,38 +339,41 @@ export function useProgressPolling(
         // Continue polling with smart delay
         console.log(`⏰ Next poll in ${backoffDelay}ms (${Math.round(backoffDelay / 1000)}s)`);
         pollingRef.current.timeoutId = setTimeout(poll, backoffDelay);
-
       } catch (err) {
         // Clear current request on error
         pollingRef.current.currentRequest = null;
         pollingRef.current.consecutiveErrors++;
-        
+
         // Circuit breaker: stop polling after too many consecutive errors
         if (pollingRef.current.consecutiveErrors >= 10) {
-          console.error(`Too many consecutive errors (${pollingRef.current.consecutiveErrors}) for generation ${generationId}, stopping polling`);
+          console.error(
+            `Too many consecutive errors (${pollingRef.current.consecutiveErrors}) for generation ${generationId}, stopping polling`
+          );
           pollingRef.current.isActive = false;
           setIsPolling(false);
-          setPollingError('Too many connection errors. Please refresh the page and try again.');
+          setPollingError("Too many connection errors. Please refresh the page and try again.");
           if (onError) {
-            onError('Too many connection errors. Please refresh the page and try again.');
+            onError("Too many connection errors. Please refresh the page and try again.");
           }
           return;
         }
 
         // Handle network errors more gracefully
-        if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
-          console.warn(`Network error while polling generation ${generationId} (attempt ${pollingRef.current.consecutiveErrors}), retrying...`);
+        if (err instanceof TypeError && err.message.includes("Failed to fetch")) {
+          console.warn(
+            `Network error while polling generation ${generationId} (attempt ${pollingRef.current.consecutiveErrors}), retrying...`
+          );
           // For network errors, retry with exponential backoff
           pollingRef.current.timeoutId = setTimeout(poll, backoffDelay);
           backoffDelay = Math.min(backoffDelay * 1.5, 5000);
           return;
         }
-        
-        const errorMessage = err instanceof Error ? err.message : 'Polling error occurred';
+
+        const errorMessage = err instanceof Error ? err.message : "Polling error occurred";
         setPollingError(errorMessage);
         pollingRef.current.isActive = false;
         setIsPolling(false);
-        
+
         if (onError) {
           onError(errorMessage);
         }
@@ -401,9 +415,7 @@ export function useProgressPolling(
 /**
  * Convert completed generation DTO to FlashCardProposal array
  */
-export function convertToFlashCardProposals(
-  completedDto: CompletedGenerationDto
-): FlashCardProposal[] {
+export function convertToFlashCardProposals(completedDto: CompletedGenerationDto): FlashCardProposal[] {
   return completedDto.cards.map((card, index) => ({
     id: `${completedDto.id}-${index}`, // Generate local ID
     front: card.front,

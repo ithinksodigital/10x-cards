@@ -1,6 +1,6 @@
 // src/components/generation/BulkActionsBar.tsx
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,9 +11,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { cn } from '@/lib/utils';
-import type { FlashCardProposal } from '@/lib/view-models';
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
+import type { FlashCardProposal } from "@/lib/view-models";
 
 interface BulkActionsBarProps {
   proposals: FlashCardProposal[];
@@ -57,11 +57,11 @@ export function BulkActionsBar({
   const batchStartIdx = currentBatch * BATCH_SIZE;
   const batchEndIdx = Math.min(batchStartIdx + BATCH_SIZE, proposals.length);
   const batchCards = proposals.slice(batchStartIdx, batchEndIdx);
-  
-  const batchAcceptedCount = batchCards.filter(card => selectedIds.has(card.id)).length;
-  const batchRejectedCount = batchCards.filter(card => rejectedIds.has(card.id)).length;
+
+  const batchAcceptedCount = batchCards.filter((card) => selectedIds.has(card.id)).length;
+  const batchRejectedCount = batchCards.filter((card) => rejectedIds.has(card.id)).length;
   const batchRemainingCount = batchCards.length - batchAcceptedCount - batchRejectedCount;
-  
+
   const totalAcceptedCount = selectedIds.size;
   const totalRejectedCount = rejectedIds.size;
   const totalRemainingCount = proposals.length - totalAcceptedCount - totalRejectedCount;
@@ -70,11 +70,16 @@ export function BulkActionsBar({
   const hasUnreviewedInBatch = batchRemainingCount > 0;
 
   return (
-    <div className={cn('flex flex-wrap items-center gap-2 p-4 bg-card border border-border rounded-lg shadow-sm', className)}>
+    <div
+      className={cn(
+        "flex flex-wrap items-center gap-2 p-4 bg-card border border-border rounded-lg shadow-sm",
+        className
+      )}
+    >
       {/* Batch actions */}
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-foreground">Batch {currentBatch + 1}:</span>
-        
+
         <Button
           size="sm"
           variant="ghost"
@@ -87,7 +92,7 @@ export function BulkActionsBar({
           </svg>
           Accept All ({batchRemainingCount})
         </Button>
-        
+
         <Button
           size="sm"
           variant="ghost"
@@ -107,7 +112,7 @@ export function BulkActionsBar({
       {/* Global actions */}
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-foreground">All cards:</span>
-        
+
         <Button
           size="sm"
           variant="ghost"
@@ -120,7 +125,7 @@ export function BulkActionsBar({
           </svg>
           Accept All ({totalRemainingCount})
         </Button>
-        
+
         <Button
           size="sm"
           variant="ghost"
@@ -146,7 +151,12 @@ export function BulkActionsBar({
         className="hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/20"
       >
         <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+          />
         </svg>
         Undo ({undoCount})
       </Button>
@@ -170,15 +180,15 @@ export function BulkActionsBar({
       </div>
 
       {/* Confirmation dialogs */}
-      
+
       {/* Accept All Dialog */}
       <AlertDialog open={showAcceptAllDialog} onOpenChange={setShowAcceptAllDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Accept All Remaining Cards</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to accept all {totalRemainingCount} remaining cards? 
-              This action cannot be undone, but you can use the undo feature to reverse recent actions.
+              Are you sure you want to accept all {totalRemainingCount} remaining cards? This action cannot be undone,
+              but you can use the undo feature to reverse recent actions.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -202,8 +212,8 @@ export function BulkActionsBar({
           <AlertDialogHeader>
             <AlertDialogTitle>Reject All Remaining Cards</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to reject all {totalRemainingCount} remaining cards? 
-              This action cannot be undone, but you can use the undo feature to reverse recent actions.
+              Are you sure you want to reject all {totalRemainingCount} remaining cards? This action cannot be undone,
+              but you can use the undo feature to reverse recent actions.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -227,8 +237,8 @@ export function BulkActionsBar({
           <AlertDialogHeader>
             <AlertDialogTitle>Accept All Cards in Batch {currentBatch + 1}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to accept all {batchRemainingCount} remaining cards in this batch? 
-              This action cannot be undone, but you can use the undo feature to reverse recent actions.
+              Are you sure you want to accept all {batchRemainingCount} remaining cards in this batch? This action
+              cannot be undone, but you can use the undo feature to reverse recent actions.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -252,8 +262,8 @@ export function BulkActionsBar({
           <AlertDialogHeader>
             <AlertDialogTitle>Reject All Cards in Batch {currentBatch + 1}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to reject all {batchRemainingCount} remaining cards in this batch? 
-              This action cannot be undone, but you can use the undo feature to reverse recent actions.
+              Are you sure you want to reject all {batchRemainingCount} remaining cards in this batch? This action
+              cannot be undone, but you can use the undo feature to reverse recent actions.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -293,7 +303,7 @@ export function useBulkActions(
   const undoCount = undoStack.length;
 
   const acceptAll = () => {
-    proposals.forEach(proposal => {
+    proposals.forEach((proposal) => {
       if (!selectedIds.has(proposal.id) && !rejectedIds.has(proposal.id)) {
         onAcceptCard(proposal.id);
       }
@@ -301,7 +311,7 @@ export function useBulkActions(
   };
 
   const rejectAll = () => {
-    proposals.forEach(proposal => {
+    proposals.forEach((proposal) => {
       if (!selectedIds.has(proposal.id) && !rejectedIds.has(proposal.id)) {
         onRejectCard(proposal.id);
       }

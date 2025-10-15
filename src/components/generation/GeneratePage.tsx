@@ -1,29 +1,43 @@
 // src/components/generation/GeneratePage.tsx
-import React, { useState, useCallback } from 'react';
-import { GenerationStepper, useGenerationStepper } from './GenerationStepper';
-import { PasteTextarea } from './PasteTextarea';
-import { StartGenerationButton, GenerationButtonWithError } from './StartGenerationButton';
-import { ProgressModal, useProgressModal } from './ProgressModal';
-import { CardGrid, useCardGrid } from './CardGrid';
-import { BulkActionsBar, useBulkActions } from './BulkActionsBar';
-import { SaveToSetDialog, useSaveToSetDialog } from './SaveToSetDialog';
-import { ErrorToast, useErrorToast } from './ErrorToast';
-import { useGeneration } from './GenerationContext';
-import { useGenerationApi } from '@/hooks/useGenerationApi';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import type { StartGenerationCommand } from '@/types';
-import type { FlashCardProposal } from '@/lib/view-models';
+import React, { useState, useCallback } from "react";
+import { GenerationStepper, useGenerationStepper } from "./GenerationStepper";
+import { PasteTextarea } from "./PasteTextarea";
+import { StartGenerationButton, GenerationButtonWithError } from "./StartGenerationButton";
+import { ProgressModal, useProgressModal } from "./ProgressModal";
+import { CardGrid, useCardGrid } from "./CardGrid";
+import { BulkActionsBar, useBulkActions } from "./BulkActionsBar";
+import { SaveToSetDialog, useSaveToSetDialog } from "./SaveToSetDialog";
+import { ErrorToast, useErrorToast } from "./ErrorToast";
+import { useGeneration } from "./GenerationContext";
+import { useGenerationApi } from "@/hooks/useGenerationApi";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { StartGenerationCommand } from "@/types";
+import type { FlashCardProposal } from "@/lib/view-models";
 
 export function GeneratePage() {
-  const { state, startGeneration, setProposals, acceptCard, rejectCard, editCard, acceptAllBatch, rejectAllBatch, undo, setCurrentBatch, setStatus, setError, reset } = useGeneration();
+  const {
+    state,
+    startGeneration,
+    setProposals,
+    acceptCard,
+    rejectCard,
+    editCard,
+    acceptAllBatch,
+    rejectAllBatch,
+    undo,
+    setCurrentBatch,
+    setStatus,
+    setError,
+    reset,
+  } = useGeneration();
   const { currentStep, nextStep, reset: resetStepper } = useGenerationStepper();
   const { isGenerating, error: apiError, startGeneration: apiStartGeneration, retryGeneration } = useGenerationApi();
   const { isOpen: isProgressOpen, generationId, openModal, closeModal } = useProgressModal();
   const { isOpen: isSaveOpen, openDialog: openSaveDialog, closeDialog: closeSaveDialog } = useSaveToSetDialog();
   const { toasts, addToast, removeToast } = useErrorToast();
-  
-  const [pasteText, setPasteText] = useState('');
+
+  const [pasteText, setPasteText] = useState("");
   const [pasteValid, setPasteValid] = useState(false);
   const [pasteErrors, setPasteErrors] = useState<Record<string, string>>({});
 
@@ -52,29 +66,38 @@ export function GeneratePage() {
   }, []);
 
   // Handle generation start
-  const handleStartGeneration = useCallback(async (command: StartGenerationCommand) => {
-    try {
-      const response = await apiStartGeneration(command);
-      startGeneration(response.id);
-      openModal(response.id);
-      nextStep(); // Move to review step
-    } catch (err) {
-      console.error('Failed to start generation:', err);
-    }
-  }, [apiStartGeneration, startGeneration, openModal, nextStep]);
+  const handleStartGeneration = useCallback(
+    async (command: StartGenerationCommand) => {
+      try {
+        const response = await apiStartGeneration(command);
+        startGeneration(response.id);
+        openModal(response.id);
+        nextStep(); // Move to review step
+      } catch (err) {
+        console.error("Failed to start generation:", err);
+      }
+    },
+    [apiStartGeneration, startGeneration, openModal, nextStep]
+  );
 
   // Handle generation completion
-  const handleGenerationComplete = useCallback((proposals: FlashCardProposal[]) => {
-    setProposals(proposals);
-    closeModal();
-  }, [setProposals, closeModal]);
+  const handleGenerationComplete = useCallback(
+    (proposals: FlashCardProposal[]) => {
+      setProposals(proposals);
+      closeModal();
+    },
+    [setProposals, closeModal]
+  );
 
   // Handle generation failure
-  const handleGenerationFailed = useCallback((error: string) => {
-    setError(error);
-    closeModal();
-    addToast(error, 'error', handleRetry);
-  }, [setError, closeModal, addToast]);
+  const handleGenerationFailed = useCallback(
+    (error: string) => {
+      setError(error);
+      closeModal();
+      addToast(error, "error", handleRetry);
+    },
+    [setError, closeModal, addToast]
+  );
 
   // Handle retry
   const handleRetry = useCallback(async () => {
@@ -83,40 +106,42 @@ export function GeneratePage() {
         await retryGeneration(state.generationId);
         openModal(state.generationId);
       } catch (err) {
-        console.error('Failed to retry generation:', err);
+        console.error("Failed to retry generation:", err);
       }
     }
   }, [state.generationId, retryGeneration, openModal]);
 
   // Handle save to set
-  const handleSaveSuccess = useCallback((response: any) => {
-    // Show success message and redirect or reset
-    console.log('Cards saved successfully:', response);
-    reset();
-    resetStepper();
-    setPasteText('');
-  }, [reset, resetStepper]);
+  const handleSaveSuccess = useCallback(
+    (response: any) => {
+      // Show success message and redirect or reset
+      console.log("Cards saved successfully:", response);
+      reset();
+      resetStepper();
+      setPasteText("");
+    },
+    [reset, resetStepper]
+  );
 
   // Handle batch change
-  const handleBatchChange = useCallback((batchIndex: number) => {
-    setCurrentBatch(batchIndex);
-    goToBatch(batchIndex);
-  }, [setCurrentBatch, goToBatch]);
+  const handleBatchChange = useCallback(
+    (batchIndex: number) => {
+      setCurrentBatch(batchIndex);
+      goToBatch(batchIndex);
+    },
+    [setCurrentBatch, goToBatch]
+  );
 
   // Get selected cards for saving
-  const selectedCards = state.proposals.filter(proposal => state.selectedIds.has(proposal.id));
+  const selectedCards = state.proposals.filter((proposal) => state.selectedIds.has(proposal.id));
 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Generate Flashcards
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Transform your text into interactive flashcards using AI
-          </p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Generate Flashcards</h1>
+          <p className="text-lg text-muted-foreground">Transform your text into interactive flashcards using AI</p>
         </div>
 
         {/* Stepper */}
@@ -127,16 +152,14 @@ export function GeneratePage() {
         {/* Main content */}
         <div className="space-y-8">
           {/* Step 1: Paste Text */}
-          {currentStep === 'paste' && (
+          {currentStep === "paste" && (
             <div className="w-full">
               <div className="bg-card rounded-lg shadow-sm border border-border p-6">
-                <h2 className="text-xl font-semibold text-card-foreground mb-4">
-                  Step 1: Paste Your Text
-                </h2>
+                <h2 className="text-xl font-semibold text-card-foreground mb-4">Step 1: Paste Your Text</h2>
                 <p className="text-muted-foreground mb-6">
                   Paste or type your text content. The AI will analyze it and generate relevant flashcards.
                 </p>
-                
+
                 <PasteTextarea
                   value={pasteText}
                   onChange={handlePasteChange}
@@ -162,14 +185,13 @@ export function GeneratePage() {
           )}
 
           {/* Step 2: Review Cards */}
-          {currentStep === 'review' && (
+          {currentStep === "review" && (
             <div className="space-y-6">
               <div className="bg-card rounded-lg shadow-sm border border-border p-6">
-                <h2 className="text-xl font-semibold text-card-foreground mb-4">
-                  Step 2: Review Generated Cards
-                </h2>
+                <h2 className="text-xl font-semibold text-card-foreground mb-4">Step 2: Review Generated Cards</h2>
                 <p className="text-muted-foreground mb-6">
-                  Review the generated flashcards. Accept the ones you want to keep, reject the others, and edit as needed.
+                  Review the generated flashcards. Accept the ones you want to keep, reject the others, and edit as
+                  needed.
                 </p>
               </div>
 
@@ -217,22 +239,16 @@ export function GeneratePage() {
           )}
 
           {/* Step 3: Save to Set */}
-          {currentStep === 'save' && (
+          {currentStep === "save" && (
             <div className="max-w-4xl mx-auto">
               <div className="bg-card rounded-lg shadow-sm border border-border p-6">
-                <h2 className="text-xl font-semibold text-card-foreground mb-4">
-                  Step 3: Save to Set
-                </h2>
+                <h2 className="text-xl font-semibold text-card-foreground mb-4">Step 3: Save to Set</h2>
                 <p className="text-muted-foreground mb-6">
                   Choose an existing set or create a new one to save your {selectedCards.length} selected flashcards.
                 </p>
 
                 <div className="text-center">
-                  <Button
-                    onClick={openSaveDialog}
-                    className="px-8 py-3 font-medium"
-                    size="lg"
-                  >
+                  <Button onClick={openSaveDialog} className="px-8 py-3 font-medium" size="lg">
                     Choose Set or Create New
                   </Button>
                 </div>
@@ -257,7 +273,7 @@ export function GeneratePage() {
           onClose={closeSaveDialog}
           onSaveSuccess={handleSaveSuccess}
           selectedCards={selectedCards}
-          generationId={state.generationId || ''}
+          generationId={state.generationId || ""}
         />
 
         {/* Error Toasts */}

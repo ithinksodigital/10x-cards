@@ -1,14 +1,9 @@
 // src/pages/api/srs/reviews.ts
-import type { APIContext } from 'astro';
-import { SrsService } from '../../../lib/services/srs.service';
-import { CardService } from '../../../lib/services/card.service';
-import { SubmitReviewSchema } from '../../../lib/schemas';
-import {
-  getMvpUserId,
-  parseJsonBody,
-  jsonResponse,
-  withErrorHandling,
-} from '../../../lib/api-utils';
+import type { APIContext } from "astro";
+import { SrsService } from "../../../lib/services/srs.service";
+import { CardService } from "../../../lib/services/card.service";
+import { SubmitReviewSchema } from "../../../lib/schemas";
+import { getMvpUserId, parseJsonBody, jsonResponse, withErrorHandling } from "../../../lib/api-utils";
 
 export const prerender = false;
 
@@ -60,4 +55,3 @@ export const POST = withErrorHandling(async (context: APIContext) => {
   // 4. Return response with 201 Created status
   return jsonResponse(result, 201);
 });
-

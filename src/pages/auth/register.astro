@@ -1,6 +1,6 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { AuthContainer } from '../../components/auth/AuthContainer';
+import Layout from "../../layouts/Layout.astro";
+import { AuthContainer } from "../../components/auth/AuthContainer";
 
 export const prerender = false;
 ---
@@ -10,9 +10,7 @@ export const prerender = false;
     <div class="w-full max-w-md">
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-foreground">10x Cards</h1>
-        <p class="mt-2 text-muted-foreground">
-          Utwórz konto, aby zapisywać i synchronizować swoje fiszki
-        </p>
+        <p class="mt-2 text-muted-foreground">Utwórz konto, aby zapisywać i synchronizować swoje fiszki</p>
       </div>
       <AuthContainer client:load initialMode="register" />
     </div>
@@ -21,8 +19,8 @@ export const prerender = false;
 
 <script>
   // Handle form switching and navigation
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener("DOMContentLoaded", () => {
     // This will be handled by the React components
-    console.log('Register page loaded');
+    console.log("Register page loaded");
   });
 </script>

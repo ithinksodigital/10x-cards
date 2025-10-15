@@ -1,18 +1,21 @@
 // src/lib/api-utils.ts
-import type { APIContext } from 'astro';
-import type { z } from 'zod';
-import type { ErrorResponseDto } from '../types';
-import { ApiError, UnauthorizedError, ValidationError } from './errors';
+import type { APIContext } from "astro";
+import type { z } from "zod";
+import type { ErrorResponseDto } from "../types";
+import { ApiError, UnauthorizedError, ValidationError } from "./errors";
 
 /**
  * Get authenticated user ID from Supabase session
  * @throws {UnauthorizedError} If user is not authenticated
  */
 export async function getAuthenticatedUserId(context: APIContext): Promise<string> {
-  const { data: { user }, error } = await context.locals.supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await context.locals.supabase.auth.getUser();
 
   if (error || !user) {
-    throw new UnauthorizedError('Authentication required');
+    throw new UnauthorizedError("Authentication required");
   }
 
   return user.id;
@@ -32,16 +35,13 @@ export function getMvpUserId(): string {
  * Parse and validate JSON request body
  * @throws {ValidationError} If JSON is invalid or validation fails
  */
-export async function parseJsonBody<T>(
-  request: Request,
-  schema: z.ZodSchema<T>
-): Promise<T> {
+export async function parseJsonBody<T>(request: Request, schema: z.ZodSchema<T>): Promise<T> {
   let body: unknown;
 
   try {
     body = await request.json();
   } catch {
-    throw new ValidationError('Invalid JSON in request body');
+    throw new ValidationError("Invalid JSON in request body");
   }
 
   const result = schema.safeParse(body);
@@ -49,11 +49,11 @@ export async function parseJsonBody<T>(
   if (!result.success) {
     const details: Record<string, string> = {};
     result.error.issues.forEach((issue) => {
-      const path = issue.path.join('.');
-      details[path || 'body'] = issue.message;
+      const path = issue.path.join(".");
+      details[path || "body"] = issue.message;
     });
 
-    throw new ValidationError('Request validation failed', details);
+    throw new ValidationError("Request validation failed", details);
   }
 
   return result.data;
@@ -63,21 +63,18 @@ export async function parseJsonBody<T>(
  * Validate query parameters
  * @throws {ValidationError} If validation fails
  */
-export function validateQuery<T>(
-  url: URL,
-  schema: z.ZodSchema<T>
-): T {
+export function validateQuery<T>(url: URL, schema: z.ZodSchema<T>): T {
   const params = Object.fromEntries(url.searchParams.entries());
   const result = schema.safeParse(params);
 
   if (!result.success) {
     const details: Record<string, string> = {};
     result.error.issues.forEach((issue) => {
-      const path = issue.path.join('.');
+      const path = issue.path.join(".");
       details[path] = issue.message;
     });
 
-    throw new ValidationError('Query validation failed', details);
+    throw new ValidationError("Query validation failed", details);
   }
 
   return result.data;
@@ -87,11 +84,7 @@ export function validateQuery<T>(
  * Validate URL parameter (e.g., UUID)
  * @throws {ValidationError} If validation fails
  */
-export function validateParam<T>(
-  param: string | undefined,
-  schema: z.ZodSchema<T>,
-  paramName: string = 'parameter'
-): T {
+export function validateParam<T>(param: string | undefined, schema: z.ZodSchema<T>, paramName = "parameter"): T {
   const result = schema.safeParse(param);
 
   if (!result.success) {
@@ -109,10 +102,10 @@ export function validateParam<T>(
 /**
  * Create success JSON response
  */
-export function jsonResponse<T>(data: T, status: number = 200): Response {
+export function jsonResponse<T>(data: T, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" },
   });
 }
 
@@ -120,27 +113,27 @@ export function jsonResponse<T>(data: T, status: number = 200): Response {
  * Create error JSON response
  */
 export function errorResponse(error: unknown): Response {
-  console.error('API Error:', error);
-  console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-  console.error('Error details:', JSON.stringify(error, null, 2));
+  console.error("API Error:", error);
+  console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace");
+  console.error("Error details:", JSON.stringify(error, null, 2));
 
   if (error instanceof ApiError) {
     return new Response(JSON.stringify(error.toJSON()), {
       status: error.statusCode,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   }
 
   // Unknown error - don't leak internal details (but log them)
   const errorDto: ErrorResponseDto = {
-    error: 'InternalError',
-    message: error instanceof Error ? error.message : 'An unexpected error occurred',
+    error: "InternalError",
+    message: error instanceof Error ? error.message : "An unexpected error occurred",
     timestamp: new Date().toISOString(),
   };
 
   return new Response(JSON.stringify(errorDto), {
     status: 500,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" },
   });
 }
 
@@ -159,4 +152,3 @@ export function withErrorHandling(
     }
   };
 }
-

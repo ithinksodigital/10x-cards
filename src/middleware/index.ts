@@ -18,7 +18,9 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
   locals.supabase = supabase;
 
   // Resolve user for SSR context
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (user) {
     locals.user = { id: user.id, email: user.email };
   } else {

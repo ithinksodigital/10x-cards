@@ -1,14 +1,8 @@
 // src/pages/api/sets/[id].ts
-import type { APIContext } from 'astro';
-import { SetService } from '../../../lib/services/set.service';
-import { UuidSchema, UpdateSetSchema } from '../../../lib/schemas';
-import {
-  getMvpUserId,
-  parseJsonBody,
-  validateParam,
-  jsonResponse,
-  withErrorHandling,
-} from '../../../lib/api-utils';
+import type { APIContext } from "astro";
+import { SetService } from "../../../lib/services/set.service";
+import { UuidSchema, UpdateSetSchema } from "../../../lib/schemas";
+import { getMvpUserId, parseJsonBody, validateParam, jsonResponse, withErrorHandling } from "../../../lib/api-utils";
 
 export const prerender = false;
 
@@ -29,7 +23,7 @@ export const prerender = false;
  */
 export const GET = withErrorHandling(async (context: APIContext) => {
   // 1. Validate UUID parameter
-  const setId = validateParam(context.params.id, UuidSchema, 'id');
+  const setId = validateParam(context.params.id, UuidSchema, "id");
 
   // 2. MVP: Get hardcoded user ID
   const userId = getMvpUserId();
@@ -65,7 +59,7 @@ export const GET = withErrorHandling(async (context: APIContext) => {
  */
 export const PATCH = withErrorHandling(async (context: APIContext) => {
   // 1. Validate UUID parameter
-  const setId = validateParam(context.params.id, UuidSchema, 'id');
+  const setId = validateParam(context.params.id, UuidSchema, "id");
 
   // 2. MVP: Get hardcoded user ID
   const userId = getMvpUserId();
@@ -100,7 +94,7 @@ export const PATCH = withErrorHandling(async (context: APIContext) => {
  */
 export const DELETE = withErrorHandling(async (context: APIContext) => {
   // 1. Validate UUID parameter
-  const setId = validateParam(context.params.id, UuidSchema, 'id');
+  const setId = validateParam(context.params.id, UuidSchema, "id");
 
   // 2. MVP: Get hardcoded user ID
   const userId = getMvpUserId();
@@ -110,8 +104,10 @@ export const DELETE = withErrorHandling(async (context: APIContext) => {
   const result = await setService.deleteSet(setId, userId);
 
   // 4. Return response
-  return jsonResponse({
-    message: `Set and ${result.cardsCount} cards successfully deleted`,
-  }, 200);
+  return jsonResponse(
+    {
+      message: `Set and ${result.cardsCount} cards successfully deleted`,
+    },
+    200
+  );
 });
-

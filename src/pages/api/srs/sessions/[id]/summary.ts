@@ -1,14 +1,9 @@
 // src/pages/api/srs/sessions/[id]/summary.ts
-import type { APIContext } from 'astro';
-import { SrsService } from '../../../../../lib/services/srs.service';
-import { CardService } from '../../../../../lib/services/card.service';
-import { UuidSchema } from '../../../../../lib/schemas';
-import {
-  getMvpUserId,
-  validateParam,
-  jsonResponse,
-  withErrorHandling,
-} from '../../../../../lib/api-utils';
+import type { APIContext } from "astro";
+import { SrsService } from "../../../../../lib/services/srs.service";
+import { CardService } from "../../../../../lib/services/card.service";
+import { UuidSchema } from "../../../../../lib/schemas";
+import { getMvpUserId, validateParam, jsonResponse, withErrorHandling } from "../../../../../lib/api-utils";
 
 export const prerender = false;
 
@@ -38,7 +33,7 @@ export const prerender = false;
  */
 export const GET = withErrorHandling(async (context: APIContext) => {
   // 1. Validate UUID parameter
-  const sessionId = validateParam(context.params.id, UuidSchema, 'id');
+  const sessionId = validateParam(context.params.id, UuidSchema, "id");
 
   // 2. MVP: Get hardcoded user ID
   const userId = getMvpUserId();
@@ -51,4 +46,3 @@ export const GET = withErrorHandling(async (context: APIContext) => {
   // 4. Return response
   return jsonResponse(result, 200);
 });
-

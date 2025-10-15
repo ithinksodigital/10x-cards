@@ -1,8 +1,8 @@
 // src/pages/api/sets/[setId]/cards.ts
-import type { APIContext } from 'astro';
-import { CardService } from '../../../../lib/services/card.service';
-import { SetService } from '../../../../lib/services/set.service';
-import { UuidSchema, CreateCardSchema, ListCardsQuerySchema } from '../../../../lib/schemas';
+import type { APIContext } from "astro";
+import { CardService } from "../../../../lib/services/card.service";
+import { SetService } from "../../../../lib/services/set.service";
+import { UuidSchema, CreateCardSchema, ListCardsQuerySchema } from "../../../../lib/schemas";
 import {
   getMvpUserId,
   parseJsonBody,
@@ -10,7 +10,7 @@ import {
   validateQuery,
   jsonResponse,
   withErrorHandling,
-} from '../../../../lib/api-utils';
+} from "../../../../lib/api-utils";
 
 export const prerender = false;
 
@@ -42,7 +42,7 @@ export const prerender = false;
  */
 export const GET = withErrorHandling(async (context: APIContext) => {
   // 1. Validate UUID parameter
-  const setId = validateParam(context.params.setId, UuidSchema, 'setId');
+  const setId = validateParam(context.params.setId, UuidSchema, "setId");
 
   // 2. MVP: Get hardcoded user ID
   const userId = getMvpUserId();
@@ -87,7 +87,7 @@ export const GET = withErrorHandling(async (context: APIContext) => {
  */
 export const POST = withErrorHandling(async (context: APIContext) => {
   // 1. Validate UUID parameter
-  const setId = validateParam(context.params.setId, UuidSchema, 'setId');
+  const setId = validateParam(context.params.setId, UuidSchema, "setId");
 
   // 2. MVP: Get hardcoded user ID
   const userId = getMvpUserId();
@@ -102,4 +102,3 @@ export const POST = withErrorHandling(async (context: APIContext) => {
   // 5. Return response with 201 Created status
   return jsonResponse(newCard, 201);
 });
-

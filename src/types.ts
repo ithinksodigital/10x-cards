@@ -247,14 +247,14 @@ export interface ServiceStats {
 
 export interface OpenRouterRequest {
   model: string;
-  messages: Array<{
-    role: 'system' | 'user' | 'assistant';
+  messages: {
+    role: "system" | "user" | "assistant";
     content: string;
-  }>;
+  }[];
   max_tokens: number;
   temperature: number;
   response_format?: {
-    type: 'json_schema';
+    type: "json_schema";
     json_schema: {
       name: string;
       strict: boolean;
@@ -268,14 +268,14 @@ export interface OpenRouterResponse {
   object: string;
   created: number;
   model: string;
-  choices: Array<{
+  choices: {
     index: number;
     message: {
       role: string;
       content: string;
     };
     finish_reason: string;
-  }>;
+  }[];
   usage: {
     prompt_tokens: number;
     completion_tokens: number;

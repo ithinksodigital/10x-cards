@@ -1,5 +1,5 @@
 // src/lib/services/srs.service.ts
-import type { SupabaseClient } from '../../db/supabase.client';
+import type { SupabaseClient } from "../../db/supabase.client";
 import type {
   GetDueCardsResponseDto,
   DueCardDto,
@@ -8,10 +8,10 @@ import type {
   SubmitReviewCommand,
   SubmitReviewResponseDto,
   SessionSummaryDto,
-} from '../../types';
-import type { Enums } from '../../db/database.types';
-import { NotFoundError, UnauthorizedError, DailyLimitError } from '../errors';
-import { CardService } from './card.service';
+} from "../../types";
+import type { Enums } from "../../db/database.types";
+import { NotFoundError, UnauthorizedError, DailyLimitError } from "../errors";
+import { CardService } from "./card.service";
 
 /**
  * Session state stored in memory (could be moved to Redis for production)
@@ -25,11 +25,11 @@ interface SessionState {
   completed_at?: string;
   new_cards: number;
   review_cards: number;
-  reviews: Array<{
+  reviews: {
     card_id: string;
     rating: number;
     reviewed_at: string;
-  }>;
+  }[];
 }
 
 /**
@@ -62,40 +62,37 @@ export class SrsService {
     const now = new Date().toISOString();
 
     // Build base query
-    let baseQuery = this.supabase
-      .from('cards')
-      .select('id, set_id, front, back, status, due_at')
-      .eq('user_id', userId);
+    let baseQuery = this.supabase.from("cards").select("id, set_id, front, back, status, due_at").eq("user_id", userId);
 
     if (setId) {
-      baseQuery = baseQuery.eq('set_id', setId);
+      baseQuery = baseQuery.eq("set_id", setId);
     }
 
     // Count new cards
     let newQuery = this.supabase
-      .from('cards')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('status', 'new');
-    
+      .from("cards")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("status", "new");
+
     if (setId) {
-      newQuery = newQuery.eq('set_id', setId);
+      newQuery = newQuery.eq("set_id", setId);
     }
-    
+
     const { count: newCount } = await newQuery;
 
     // Count review cards (due today)
     let reviewQuery = this.supabase
-      .from('cards')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .neq('status', 'new')
-      .lte('due_at', now);
-    
+      .from("cards")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .neq("status", "new")
+      .lte("due_at", now);
+
     if (setId) {
-      reviewQuery = reviewQuery.eq('set_id', setId);
+      reviewQuery = reviewQuery.eq("set_id", setId);
     }
-    
+
     const { count: reviewCount } = await reviewQuery;
 
     // Get daily progress
@@ -113,8 +110,8 @@ export class SrsService {
 
     const { data: cards } = await baseQuery
       .or(`status.eq.new,and(status.neq.new,due_at.lte.${now})`)
-      .order('due_at', { ascending: true, nullsFirst: false })
-      .order('created_at', { ascending: true })
+      .order("due_at", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: true })
       .limit(cardsLimit);
 
     return {
@@ -130,20 +127,17 @@ export class SrsService {
    * @throws {NotFoundError} If set not found
    * @throws {DailyLimitError} If daily limit reached
    */
-  async startSession(
-    command: StartSessionCommand,
-    userId: string
-  ): Promise<StartSessionResponseDto> {
+  async startSession(command: StartSessionCommand, userId: string): Promise<StartSessionResponseDto> {
     // 1. Verify set ownership
     const { data: set, error: setError } = await this.supabase
-      .from('sets')
-      .select('id, user_id')
-      .eq('id', command.set_id)
-      .eq('user_id', userId)
+      .from("sets")
+      .select("id, user_id")
+      .eq("id", command.set_id)
+      .eq("user_id", userId)
       .single();
 
     if (setError || !set) {
-      throw new NotFoundError('Set');
+      throw new NotFoundError("Set");
     }
 
     // 2. Get daily progress
@@ -154,7 +148,7 @@ export class SrsService {
     const reviewsRemaining = 100 - dailyProgress.reviews_today;
 
     if (newCardsRemaining <= 0 && reviewsRemaining <= 0) {
-      throw new DailyLimitError('You have reached your daily limits for both new cards and reviews', {
+      throw new DailyLimitError("You have reached your daily limits for both new cards and reviews", {
         new_cards_today: dailyProgress.new_cards_today,
         new_cards_limit: 20,
         reviews_today: dailyProgress.reviews_today,
@@ -164,24 +158,24 @@ export class SrsService {
 
     // 4. Fetch new cards
     const { data: newCards } = await this.supabase
-      .from('cards')
-      .select('id, front, back, status')
-      .eq('set_id', command.set_id)
-      .eq('user_id', userId)
-      .eq('status', 'new')
-      .order('created_at', { ascending: true })
+      .from("cards")
+      .select("id, front, back, status")
+      .eq("set_id", command.set_id)
+      .eq("user_id", userId)
+      .eq("status", "new")
+      .order("created_at", { ascending: true })
       .limit(Math.min(command.new_cards_limit, newCardsRemaining));
 
     // 5. Fetch review cards
     const now = new Date().toISOString();
     const { data: reviewCards } = await this.supabase
-      .from('cards')
-      .select('id, front, back, status')
-      .eq('set_id', command.set_id)
-      .eq('user_id', userId)
-      .neq('status', 'new')
-      .lte('due_at', now)
-      .order('due_at', { ascending: true })
+      .from("cards")
+      .select("id, front, back, status")
+      .eq("set_id", command.set_id)
+      .eq("user_id", userId)
+      .neq("status", "new")
+      .lte("due_at", now)
+      .order("due_at", { ascending: true })
       .limit(Math.min(command.review_cards_limit, reviewsRemaining));
 
     // 6. Combine cards
@@ -217,18 +211,15 @@ export class SrsService {
    * @throws {UnauthorizedError} If session doesn't belong to user
    * @throws {NotFoundError} If card or session not found
    */
-  async submitReview(
-    command: SubmitReviewCommand,
-    userId: string
-  ): Promise<SubmitReviewResponseDto> {
+  async submitReview(command: SubmitReviewCommand, userId: string): Promise<SubmitReviewResponseDto> {
     // 1. Verify session
     const session = SrsService.sessions.get(command.session_id);
     if (!session) {
-      throw new NotFoundError('Session');
+      throw new NotFoundError("Session");
     }
 
     if (session.user_id !== userId) {
-      throw new UnauthorizedError('Session does not belong to user');
+      throw new UnauthorizedError("Session does not belong to user");
     }
 
     // 2. Get current card
@@ -245,7 +236,7 @@ export class SrsService {
 
     // 4. Update card
     const { data: updatedCard, error } = await this.supabase
-      .from('cards')
+      .from("cards")
       .update({
         interval_days: sm2Result.interval_days,
         ease_factor: sm2Result.ease_factor,
@@ -253,13 +244,13 @@ export class SrsService {
         status: sm2Result.status,
         due_at: sm2Result.due_at,
       })
-      .eq('id', command.card_id)
-      .eq('user_id', userId)
-      .select('id, interval_days, ease_factor, repetitions, status, due_at')
+      .eq("id", command.card_id)
+      .eq("user_id", userId)
+      .select("id, interval_days, ease_factor, repetitions, status, due_at")
       .single();
 
     if (error || !updatedCard) {
-      throw new Error('Failed to update card');
+      throw new Error("Failed to update card");
     }
 
     // 5. Record review in session
@@ -270,15 +261,15 @@ export class SrsService {
     });
 
     // 6. Update daily progress
-    if (card.status === 'new') {
-      this.incrementDailyProgress(userId, 'new_cards');
+    if (card.status === "new") {
+      this.incrementDailyProgress(userId, "new_cards");
     } else {
-      this.incrementDailyProgress(userId, 'reviews');
+      this.incrementDailyProgress(userId, "reviews");
     }
 
     return {
       card_id: updatedCard.id,
-      next_review_at: updatedCard.due_at ?? '',
+      next_review_at: updatedCard.due_at ?? "",
       interval_days: updatedCard.interval_days,
       ease_factor: updatedCard.ease_factor,
       repetitions: updatedCard.repetitions,
@@ -295,25 +286,25 @@ export class SrsService {
     // Get session state
     const session = SrsService.sessions.get(sessionId);
     if (!session) {
-      throw new NotFoundError('Session');
+      throw new NotFoundError("Session");
     }
 
     if (session.user_id !== userId) {
-      throw new UnauthorizedError('Session does not belong to user');
+      throw new UnauthorizedError("Session does not belong to user");
     }
 
     // Calculate stats
     const reviews = session.reviews;
-    const ratingsDistribution = reviews.reduce((acc, review) => {
-      const key = review.rating.toString();
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const ratingsDistribution = reviews.reduce(
+      (acc, review) => {
+        const key = review.rating.toString();
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
-    const averageRating =
-      reviews.length > 0
-        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-        : 0;
+    const averageRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
 
     const completedAt = session.completed_at ?? new Date().toISOString();
     const timeSpentSeconds = Math.floor(
@@ -340,38 +331,38 @@ export class SrsService {
     currentInterval: number,
     currentEaseFactor: number,
     currentRepetitions: number,
-    currentStatus: Enums<'card_status'>,
+    currentStatus: Enums<"card_status">,
     rating: number
   ): {
     interval_days: number;
     ease_factor: number;
     repetitions: number;
-    status: Enums<'card_status'>;
+    status: Enums<"card_status">;
     due_at: string;
   } {
     let interval = currentInterval;
     let easeFactor = currentEaseFactor;
     let repetitions = currentRepetitions;
-    let status: Enums<'card_status'> = currentStatus;
+    let status: Enums<"card_status"> = currentStatus;
 
     // Rating < 3: Failed (Again, Hard)
     if (rating < 3) {
       interval = 0;
       repetitions = 0;
-      status = currentStatus === 'new' ? 'learning' : 'relearning';
+      status = currentStatus === "new" ? "learning" : "relearning";
     } else {
       // Rating >= 3: Success (Good, Easy)
       repetitions += 1;
 
       if (repetitions === 1) {
         interval = 1; // 1 day
-        status = 'learning';
+        status = "learning";
       } else if (repetitions === 2) {
         interval = 6; // 6 days
-        status = 'review';
+        status = "review";
       } else {
         interval = Math.round(interval * easeFactor);
-        status = 'review';
+        status = "review";
       }
 
       // Update ease factor based on rating
@@ -398,11 +389,11 @@ export class SrsService {
    * Get daily progress for a user
    */
   private getDailyProgress(userId: string): DailyProgress {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
     const key = `${userId}-${today}`;
-    
+
     let progress = SrsService.dailyProgress.get(key);
-    
+
     // Initialize if not exists or date changed
     if (!progress || progress.date !== today) {
       progress = {
@@ -413,17 +404,17 @@ export class SrsService {
       };
       SrsService.dailyProgress.set(key, progress);
     }
-    
+
     return progress;
   }
 
   /**
    * Increment daily progress counter
    */
-  private incrementDailyProgress(userId: string, type: 'new_cards' | 'reviews'): void {
+  private incrementDailyProgress(userId: string, type: "new_cards" | "reviews"): void {
     const progress = this.getDailyProgress(userId);
-    
-    if (type === 'new_cards') {
+
+    if (type === "new_cards") {
       progress.new_cards_today += 1;
     } else {
       progress.reviews_today += 1;
@@ -456,4 +447,3 @@ export class SrsService {
     }
   }
 }
-

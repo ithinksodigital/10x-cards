@@ -9,14 +9,14 @@ import type { OpenRouterConfig } from "../../types";
 export const openRouterConfig: OpenRouterConfig = {
   // OpenRouter API key - get from https://openrouter.ai/keys
   // Set as environment variable: OPENROUTER_API_KEY
-  apiKey: Deno.env.get('OPENROUTER_API_KEY') || '',
+  apiKey: Deno.env.get("OPENROUTER_API_KEY") || "",
 
   // OpenRouter API base URL
-  baseUrl: 'https://openrouter.ai/api/v1',
+  baseUrl: "https://openrouter.ai/api/v1",
 
   // Default model to use for generation
   // Available models: gpt-4o, gpt-4o-mini, gpt-4, claude-3-5-sonnet, etc.
-  defaultModel: 'gpt-4o',
+  defaultModel: "gpt-4o",
 
   // Maximum number of retry attempts for failed requests
   maxRetries: 3,
@@ -36,7 +36,7 @@ export const openRouterConfig: OpenRouterConfig = {
  */
 export const openRouterConfigDev: OpenRouterConfig = {
   ...openRouterConfig,
-  defaultModel: 'gpt-4o-mini', // Cheaper model for development
+  defaultModel: "gpt-4o-mini", // Cheaper model for development
   maxRetries: 2,
   timeoutMs: 15000,
   chunkSize: 5000,
@@ -48,7 +48,7 @@ export const openRouterConfigDev: OpenRouterConfig = {
  */
 export const openRouterConfigProd: OpenRouterConfig = {
   ...openRouterConfig,
-  defaultModel: 'gpt-4o', // Best quality model
+  defaultModel: "gpt-4o", // Best quality model
   maxRetries: 5,
   timeoutMs: 45000,
   chunkSize: 12000,
@@ -59,12 +59,12 @@ export const openRouterConfigProd: OpenRouterConfig = {
  * Configuration for different environments
  */
 export const getOpenRouterConfig = (): OpenRouterConfig => {
-  const env = Deno.env.get('ENVIRONMENT') || 'development';
-  
+  const env = Deno.env.get("ENVIRONMENT") || "development";
+
   switch (env) {
-    case 'production':
+    case "production":
       return openRouterConfigProd;
-    case 'development':
+    case "development":
       return openRouterConfigDev;
     default:
       return openRouterConfig;

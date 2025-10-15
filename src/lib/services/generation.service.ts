@@ -23,11 +23,11 @@ export class GenerationService {
    */
   private createOpenRouterService(): OpenRouterService {
     // Get API key from environment - use import.meta.env for Astro
-    const apiKey = import.meta.env.OPENROUTER_API_KEY || '';
+    const apiKey = import.meta.env.OPENROUTER_API_KEY || "";
 
     const config: OpenRouterConfig = {
       apiKey,
-      baseUrl: 'https://openrouter.ai/api/v1',
+      baseUrl: "https://openrouter.ai/api/v1",
       defaultModel: this.DEFAULT_MODEL,
       maxRetries: 3,
       timeoutMs: 30000,
@@ -35,14 +35,14 @@ export class GenerationService {
       maxTokens: 4000,
     };
 
-    console.log('OpenRouter config:', {
+    console.log("OpenRouter config:", {
       hasApiKey: !!config.apiKey,
       apiKeyLength: config.apiKey.length,
-      environment: 'astro',
+      environment: "astro",
     });
 
     if (!config.apiKey) {
-      console.warn('OPENROUTER_API_KEY not found in environment variables. Using simulation mode.');
+      console.warn("OPENROUTER_API_KEY not found in environment variables. Using simulation mode.");
     }
 
     return new OpenRouterService(this.supabase, config);
@@ -75,10 +75,12 @@ export class GenerationService {
         rejected_count: 0,
         accepted_edited_count: 0,
         accepted_unedited_count: 0,
-        status: 'processing',
+        status: "processing",
         progress: 0,
-        message: 'Initializing generation...',
-        estimated_completion: new Date(Date.now() + this.calculateEstimatedDuration(command.target_count || 30)).toISOString(),
+        message: "Initializing generation...",
+        estimated_completion: new Date(
+          Date.now() + this.calculateEstimatedDuration(command.target_count || 30)
+        ).toISOString(),
       })
       .select("id, user_id, model, source_text_hash, source_text_length, created_at")
       .single();
@@ -180,8 +182,8 @@ export class GenerationService {
     // Start processing asynchronously to avoid API timeout
     console.log(`Starting background generation for ${generationId}`);
     Promise.resolve().then(() => {
-      this.processGeneration(generationId, command).catch(error => {
-        console.error('Background generation failed:', error);
+      this.processGeneration(generationId, command).catch((error) => {
+        console.error("Background generation failed:", error);
       });
     });
   }
@@ -194,42 +196,42 @@ export class GenerationService {
     try {
       // Update status to processing with progress
       console.log(`Updating status to processing for ${generationId}`);
-      await this.updateGenerationStatus(generationId, 'processing', 25, 'Analyzing source text...');
+      await this.updateGenerationStatus(generationId, "processing", 25, "Analyzing source text...");
 
       // Get user ID from generation record
       const { data: generation, error: fetchError } = await this.supabase
-        .from('generations')
-        .select('user_id')
-        .eq('id', generationId)
+        .from("generations")
+        .select("user_id")
+        .eq("id", generationId)
         .single();
 
       if (fetchError || !generation) {
-        throw new Error(`Failed to fetch generation record: ${fetchError?.message || 'Generation not found'}`);
+        throw new Error(`Failed to fetch generation record: ${fetchError?.message || "Generation not found"}`);
       }
 
       // Check if OpenRouter API key is available
-      const apiKey = import.meta.env.OPENROUTER_API_KEY || '';
+      const apiKey = import.meta.env.OPENROUTER_API_KEY || "";
 
-      console.log('API Key check:', {
+      console.log("API Key check:", {
         hasApiKey: !!apiKey,
         apiKeyLength: apiKey.length,
-        environment: 'astro',
-        apiKeyPrefix: apiKey.substring(0, 10) + '...',
-        apiKeyValid: apiKey.startsWith('sk-or-'),
+        environment: "astro",
+        apiKeyPrefix: apiKey.substring(0, 10) + "...",
+        apiKeyValid: apiKey.startsWith("sk-or-"),
       });
 
-      if (!apiKey || !apiKey.startsWith('sk-or-')) {
-        console.log('OpenRouter API key not found or invalid, using simulation mode');
+      if (!apiKey || !apiKey.startsWith("sk-or-")) {
+        console.log("OpenRouter API key not found or invalid, using simulation mode");
         await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
         console.log(`Simulation completed for ${generationId}`);
         return;
       }
 
       // Update progress
-      await this.updateGenerationStatus(generationId, 'processing', 50, 'Generating flashcards with AI...');
+      await this.updateGenerationStatus(generationId, "processing", 50, "Generating flashcards with AI...");
 
       console.log(`Starting OpenRouter API call for ${generationId}`);
-      
+
       // Use OpenRouter service to generate flashcards with shorter timeout
       const result = await Promise.race([
         this.openRouterService.generateFlashcards({
@@ -239,34 +241,34 @@ export class GenerationService {
           userId: generation.user_id,
           generationId: generationId,
         }),
-        new Promise<never>((_, reject) => 
+        new Promise<never>((_, reject) =>
           setTimeout(() => {
             console.error(`OpenRouter API timeout after 45 seconds for ${generationId}`);
-            reject(new Error('OpenRouter API timeout after 45 seconds'));
+            reject(new Error("OpenRouter API timeout after 45 seconds"));
           }, 45000)
-        )
+        ),
       ]);
 
       console.log(`OpenRouter API call completed for ${generationId}: success=${result.success}`);
 
       if (!result.success) {
         console.error(`OpenRouter API failed for ${generationId}:`, result.error);
-        
+
         // Check if it's a quota/limit error
-        if (result.error?.message?.includes('limit') || result.error?.message?.includes('quota')) {
-          console.log('API limit exceeded, falling back to simulation mode');
+        if (result.error?.message?.includes("limit") || result.error?.message?.includes("quota")) {
+          console.log("API limit exceeded, falling back to simulation mode");
           await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
           return;
         }
-        
+
         // For any other error, fall back to simulation mode
-        console.log('OpenRouter API error, falling back to simulation mode');
+        console.log("OpenRouter API error, falling back to simulation mode");
         await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
         return;
       }
 
       // Update progress
-      await this.updateGenerationStatus(generationId, 'processing', 75, 'Processing generated cards...');
+      await this.updateGenerationStatus(generationId, "processing", 75, "Processing generated cards...");
 
       // Convert AI result to database format
       const flashcards = result.cards.map((card, index) => ({
@@ -282,9 +284,9 @@ export class GenerationService {
 
       // Update generation with completed status and cards
       await this.updateGenerationStatus(
-        generationId, 
-        'completed', 
-        100, 
+        generationId,
+        "completed",
+        100,
         `Generation completed! Generated ${flashcards.length} flashcards.`,
         flashcards,
         undefined,
@@ -298,16 +300,15 @@ export class GenerationService {
       );
 
       console.log(`Successfully generated ${flashcards.length} flashcards for generation ${generationId}`);
-
     } catch (error) {
-      console.error('AI generation failed:', error);
+      console.error("AI generation failed:", error);
       await this.updateGenerationStatus(
-        generationId, 
-        'failed', 
-        0, 
-        'Generation failed', 
-        null, 
-        error instanceof Error ? error.message : 'Unknown error'
+        generationId,
+        "failed",
+        0,
+        "Generation failed",
+        null,
+        error instanceof Error ? error.message : "Unknown error"
       );
       console.log(`Generation marked as failed for ${generationId}`);
     }
@@ -320,10 +321,10 @@ export class GenerationService {
   private async simulateGeneration(generationId: string, sourceText: string, targetCount: number): Promise<void> {
     try {
       // Update status to processing with progress
-      await this.updateGenerationStatus(generationId, 'processing', 50, 'Generating flashcards...');
+      await this.updateGenerationStatus(generationId, "processing", 50, "Generating flashcards...");
 
       // Split text into sentences and create flashcards
-      const sentences = sourceText.split(/[.!?]+/).filter(s => s.trim().length > 15);
+      const sentences = sourceText.split(/[.!?]+/).filter((s) => s.trim().length > 15);
       const flashcards = [];
 
       // Create flashcards from sentences
@@ -332,14 +333,14 @@ export class GenerationService {
         if (sentence.length < 20) continue;
 
         // Create a simple flashcard by splitting the sentence at a natural break
-        const words = sentence.split(' ');
+        const words = sentence.split(" ");
         if (words.length < 4) continue;
 
         // Find a good split point (after first few words)
         const splitPoint = Math.min(4, Math.floor(words.length / 2));
-        
-        const front = words.slice(0, splitPoint).join(' ') + '...';
-        const back = words.slice(splitPoint).join(' ');
+
+        const front = words.slice(0, splitPoint).join(" ") + "...";
+        const back = words.slice(splitPoint).join(" ");
 
         flashcards.push({
           id: `card-${generationId}-${i}`,
@@ -355,29 +356,41 @@ export class GenerationService {
 
       // If no sentences found, create a simple flashcard from the whole text
       if (flashcards.length === 0 && sourceText.length > 50) {
-        const words = sourceText.split(' ');
+        const words = sourceText.split(" ");
         const midPoint = Math.floor(words.length / 2);
-        
+
         flashcards.push({
           id: `card-${generationId}-0`,
-          front: words.slice(0, midPoint).join(' ') + '...',
-          back: words.slice(midPoint).join(' '),
+          front: words.slice(0, midPoint).join(" ") + "...",
+          back: words.slice(midPoint).join(" "),
           source_text_excerpt: sourceText.substring(0, 100),
           ai_confidence_score: 0.8,
           was_edited: false,
-          original_front: words.slice(0, midPoint).join(' ') + '...',
-          original_back: words.slice(midPoint).join(' '),
+          original_front: words.slice(0, midPoint).join(" ") + "...",
+          original_back: words.slice(midPoint).join(" "),
         });
       }
 
       // Update generation with completed status and cards
-      await this.updateGenerationStatus(generationId, 'completed', 100, `Generation completed! Generated ${flashcards.length} flashcards.`, flashcards);
+      await this.updateGenerationStatus(
+        generationId,
+        "completed",
+        100,
+        `Generation completed! Generated ${flashcards.length} flashcards.`,
+        flashcards
+      );
 
       console.log(`Generated ${flashcards.length} flashcards for generation ${generationId}`);
-
     } catch (error) {
-      console.error('Simulation generation failed:', error);
-      await this.updateGenerationStatus(generationId, 'failed', 0, 'Generation failed', null, error instanceof Error ? error.message : 'Unknown error');
+      console.error("Simulation generation failed:", error);
+      await this.updateGenerationStatus(
+        generationId,
+        "failed",
+        0,
+        "Generation failed",
+        null,
+        error instanceof Error ? error.message : "Unknown error"
+      );
     }
   }
 
@@ -385,8 +398,8 @@ export class GenerationService {
    * Update generation status in database
    */
   private async updateGenerationStatus(
-    generationId: string, 
-    status: 'processing' | 'completed' | 'failed',
+    generationId: string,
+    status: "processing" | "completed" | "failed",
     progress: number,
     message: string,
     cards?: any[],
@@ -406,12 +419,12 @@ export class GenerationService {
       updated_at: new Date().toISOString(),
     };
 
-    if (status === 'completed') {
+    if (status === "completed") {
       updateData.completed_at = new Date().toISOString();
       updateData.generated_count = cards?.length || 0;
       // Store cards as JSON in a temporary field for the API response
       updateData.cards = cards;
-      
+
       // Add AI metadata if provided
       if (metadata) {
         updateData.model = metadata.model;
@@ -421,19 +434,16 @@ export class GenerationService {
         updateData.generation_duration_ms = metadata.generation_duration_ms;
         // Note: language column doesn't exist in generations table
       }
-    } else if (status === 'failed') {
+    } else if (status === "failed") {
       updateData.failed_at = new Date().toISOString();
       updateData.error_message = errorMessage;
-      updateData.error_code = 'AI_GENERATION_ERROR';
+      updateData.error_code = "AI_GENERATION_ERROR";
     }
 
-    const { error } = await this.supabase
-      .from('generations')
-      .update(updateData)
-      .eq('id', generationId);
+    const { error } = await this.supabase.from("generations").update(updateData).eq("id", generationId);
 
     if (error) {
-      console.error('Failed to update generation status:', error);
+      console.error("Failed to update generation status:", error);
     }
   }
 
@@ -458,7 +468,8 @@ export class GenerationService {
     // This prevents issues when user context changes between generation start and status polling
     const { data: generation, error } = await this.supabase
       .from("generations")
-      .select(`
+      .select(
+        `
         id,
         user_id,
         status,
@@ -475,7 +486,8 @@ export class GenerationService {
         error_code,
         estimated_completion,
         cards
-      `)
+      `
+      )
       .eq("id", generationId)
       .single();
 

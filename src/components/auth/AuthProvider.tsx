@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
-import type { User, Session } from '@supabase/supabase-js';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import type { ReactNode } from "react";
+import type { User, Session } from "@supabase/supabase-js";
 
 // Types for authentication context
 interface AuthContextType {
@@ -23,7 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -35,11 +35,7 @@ interface AuthProviderProps {
   initialSession?: Session | null | any; // Allow any type for mock data
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({
-  children,
-  initialUser = null,
-  initialSession = null,
-}) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUser = null, initialSession = null }) => {
   const [user, setUser] = useState<User | null | any>(initialUser);
   const [session, setSession] = useState<Session | null | any>(initialSession);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,13 +54,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     setIsLoading(true);
     try {
       // TODO: Implement actual Supabase sign in
-      console.log('Sign in with email:', email);
+      console.log("Sign in with email:", email);
       // Mock success
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       // setUser(mockUser);
       // setSession(mockSession);
     } catch (error) {
-      console.error('Sign in error:', error);
+      console.error("Sign in error:", error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -75,13 +71,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     setIsLoading(true);
     try {
       // TODO: Implement actual Supabase sign up
-      console.log('Sign up with email:', email);
+      console.log("Sign up with email:", email);
       // Mock success
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       // setUser(mockUser);
       // setSession(mockSession);
     } catch (error) {
-      console.error('Sign up error:', error);
+      console.error("Sign up error:", error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -92,13 +88,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     setIsLoading(true);
     try {
       // TODO: Implement actual Supabase sign out
-      console.log('Sign out');
+      console.log("Sign out");
       // Mock success
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       setUser(null);
       setSession(null);
     } catch (error) {
-      console.error('Sign out error:', error);
+      console.error("Sign out error:", error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -108,11 +104,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const resetPassword = async (email: string): Promise<void> => {
     try {
       // TODO: Implement actual Supabase password reset
-      console.log('Reset password for email:', email);
+      console.log("Reset password for email:", email);
       // Mock success
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
-      console.error('Reset password error:', error);
+      console.error("Reset password error:", error);
       throw error;
     }
   };
@@ -120,11 +116,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const updatePassword = async (password: string): Promise<void> => {
     try {
       // TODO: Implement actual Supabase password update
-      console.log('Update password');
+      console.log("Update password");
       // Mock success
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
-      console.error('Update password error:', error);
+      console.error("Update password error:", error);
       throw error;
     }
   };
@@ -132,11 +128,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const migrateAnonymousData = async (anonymousData: any): Promise<void> => {
     try {
       // TODO: Implement actual data migration
-      console.log('Migrate anonymous data:', anonymousData);
+      console.log("Migrate anonymous data:", anonymousData);
       // Mock success
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
-      console.error('Migration error:', error);
+      console.error("Migration error:", error);
       throw error;
     }
   };
@@ -154,9 +150,5 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     migrateAnonymousData,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -25,7 +25,6 @@ pnpm-debug.log*
 .idea/
 
 # .ai folder
-.ai/test-api-endpoints.sh
 
 # Test results and coverage
 test-results/

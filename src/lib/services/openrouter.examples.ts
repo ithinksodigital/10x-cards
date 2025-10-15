@@ -13,9 +13,9 @@ const supabase = createClient();
 
 // Example configuration
 const config = {
-  apiKey: Deno.env.get('OPENROUTER_API_KEY') || '',
-  baseUrl: 'https://openrouter.ai/api/v1',
-  defaultModel: 'gpt-4o',
+  apiKey: Deno.env.get("OPENROUTER_API_KEY") || "",
+  baseUrl: "https://openrouter.ai/api/v1",
+  defaultModel: "gpt-4o",
   maxRetries: 3,
   timeoutMs: 30000,
   chunkSize: 10000,
@@ -36,31 +36,31 @@ export async function exampleBasicGeneration() {
       on labeled data, unsupervised learning, which finds patterns in unlabeled data, 
       and reinforcement learning, where agents learn through interaction with an environment.
     `,
-    language: 'en',
+    language: "en",
     targetCount: 5,
-    userId: 'user-123',
-    generationId: 'gen-456',
+    userId: "user-123",
+    generationId: "gen-456",
   };
 
   try {
     const result = await openRouterService.generateFlashcards(command);
-    
+
     if (result.success) {
       console.log(`Generated ${result.cards.length} flashcards:`);
       result.cards.forEach((card, index) => {
         console.log(`${index + 1}. Front: ${card.front}`);
         console.log(`   Back: ${card.back}`);
         console.log(`   Confidence: ${card.confidence}`);
-        console.log('---');
+        console.log("---");
       });
-      
+
       console.log(`Cost: $${result.metadata.totalCost.toFixed(4)}`);
       console.log(`Processing time: ${result.metadata.processingTimeMs}ms`);
     } else {
-      console.error('Generation failed:', result.error);
+      console.error("Generation failed:", result.error);
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
   }
 }
 
@@ -76,8 +76,8 @@ export async function exampleMultiLanguageGeneration() {
         Incluye el aprendizaje automático, el procesamiento del lenguaje natural y la 
         visión por computadora.
       `,
-      language: 'es' as const,
-      expected: 'Spanish flashcards'
+      language: "es" as const,
+      expected: "Spanish flashcards",
     },
     {
       text: `
@@ -85,9 +85,9 @@ export async function exampleMultiLanguageGeneration() {
         zdolnych do wykonywania zadań wymagających ludzkiej inteligencji. Obejmuje 
         uczenie maszynowe, przetwarzanie języka naturalnego i rozpoznawanie obrazów.
       `,
-      language: 'pl' as const,
-      expected: 'Polish flashcards'
-    }
+      language: "pl" as const,
+      expected: "Polish flashcards",
+    },
   ];
 
   for (const example of examples) {
@@ -95,7 +95,7 @@ export async function exampleMultiLanguageGeneration() {
       sourceText: example.text,
       language: example.language,
       targetCount: 3,
-      userId: 'user-123',
+      userId: "user-123",
       generationId: `gen-${Date.now()}`,
     };
 
@@ -126,9 +126,9 @@ export async function exampleLanguageDetection() {
       const detectedLanguage = await openRouterService.detectLanguage(text);
       console.log(`Text: "${text.substring(0, 50)}..."`);
       console.log(`Detected language: ${detectedLanguage}`);
-      console.log('---');
+      console.log("---");
     } catch (error) {
-      console.error('Language detection failed:', error);
+      console.error("Language detection failed:", error);
     }
   }
 }
@@ -160,23 +160,23 @@ export async function exampleLargeTextProcessing() {
   const command: GenerateFlashcardsCommand = {
     sourceText: largeText,
     targetCount: 15,
-    userId: 'user-123',
+    userId: "user-123",
     generationId: `gen-large-${Date.now()}`,
   };
 
   try {
     console.log(`Processing large text (${largeText.length} characters)...`);
     const result = await openRouterService.generateFlashcards(command);
-    
+
     if (result.success) {
       console.log(`Generated ${result.cards.length} flashcards from large text`);
       console.log(`Total cost: $${result.metadata.totalCost.toFixed(4)}`);
       console.log(`Processing time: ${result.metadata.processingTimeMs}ms`);
     } else {
-      console.error('Large text processing failed:', result.error);
+      console.error("Large text processing failed:", result.error);
     }
   } catch (error) {
-    console.error('Error processing large text:', error);
+    console.error("Error processing large text:", error);
   }
 }
 
@@ -187,25 +187,25 @@ export async function exampleErrorHandling() {
   const command: GenerateFlashcardsCommand = {
     sourceText: "This is a test text for error handling.",
     targetCount: 5,
-    userId: 'user-123',
+    userId: "user-123",
     generationId: `gen-error-${Date.now()}`,
   };
 
   try {
     const result = await openRouterService.generateFlashcards(command);
-    
+
     if (!result.success && result.error) {
-      console.log('Error details:');
+      console.log("Error details:");
       console.log(`Code: ${result.error.code}`);
       console.log(`Message: ${result.error.message}`);
       console.log(`Retryable: ${result.error.retryable}`);
-      
+
       if (result.error.retryAfter) {
         console.log(`Retry after: ${result.error.retryAfter} seconds`);
       }
     }
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error("Unexpected error:", error);
   }
 }
 
@@ -215,10 +215,10 @@ export async function exampleErrorHandling() {
 export async function exampleServiceStats() {
   // Generate some flashcards to populate stats
   await exampleBasicGeneration();
-  
+
   // Get service statistics
   const stats = openRouterService.readonlyStats;
-  console.log('Service Statistics:');
+  console.log("Service Statistics:");
   console.log(`Total calls: ${stats.totalCalls}`);
   console.log(`Successful calls: ${stats.successfulCalls}`);
   console.log(`Failed calls: ${stats.failedCalls}`);
@@ -231,27 +231,27 @@ export async function exampleServiceStats() {
  * Run all examples
  */
 export async function runAllExamples() {
-  console.log('=== OpenRouter Service Examples ===\n');
-  
-  console.log('1. Basic Generation:');
+  console.log("=== OpenRouter Service Examples ===\n");
+
+  console.log("1. Basic Generation:");
   await exampleBasicGeneration();
-  
-  console.log('\n2. Multi-language Generation:');
+
+  console.log("\n2. Multi-language Generation:");
   await exampleMultiLanguageGeneration();
-  
-  console.log('\n3. Language Detection:');
+
+  console.log("\n3. Language Detection:");
   await exampleLanguageDetection();
-  
-  console.log('\n4. Large Text Processing:');
+
+  console.log("\n4. Large Text Processing:");
   await exampleLargeTextProcessing();
-  
-  console.log('\n5. Error Handling:');
+
+  console.log("\n5. Error Handling:");
   await exampleErrorHandling();
-  
-  console.log('\n6. Service Statistics:');
+
+  console.log("\n6. Service Statistics:");
   await exampleServiceStats();
-  
-  console.log('\n=== Examples Complete ===');
+
+  console.log("\n=== Examples Complete ===");
 }
 
 // Export for use in other files

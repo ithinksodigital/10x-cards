@@ -1,5 +1,5 @@
 // src/lib/errors.ts
-import type { ErrorResponseDto } from '../types';
+import type { ErrorResponseDto } from "../types";
 
 /**
  * Base API Error class
@@ -14,7 +14,7 @@ export class ApiError extends Error {
     public details?: Record<string, any>
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 
   /**
@@ -36,7 +36,7 @@ export class ApiError extends Error {
  */
 export class ValidationError extends ApiError {
   constructor(message: string, details?: Record<string, string>) {
-    super(400, 'ValidationError', message, 'VALIDATION_FAILED', details);
+    super(400, "ValidationError", message, "VALIDATION_FAILED", details);
   }
 }
 
@@ -44,8 +44,8 @@ export class ValidationError extends ApiError {
  * 401 Unauthorized - Authentication required or failed
  */
 export class UnauthorizedError extends ApiError {
-  constructor(message: string = 'Unauthorized') {
-    super(401, 'Unauthorized', message, 'UNAUTHORIZED');
+  constructor(message = "Unauthorized") {
+    super(401, "Unauthorized", message, "UNAUTHORIZED");
   }
 }
 
@@ -54,7 +54,7 @@ export class UnauthorizedError extends ApiError {
  */
 export class NotFoundError extends ApiError {
   constructor(resource: string) {
-    super(404, 'NotFound', `${resource} not found`, 'NOT_FOUND');
+    super(404, "NotFound", `${resource} not found`, "NOT_FOUND");
   }
 }
 
@@ -62,8 +62,8 @@ export class NotFoundError extends ApiError {
  * 409 Conflict - Resource conflict (e.g., duplicate)
  */
 export class ConflictError extends ApiError {
-  constructor(message: string, code: string = 'CONFLICT') {
-    super(409, 'Conflict', message, code);
+  constructor(message: string, code = "CONFLICT") {
+    super(409, "Conflict", message, code);
   }
 }
 
@@ -71,8 +71,8 @@ export class ConflictError extends ApiError {
  * 409 Conflict - Duplicate card error
  */
 export class DuplicateCardError extends ConflictError {
-  constructor(message: string = 'Card with this front text already exists in set') {
-    super(message, 'DUPLICATE_CARD');
+  constructor(message = "Card with this front text already exists in set") {
+    super(message, "DUPLICATE_CARD");
   }
 }
 
@@ -81,7 +81,7 @@ export class DuplicateCardError extends ConflictError {
  */
 export class LimitExceededError extends ApiError {
   constructor(message: string, details?: Record<string, any>) {
-    super(422, 'LimitExceeded', message, 'LIMIT_EXCEEDED', details);
+    super(422, "LimitExceeded", message, "LIMIT_EXCEEDED", details);
   }
 }
 
@@ -90,7 +90,7 @@ export class LimitExceededError extends ApiError {
  */
 export class DailyLimitError extends ApiError {
   constructor(message: string, details?: Record<string, any>) {
-    super(422, 'DailyLimitReached', message, 'DAILY_LIMIT_REACHED', details);
+    super(422, "DailyLimitReached", message, "DAILY_LIMIT_REACHED", details);
   }
 }
 
@@ -99,7 +99,7 @@ export class DailyLimitError extends ApiError {
  */
 export class RateLimitError extends ApiError {
   constructor(message: string, retryAfter?: number) {
-    super(429, 'RateLimitExceeded', message, 'RATE_LIMIT_EXCEEDED', { retry_after: retryAfter });
+    super(429, "RateLimitExceeded", message, "RATE_LIMIT_EXCEEDED", { retry_after: retryAfter });
   }
 }
 
@@ -107,8 +107,8 @@ export class RateLimitError extends ApiError {
  * 500 Internal Server Error - Unexpected errors
  */
 export class InternalError extends ApiError {
-  constructor(message: string = 'An unexpected error occurred') {
-    super(500, 'InternalError', message, 'INTERNAL_ERROR');
+  constructor(message = "An unexpected error occurred") {
+    super(500, "InternalError", message, "INTERNAL_ERROR");
   }
 }
 
@@ -118,8 +118,8 @@ export class InternalError extends ApiError {
  * 402 Payment Required - API quota exceeded
  */
 export class QuotaExceededError extends ApiError {
-  constructor(message: string = 'API quota exceeded', details?: Record<string, any>) {
-    super(402, 'QuotaExceeded', message, 'QUOTA_EXCEEDED', details);
+  constructor(message = "API quota exceeded", details?: Record<string, any>) {
+    super(402, "QuotaExceeded", message, "QUOTA_EXCEEDED", details);
   }
 }
 
@@ -127,8 +127,8 @@ export class QuotaExceededError extends ApiError {
  * Timeout Error - Request timeout
  */
 export class TimeoutError extends ApiError {
-  constructor(message: string = 'Request timeout', details?: Record<string, any>) {
-    super(408, 'TimeoutError', message, 'TIMEOUT', details);
+  constructor(message = "Request timeout", details?: Record<string, any>) {
+    super(408, "TimeoutError", message, "TIMEOUT", details);
   }
 }
 
@@ -136,8 +136,8 @@ export class TimeoutError extends ApiError {
  * Language Detection Error
  */
 export class LanguageDetectionError extends ApiError {
-  constructor(message: string = 'Failed to detect language', details?: Record<string, any>) {
-    super(422, 'LanguageDetectionError', message, 'LANGUAGE_DETECTION_FAILED', details);
+  constructor(message = "Failed to detect language", details?: Record<string, any>) {
+    super(422, "LanguageDetectionError", message, "LANGUAGE_DETECTION_FAILED", details);
   }
 }
 
@@ -145,8 +145,8 @@ export class LanguageDetectionError extends ApiError {
  * Text Processing Error
  */
 export class TextProcessingError extends ApiError {
-  constructor(message: string = 'Text processing failed', details?: Record<string, any>) {
-    super(422, 'TextProcessingError', message, 'TEXT_PROCESSING_FAILED', details);
+  constructor(message = "Text processing failed", details?: Record<string, any>) {
+    super(422, "TextProcessingError", message, "TEXT_PROCESSING_FAILED", details);
   }
 }
 
@@ -154,8 +154,8 @@ export class TextProcessingError extends ApiError {
  * API Response Validation Error
  */
 export class ResponseValidationError extends ApiError {
-  constructor(message: string = 'API response validation failed', details?: Record<string, any>) {
-    super(422, 'ResponseValidationError', message, 'RESPONSE_VALIDATION_FAILED', details);
+  constructor(message = "API response validation failed", details?: Record<string, any>) {
+    super(422, "ResponseValidationError", message, "RESPONSE_VALIDATION_FAILED", details);
   }
 }
 
@@ -163,8 +163,7 @@ export class ResponseValidationError extends ApiError {
  * Unknown Error - Fallback for unexpected errors
  */
 export class UnknownError extends ApiError {
-  constructor(message: string = 'Unknown error occurred', details?: Record<string, any>) {
-    super(500, 'UnknownError', message, 'UNKNOWN_ERROR', details);
+  constructor(message = "Unknown error occurred", details?: Record<string, any>) {
+    super(500, "UnknownError", message, "UNKNOWN_ERROR", details);
   }
 }
-

@@ -52,15 +52,18 @@ export const POST = withErrorHandling(async (context: APIContext) => {
   // 1. Check if user is authenticated
   const user = context.locals.user;
   if (!user) {
-    return new Response(JSON.stringify({
-      error: "Unauthorized",
-      message: "Authentication required to save cards to sets",
-      code: "AUTHENTICATION_REQUIRED",
-      timestamp: new Date().toISOString(),
-    }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Unauthorized",
+        message: "Authentication required to save cards to sets",
+        code: "AUTHENTICATION_REQUIRED",
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 
   // 2. Validate UUID parameter

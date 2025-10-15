@@ -62,7 +62,12 @@ export function CardGrid({
     return (
       <div className={cn("flex items-center justify-center h-64", className)}>
         <div className="text-center text-muted-foreground">
-          <svg className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -88,7 +93,7 @@ export function CardGrid({
               {currentBatch + 1} of {batchInfo.totalBatches}
             </span>
           </div>
-          
+
           <div className="flex items-center gap-2 overflow-x-auto pb-2">
             {batchInfo.batches.map((batch) => (
               <button
@@ -127,10 +132,11 @@ export function CardGrid({
               Batch {currentBatch + 1} - {currentBatchData.cards.length} cards
             </h3>
             <div className="text-sm text-muted-foreground">
-              {currentBatchData.acceptedCount + currentBatchData.rejectedCount} of {currentBatchData.cards.length} reviewed
+              {currentBatchData.acceptedCount + currentBatchData.rejectedCount} of {currentBatchData.cards.length}{" "}
+              reviewed
             </div>
           </div>
-          
+
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
@@ -149,7 +155,10 @@ export function CardGrid({
       )}
 
       {/* Cards grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" data-testid="generated-cards">
+      <div
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        data-testid="generated-cards"
+      >
         {currentBatchData?.cards.map((proposal, index) => {
           const globalIndex = currentBatch * BATCH_SIZE + index;
           const isSelected = selectedIds.has(proposal.id);
@@ -211,18 +220,16 @@ export function CardGrid({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium text-foreground">
-              Overall Progress
-            </span>
+            <span className="text-sm font-medium text-foreground">Overall Progress</span>
           </div>
           <div className="text-sm text-muted-foreground">
             {selectedIds.size + rejectedIds.size} of {proposals.length} cards reviewed
           </div>
         </div>
-        
+
         <div className="mt-3">
           <div className="w-full bg-muted rounded-full h-2">
-            <div 
+            <div
               className="bg-primary h-2 rounded-full transition-all duration-300"
               style={{ width: `${((selectedIds.size + rejectedIds.size) / proposals.length) * 100}%` }}
             ></div>

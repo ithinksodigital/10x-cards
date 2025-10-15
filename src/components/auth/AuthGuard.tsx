@@ -1,9 +1,9 @@
-import React from 'react';
-import type { ReactNode } from 'react';
-import { useAuth } from './AuthProvider';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { Loader2Icon, LockIcon } from 'lucide-react';
+import React from "react";
+import type { ReactNode } from "react";
+import { useAuth } from "./AuthProvider";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Button } from "../ui/button";
+import { Loader2Icon, LockIcon } from "lucide-react";
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -15,7 +15,7 @@ interface AuthGuardProps {
 export const AuthGuard: React.FC<AuthGuardProps> = ({
   children,
   fallback,
-  redirectTo = '/auth/login',
+  redirectTo = "/auth/login",
   requireAuth = true,
 }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -39,7 +39,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
     }
 
     // Redirect to login page instead of showing a card
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       window.location.href = redirectTo;
       return null;
     }
@@ -52,24 +52,17 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
               <LockIcon className="w-6 h-6 text-destructive" />
             </div>
             <CardTitle className="text-xl">Wymagane logowanie</CardTitle>
-            <CardDescription>
-              Ta strona wymaga zalogowania się do konta
-            </CardDescription>
+            <CardDescription>Ta strona wymaga zalogowania się do konta</CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Zaloguj się, aby uzyskać dostęp do tej funkcji
-            </p>
+            <p className="text-sm text-muted-foreground">Zaloguj się, aby uzyskać dostęp do tej funkcji</p>
             <div className="flex gap-2 justify-center">
-              <Button
-                onClick={() => window.location.href = redirectTo}
-                className="flex-1 sm:flex-none"
-              >
+              <Button onClick={() => (window.location.href = redirectTo)} className="flex-1 sm:flex-none">
                 Zaloguj się
               </Button>
               <Button
                 variant="outline"
-                onClick={() => window.location.href = '/auth/register'}
+                onClick={() => (window.location.href = "/auth/register")}
                 className="flex-1 sm:flex-none"
               >
                 Utwórz konto
@@ -88,7 +81,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
 // Higher-order component version
 export const withAuthGuard = <P extends object>(
   Component: React.ComponentType<P>,
-  options: Omit<AuthGuardProps, 'children'> = {}
+  options: Omit<AuthGuardProps, "children"> = {}
 ) => {
   const WrappedComponent = (props: P) => (
     <AuthGuard {...options}>
@@ -97,6 +90,6 @@ export const withAuthGuard = <P extends object>(
   );
 
   WrappedComponent.displayName = `withAuthGuard(${Component.displayName || Component.name})`;
-  
+
   return WrappedComponent;
 };

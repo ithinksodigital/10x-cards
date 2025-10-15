@@ -1,7 +1,7 @@
 // src/lib/services/set.service.ts
-import type { SupabaseClient } from '../../db/supabase.client';
-import type { SetDto, CreateSetCommand, UpdateSetCommand, PaginationDto } from '../../types';
-import { NotFoundError, ConflictError } from '../errors';
+import type { SupabaseClient } from "../../db/supabase.client";
+import type { SetDto, CreateSetCommand, UpdateSetCommand, PaginationDto } from "../../types";
+import { NotFoundError, ConflictError } from "../errors";
 
 /**
  * Query parameters for listing sets
@@ -10,8 +10,8 @@ export interface ListSetsQuery {
   page?: number;
   limit?: number;
   search?: string;
-  sort?: 'created_at' | 'updated_at' | 'name';
-  order?: 'asc' | 'desc';
+  sort?: "created_at" | "updated_at" | "name";
+  order?: "asc" | "desc";
 }
 
 /**
@@ -23,34 +23,25 @@ export class SetService {
   /**
    * List sets for a user with pagination and filtering
    */
-  async listSets(
-    userId: string,
-    query: ListSetsQuery
-  ): Promise<{ data: SetDto[]; pagination: PaginationDto }> {
-    const {
-      page = 1,
-      limit = 50,
-      search,
-      sort = 'created_at',
-      order = 'desc',
-    } = query;
+  async listSets(userId: string, query: ListSetsQuery): Promise<{ data: SetDto[]; pagination: PaginationDto }> {
+    const { page = 1, limit = 50, search, sort = "created_at", order = "desc" } = query;
 
     // Calculate offset for pagination
     const offset = (page - 1) * limit;
 
     // Build base query
     let baseQuery = this.supabase
-      .from('sets')
-      .select('id, user_id, name, language, cards_count, created_at, updated_at', { count: 'exact' })
-      .eq('user_id', userId);
+      .from("sets")
+      .select("id, user_id, name, language, cards_count, created_at, updated_at", { count: "exact" })
+      .eq("user_id", userId);
 
     // Apply search filter if provided
     if (search) {
-      baseQuery = baseQuery.ilike('name', `%${search}%`);
+      baseQuery = baseQuery.ilike("name", `%${search}%`);
     }
 
     // Apply sorting
-    baseQuery = baseQuery.order(sort, { ascending: order === 'asc' });
+    baseQuery = baseQuery.order(sort, { ascending: order === "asc" });
 
     // Apply pagination
     baseQuery = baseQuery.range(offset, offset + limit - 1);
@@ -83,14 +74,14 @@ export class SetService {
    */
   async getSet(setId: string, userId: string): Promise<SetDto> {
     const { data, error } = await this.supabase
-      .from('sets')
-      .select('id, user_id, name, language, cards_count, created_at, updated_at')
-      .eq('id', setId)
-      .eq('user_id', userId)
+      .from("sets")
+      .select("id, user_id, name, language, cards_count, created_at, updated_at")
+      .eq("id", setId)
+      .eq("user_id", userId)
       .single();
 
     if (error || !data) {
-      throw new NotFoundError('Set');
+      throw new NotFoundError("Set");
     }
 
     return data;
@@ -102,19 +93,19 @@ export class SetService {
    */
   async createSet(command: CreateSetCommand, userId: string): Promise<SetDto> {
     const { data, error } = await this.supabase
-      .from('sets')
+      .from("sets")
       .insert({
         user_id: userId,
         name: command.name,
         language: command.language,
       })
-      .select('id, user_id, name, language, cards_count, created_at, updated_at')
+      .select("id, user_id, name, language, cards_count, created_at, updated_at")
       .single();
 
     if (error) {
       // Check for unique constraint violation (duplicate name)
-      if (error.code === '23505') {
-        throw new ConflictError('Set with this name already exists', 'DUPLICATE_SET_NAME');
+      if (error.code === "23505") {
+        throw new ConflictError("Set with this name already exists", "DUPLICATE_SET_NAME");
       }
       throw error;
     }
@@ -127,32 +118,28 @@ export class SetService {
    * @throws {NotFoundError} If set not found
    * @throws {ConflictError} If new name conflicts with existing set
    */
-  async updateSet(
-    setId: string,
-    command: UpdateSetCommand,
-    userId: string
-  ): Promise<SetDto> {
+  async updateSet(setId: string, command: UpdateSetCommand, userId: string): Promise<SetDto> {
     const { data, error } = await this.supabase
-      .from('sets')
+      .from("sets")
       .update({
         name: command.name,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', setId)
-      .eq('user_id', userId)
-      .select('id, user_id, name, language, cards_count, created_at, updated_at')
+      .eq("id", setId)
+      .eq("user_id", userId)
+      .select("id, user_id, name, language, cards_count, created_at, updated_at")
       .single();
 
     if (error) {
       // Check for unique constraint violation
-      if (error.code === '23505') {
-        throw new ConflictError('Set with this name already exists', 'DUPLICATE_SET_NAME');
+      if (error.code === "23505") {
+        throw new ConflictError("Set with this name already exists", "DUPLICATE_SET_NAME");
       }
       throw error;
     }
 
     if (!data) {
-      throw new NotFoundError('Set');
+      throw new NotFoundError("Set");
     }
 
     return data;
@@ -168,11 +155,7 @@ export class SetService {
     const cardsCount = set.cards_count;
 
     // Delete the set (cards will be deleted via CASCADE)
-    const { error } = await this.supabase
-      .from('sets')
-      .delete()
-      .eq('id', setId)
-      .eq('user_id', userId);
+    const { error } = await this.supabase.from("sets").delete().eq("id", setId).eq("user_id", userId);
 
     if (error) {
       throw error;
@@ -189,4 +172,3 @@ export class SetService {
     await this.getSet(setId, userId);
   }
 }
-
