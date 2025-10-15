@@ -26,9 +26,6 @@ export function useGenerationApi(): UseGenerationApiReturn {
 
   const {
     retry: retryStartGeneration,
-    isRetrying,
-    attempt,
-    lastError,
   } = useApiRetry(
     async (command: StartGenerationCommand): Promise<StartGenerationResponseDto> => {
       const response = await fetch("/api/generations", {
@@ -66,8 +63,8 @@ export function useGenerationApi(): UseGenerationApiReturn {
     },
     {
       maxRetries: 2,
-      onRetry: (attempt) => {
-        console.log(`Retrying generation start (attempt ${attempt})`);
+      onRetry: () => {
+        // Retry logic handled by useApiRetry hook
       },
     }
   );
@@ -173,13 +170,11 @@ export function useProgressPolling(
 
     // Global check to prevent multiple polling instances across components
     if (globalPollingState.get(generationId)) {
-      console.warn(`⚠️ Global polling already active for generation ${generationId}, ignoring start request`);
       return;
     }
 
     // Prevent multiple polling instances
     if (pollingRef.current.isActive) {
-      console.warn(`Polling already active for generation ${generationId}, ignoring start request`);
       return;
     }
 
@@ -191,7 +186,7 @@ export function useProgressPolling(
       clearTimeout(pollingRef.current.timeoutId);
     }
 
-    console.log(`🚀 Starting polling for generation ${generationId}`);
+    // Starting polling for generation
     setIsPolling(true);
     setPollingError(null);
     pollingRef.current.isActive = true;
@@ -230,7 +225,6 @@ export function useProgressPolling(
 
         // Prevent duplicate requests
         if (pollingRef.current.currentRequest) {
-          console.warn(`Request already in progress for generation ${generationId}, skipping...`);
           pollingRef.current.timeoutId = setTimeout(poll, backoffDelay);
           return;
         }
@@ -250,7 +244,6 @@ export function useProgressPolling(
 
           if (response.status === 404) {
             // For 404 errors, continue polling for a bit longer as the generation might still be processing
-            console.warn(`Generation ${generationId} not found yet, continuing to poll...`);
             pollingRef.current.timeoutId = setTimeout(poll, backoffDelay);
             backoffDelay = Math.min(backoffDelay * 1.2, 3000); // Slower backoff for 404s
             return;
@@ -271,7 +264,6 @@ export function useProgressPolling(
 
         // Stop polling if generation is completed or failed
         if (data.status === "completed" || data.status === "failed") {
-          console.log(`✅ Generation ${generationId} finished with status: ${data.status}`);
           pollingRef.current.isActive = false;
           globalPollingState.delete(generationId);
           setIsPolling(false);
@@ -280,13 +272,9 @@ export function useProgressPolling(
 
         // Add polling counter and strict limits
         pollCount++;
-        console.log(
-          `🔍 Poll #${pollCount} for generation ${generationId}: status=${data.status}, progress=${(data as any).progress || "N/A"}, timeElapsed=${Math.round((Date.now() - startTime) / 1000)}s`
-        );
 
         // EMERGENCY BRAKE: Stop after 6 polls (should be enough for AI generation)
         if (pollCount > 6) {
-          console.error(`🚨 EMERGENCY STOP: Too many polls (${pollCount}) for generation ${generationId}`);
           pollingRef.current.isActive = false;
           globalPollingState.delete(generationId);
           setIsPolling(false);
@@ -299,7 +287,6 @@ export function useProgressPolling(
 
         // Time-based emergency brake: Stop after 1 minute regardless
         if (Date.now() - startTime > 60000) {
-          console.error(`EMERGENCY STOP: Timeout after 1 minute for generation ${generationId}`);
           pollingRef.current.isActive = false;
           globalPollingState.delete(generationId);
           setIsPolling(false);
@@ -337,7 +324,6 @@ export function useProgressPolling(
         }
 
         // Continue polling with smart delay
-        console.log(`⏰ Next poll in ${backoffDelay}ms (${Math.round(backoffDelay / 1000)}s)`);
         pollingRef.current.timeoutId = setTimeout(poll, backoffDelay);
       } catch (err) {
         // Clear current request on error
@@ -346,9 +332,6 @@ export function useProgressPolling(
 
         // Circuit breaker: stop polling after too many consecutive errors
         if (pollingRef.current.consecutiveErrors >= 10) {
-          console.error(
-            `Too many consecutive errors (${pollingRef.current.consecutiveErrors}) for generation ${generationId}, stopping polling`
-          );
           pollingRef.current.isActive = false;
           setIsPolling(false);
           setPollingError("Too many connection errors. Please refresh the page and try again.");
@@ -360,9 +343,6 @@ export function useProgressPolling(
 
         // Handle network errors more gracefully
         if (err instanceof TypeError && err.message.includes("Failed to fetch")) {
-          console.warn(
-            `Network error while polling generation ${generationId} (attempt ${pollingRef.current.consecutiveErrors}), retrying...`
-          );
           // For network errors, retry with exponential backoff
           pollingRef.current.timeoutId = setTimeout(poll, backoffDelay);
           backoffDelay = Math.min(backoffDelay * 1.5, 5000);
@@ -382,10 +362,9 @@ export function useProgressPolling(
 
     // Start polling
     poll();
-  }, [generationId, onUpdate, interval, timeout, onError]);
+  }, [generationId, onUpdate, timeout, onError]);
 
   const stopPolling = useCallback(() => {
-    console.log(`🛑 Stopping polling for generation ${generationId}`);
     pollingRef.current.isActive = false;
     globalPollingState.delete(generationId);
     if (pollingRef.current.timeoutId) {
