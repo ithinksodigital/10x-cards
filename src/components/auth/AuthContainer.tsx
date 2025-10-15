@@ -74,7 +74,7 @@ export const AuthContainer: React.FC<AuthContainerProps> = ({ initialMode = "log
     }
   };
 
-  const handleForgotPassword = async (_data: { email: string }) => {
+  const handleForgotPassword = async () => {
     setIsLoading(true);
     setError("");
 

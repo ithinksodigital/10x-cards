@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     return () => clearTimeout(timer);
   }, []);
 
-  const signInWithEmail = async (email: string): Promise<void> => {
+  const signInWithEmail = async (_email: string): Promise<void> => {
     setIsLoading(true);
     try {
       // TODO: Implement actual Supabase sign in
@@ -59,24 +59,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
       // setUser(mockUser);
       // setSession(mockSession);
     } catch (error) {
-      console.error("Sign in error:", error);
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const signUpWithEmail = async (email: string, password: string): Promise<void> => {
+  const signUpWithEmail = async (_email: string, _password: string): Promise<void> => {
     setIsLoading(true);
     try {
       // TODO: Implement actual Supabase sign up
-      console.log("Sign up with email:", email);
       // Mock success
       await new Promise((resolve) => setTimeout(resolve, 1000));
       // setUser(mockUser);
       // setSession(mockSession);
     } catch (error) {
-      console.error("Sign up error:", error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -87,51 +84,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     setIsLoading(true);
     try {
       // TODO: Implement actual Supabase sign out
-      console.log("Sign out");
       // Mock success
       await new Promise((resolve) => setTimeout(resolve, 500));
       setUser(null);
       setSession(null);
     } catch (error) {
-      console.error("Sign out error:", error);
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const resetPassword = async (email: string): Promise<void> => {
+  const resetPassword = async (_email: string): Promise<void> => {
     try {
       // TODO: Implement actual Supabase password reset
-      console.log("Reset password for email:", email);
       // Mock success
       await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
-      console.error("Reset password error:", error);
       throw error;
     }
   };
 
-  const updatePassword = async (password: string): Promise<void> => {
+  const updatePassword = async (_password: string): Promise<void> => {
     try {
       // TODO: Implement actual Supabase password update
-      console.log("Update password");
       // Mock success
       await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
-      console.error("Update password error:", error);
       throw error;
     }
   };
 
-  const migrateAnonymousData = async (anonymousData: unknown): Promise<void> => {
+  const migrateAnonymousData = async (_anonymousData: unknown): Promise<void> => {
     try {
       // TODO: Implement actual data migration
-      console.log("Migrate anonymous data:", anonymousData);
       // Mock success
       await new Promise((resolve) => setTimeout(resolve, 1000));
     } catch (error) {
-      console.error("Migration error:", error);
       throw error;
     }
   };
