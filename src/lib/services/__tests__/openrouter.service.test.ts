@@ -159,7 +159,7 @@ describe("OpenRouterService", () => {
       vi.restoreAllMocks();
       mockFetch.mockClear();
 
-      mockFetch.mockResolvedValueOnce({
+      mockFetch.mockResolvedValue({
         ok: false,
         status: 429,
         statusText: "Too Many Requests",
@@ -174,8 +174,8 @@ describe("OpenRouterService", () => {
 
       const result = await service.generateFlashcards(mockCommand);
 
-      expect(result.success).toBe(true); // Retry logic may succeed
-      expect(result.cards).toHaveLength(0); // No cards generated
+      expect(result.success).toBe(false); // Should fail after retries
+      expect(result.error?.code).toBe("NO_CARDS_GENERATED");
     });
 
     it("should validate input parameters", async () => {
@@ -195,12 +195,12 @@ describe("OpenRouterService", () => {
       vi.restoreAllMocks();
       mockFetch.mockClear();
 
-      mockFetch.mockRejectedValueOnce(new Error("Network error"));
+      mockFetch.mockRejectedValue(new Error("Network error"));
 
       const result = await service.generateFlashcards(mockCommand);
 
-      expect(result.success).toBe(true); // Retry logic may succeed
-      expect(result.cards).toHaveLength(0); // No cards generated
+      expect(result.success).toBe(false); // Should fail after retries
+      expect(result.error?.code).toBe("NO_CARDS_GENERATED");
     });
   });
 
