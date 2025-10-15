@@ -39,7 +39,7 @@ export function GeneratePage() {
 
   const [pasteText, setPasteText] = useState("");
   const [pasteValid, setPasteValid] = useState(false);
-  // const [pasteErrors, setPasteErrors] = useState<Record<string, string>>({});
+  const [pasteErrors, setPasteErrors] = useState<Record<string, string>>({});
 
   const { currentBatch, goToBatch } = useCardGrid(state.proposals);
   const { canUndo, undoCount, acceptAll, rejectAll } = useBulkActions(
@@ -49,10 +49,7 @@ export function GeneratePage() {
     currentBatch,
     state.undoStack,
     acceptCard,
-    rejectCard,
-    acceptAllBatch,
-    rejectAllBatch,
-    undo
+    rejectCard
   );
 
   // Handle paste text changes
@@ -74,7 +71,7 @@ export function GeneratePage() {
         openModal(response.id);
         nextStep(); // Move to review step
       } catch (err) {
-        console.error("Failed to start generation:", err);
+        // Error handling is done by the error toast system
       }
     },
     [apiStartGeneration, startGeneration, openModal, nextStep]
@@ -89,16 +86,6 @@ export function GeneratePage() {
     [setProposals, closeModal]
   );
 
-  // Handle generation failure
-  const handleGenerationFailed = useCallback(
-    (error: string) => {
-      setError(error);
-      closeModal();
-      addToast(error, "error", handleRetry);
-    },
-    [setError, closeModal, addToast]
-  );
-
   // Handle retry
   const handleRetry = useCallback(async () => {
     if (state.generationId) {
@@ -106,16 +93,25 @@ export function GeneratePage() {
         await retryGeneration(state.generationId);
         openModal(state.generationId);
       } catch (err) {
-        console.error("Failed to retry generation:", err);
+        // Error handling is done by the error toast system
       }
     }
   }, [state.generationId, retryGeneration, openModal]);
 
+  // Handle generation failure
+  const handleGenerationFailed = useCallback(
+    (error: string) => {
+      setError(error);
+      closeModal();
+      addToast(error, "error", handleRetry);
+    },
+    [setError, closeModal, addToast, handleRetry]
+  );
+
   // Handle save to set
   const handleSaveSuccess = useCallback(
-    (response: any) => {
+    (response: unknown) => {
       // Show success message and redirect or reset
-      console.log("Cards saved successfully:", response);
       reset();
       resetStepper();
       setPasteText("");
@@ -208,7 +204,6 @@ export function GeneratePage() {
                 onAcceptAllBatch={acceptAllBatch}
                 onRejectAllBatch={rejectAllBatch}
                 onUndo={undo}
-                onSelectAllInBatch={() => {}} // TODO: Implement if needed
               />
 
               {/* Cards Grid */}
