@@ -1,5 +1,5 @@
 // src/components/generation/GenerationContext.tsx
-import React, { createContext, useContext, useReducer, useEffect, type ReactNode } from "react";
+import React, { createContext, useContext, useReducer, useEffect, useState, type ReactNode } from "react";
 import type { GenerationState, FlashCardProposal } from "@/lib/view-models";
 
 interface GenerationContextValue {
@@ -265,6 +265,7 @@ const GenerationContext = createContext<GenerationContextValue | undefined>(unde
 
 export function GenerationProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(generationReducer, initialState);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Persist state to sessionStorage (with TTL 24h)
   useEffect(() => {
@@ -298,11 +299,14 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
         } else {
           sessionStorage.removeItem("generation-state");
         }
-      } catch (e) {
+      } catch {
         // Failed to restore generation state, clear it
         sessionStorage.removeItem("generation-state");
       }
     }
+    
+    // Mark as initialized after restoration attempt
+    setIsInitialized(true);
   }, []);
 
   const value: GenerationContextValue = {
@@ -328,7 +332,20 @@ export function GenerationProvider({ children }: { children: ReactNode }) {
 export function useGeneration() {
   const context = useContext(GenerationContext);
   if (!context) {
-    throw new Error("useGeneration must be used within a GenerationProvider");
+    // Provide more helpful error message with debugging info
+    const errorMessage = "useGeneration must be used within a GenerationProvider. " +
+      "Make sure to wrap your component with <GenerationProvider> or use <GenerationApp> instead of <GeneratePage> directly.";
+    
+    // In development, provide more context
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+      console.error(errorMessage);
+      console.error("Current component tree:", {
+        location: window.location?.href,
+        userAgent: navigator.userAgent
+      });
+    }
+    
+    throw new Error(errorMessage);
   }
   return context;
 }

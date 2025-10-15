@@ -39,7 +39,6 @@ export function GeneratePage() {
 
   const [pasteText, setPasteText] = useState("");
   const [pasteValid, setPasteValid] = useState(false);
-  const [pasteErrors, setPasteErrors] = useState<Record<string, string>>({});
 
   const { currentBatch, goToBatch } = useCardGrid(state.proposals);
   const { canUndo, undoCount, acceptAll, rejectAll } = useBulkActions(
@@ -57,9 +56,8 @@ export function GeneratePage() {
     setPasteText(text);
   }, []);
 
-  const handlePasteValidation = useCallback((isValid: boolean, errors?: Record<string, string>) => {
+  const handlePasteValidation = useCallback((isValid: boolean) => {
     setPasteValid(isValid);
-    setPasteErrors(errors || {});
   }, []);
 
   // Handle generation start
@@ -70,7 +68,7 @@ export function GeneratePage() {
         startGeneration(response.id);
         openModal(response.id);
         nextStep(); // Move to review step
-      } catch (err) {
+      } catch {
         // Error handling is done by the error toast system
       }
     },
@@ -92,7 +90,7 @@ export function GeneratePage() {
       try {
         await retryGeneration(state.generationId);
         openModal(state.generationId);
-      } catch (err) {
+      } catch {
         // Error handling is done by the error toast system
       }
     }
@@ -110,7 +108,7 @@ export function GeneratePage() {
 
   // Handle save to set
   const handleSaveSuccess = useCallback(
-    (response: unknown) => {
+    () => {
       // Show success message and redirect or reset
       reset();
       resetStepper();

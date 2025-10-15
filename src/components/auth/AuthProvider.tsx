@@ -13,7 +13,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   resetPassword: () => Promise<void>;
   updatePassword: () => Promise<void>;
-  migrateAnonymousData: () => Promise<void>;
+  migrateAnonymousData: (data: unknown) => Promise<void>;
 }
 
 // Create the context
@@ -92,7 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     await new Promise((resolve) => setTimeout(resolve, 1000));
   };
 
-  const migrateAnonymousData = async (): Promise<void> => {
+  const migrateAnonymousData = async (data: unknown): Promise<void> => {
     // TODO: Implement actual data migration
     // Mock success
     await new Promise((resolve) => setTimeout(resolve, 1000));

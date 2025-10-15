@@ -25,6 +25,18 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Log additional context for generation context errors
+    if (error.message.includes("useGeneration must be used within a GenerationProvider")) {
+      console.error("Generation Context Error:", {
+        error: error.message,
+        errorInfo,
+        componentStack: errorInfo.componentStack,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        url: window.location.href
+      });
+    }
+    
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
@@ -57,7 +69,9 @@ export class ErrorBoundary extends Component<Props, State> {
             <h2 className="text-xl font-semibold text-card-foreground mb-2">Something went wrong</h2>
 
             <p className="text-muted-foreground mb-4">
-              An unexpected error occurred while generating flashcards. Please try again.
+              {this.state.error?.message.includes("useGeneration must be used within a GenerationProvider")
+                ? "A component configuration error occurred. Please reload the page to fix this issue."
+                : "An unexpected error occurred while generating flashcards. Please try again."}
             </p>
 
             {this.state.error && (

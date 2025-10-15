@@ -176,7 +176,7 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
           {/* Migration options */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Wybierz opcję:</label>
+              <div className="text-sm font-medium">Wybierz opcję:</div>
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   variant={migrationType === "existing" ? "default" : "outline"}
@@ -199,8 +199,9 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
 
             {migrationType === "existing" && existingSets.length > 0 && (
               <div className="space-y-2">
-                <label className="text-sm font-medium">Wybierz zestaw:</label>
+                <label htmlFor="set-select" className="text-sm font-medium">Wybierz zestaw:</label>
                 <select
+                  id="set-select"
                   value={selectedSetId}
                   onChange={(e) => setSelectedSetId(e.target.value)}
                   disabled={isLoading}
@@ -218,8 +219,9 @@ export const MigrationModal: React.FC<MigrationModalProps> = ({
 
             {migrationType === "new" && (
               <div className="space-y-2">
-                <label className="text-sm font-medium">Nazwa nowego zestawu:</label>
+                <label htmlFor="new-set-name" className="text-sm font-medium">Nazwa nowego zestawu:</label>
                 <Input
+                  id="new-set-name"
                   value={newSetName}
                   onChange={(e) => setNewSetName(e.target.value)}
                   placeholder="np. Moje fiszki z sesji"
