@@ -29,7 +29,7 @@ export const prerender = false;
     </div>
   </div>
 </Layout>
-<script>
+<script is:inline>
   // Call backend logout API, then redirect
   document.addEventListener("DOMContentLoaded", async () => {
     const container = document.getElementById("logout-container");
