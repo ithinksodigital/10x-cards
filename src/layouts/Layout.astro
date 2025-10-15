@@ -2,12 +2,16 @@
 import "../styles/global.css";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
 import { StaticUserMenu } from "../components/auth/StaticUserMenu";
+import { BottomNavigation, DesktopNavigation } from "../components/navigation";
 
 interface Props {
   title?: string;
   description?: string;
   requireAuth?: boolean;
-  user?: unknown;
+  user?: {
+    id: string;
+    email: string | null;
+  } | null;
   session?: unknown;
   isAuthenticated?: boolean;
 }
@@ -19,7 +23,8 @@ const {
   isAuthenticated = !!Astro.locals.user,
 } = Astro.props;
 
-// Unused variables for future use - removed to fix linting
+// Get current path for navigation highlighting
+const currentPath = Astro.url.pathname;
 ---
 
 <!doctype html>
@@ -43,60 +48,52 @@ const {
             <a href="/" class="text-xl font-semibold text-foreground hover:text-primary transition-colors">
               10x Cards
             </a>
-            <nav class="hidden md:flex items-center gap-4">
-              <a href="/generate" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Generuj fiszki
-              </a>
-              {
-                isAuthenticated && (
-                  <a href="/dashboard" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    Dashboard
-                  </a>
-                )
-              }
-            </nav>
-
-            <!-- Mobile navigation -->
-            <nav class="md:hidden flex items-center gap-4">
-              <a href="/generate" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Generuj fiszki
-              </a>
-              {
-                isAuthenticated && (
-                  <a href="/dashboard" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    Dashboard
-                  </a>
-                )
-              }
-            </nav>
+            
+            <!-- Desktop Navigation -->
+            <DesktopNavigation 
+              client:load 
+              isAuthenticated={isAuthenticated} 
+              currentPath={currentPath}
+            />
           </div>
+          
           <div class="flex items-center gap-2">
-            {
-              isAuthenticated ? (
-                <StaticUserMenu client:load user={user} />
-              ) : (
-                <div class="flex items-center gap-2">
-                  <a href="/auth/login" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    Zaloguj się
-                  </a>
-                  <a
-                    href="/auth/register"
-                    class="text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90 transition-colors"
-                  >
-                    Utwórz konto
-                  </a>
-                </div>
-              )
-            }
-            <ThemeToggle client:load />
+            <!-- Desktop User Menu and Theme Toggle -->
+            <div class="flex items-center gap-2">
+              {
+                isAuthenticated ? (
+                  <StaticUserMenu client:load user={user} />
+                ) : (
+                  <div class="hidden md:flex items-center gap-2">
+                    <a href="/auth/login" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                      Zaloguj się
+                    </a>
+                    <a
+                      href="/auth/register"
+                      class="text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90 transition-colors"
+                    >
+                      Utwórz konto
+                    </a>
+                  </div>
+                )
+              }
+              <ThemeToggle client:load />
+            </div>
           </div>
         </div>
       </header>
 
       <!-- Main content -->
-      <main>
+      <main class="pb-16 md:pb-0">
         <slot />
       </main>
+
+      <!-- Bottom Navigation (Mobile only) -->
+      <BottomNavigation 
+        client:load 
+        isAuthenticated={isAuthenticated} 
+        currentPath={currentPath}
+      />
     </div>
   </body>
 </html>
@@ -107,5 +104,43 @@ const {
     margin: 0;
     width: 100%;
     height: 100%;
+  }
+
+  /* Mobile navigation improvements */
+  @media (max-width: 768px) {
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    /* Ensure content doesn't get hidden behind bottom navigation */
+    main {
+      padding-bottom: 4rem;
+    }
+  }
+
+  /* Smooth transitions for navigation */
+  .nav-transition {
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* Better touch targets for mobile */
+  @media (max-width: 768px) {
+    button, a {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+
+  /* Bottom navigation specific styles */
+  @media (max-width: 768px) {
+    /* Ensure bottom navigation is always visible */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+    }
   }
 </style>

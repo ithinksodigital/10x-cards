@@ -5,12 +5,8 @@ import { UserIcon, LogOutIcon, SettingsIcon, ChevronDownIcon } from "lucide-reac
 
 interface StaticUserMenuProps {
   user?: {
-    id?: string;
-    email?: string;
-    user_metadata?: {
-      full_name?: string;
-      avatar_url?: string;
-    };
+    id: string;
+    email: string | null;
   } | null;
   onSignOut?: () => void;
 }
@@ -28,7 +24,7 @@ export const StaticUserMenu: React.FC<StaticUserMenuProps> = ({ user, onSignOut 
     setIsOpen(false);
   };
 
-  const displayName = user?.user_metadata?.full_name || user?.email || "Użytkownik";
+  const displayName = user?.email || "Użytkownik";
   const userEmail = user?.email || "";
 
   return (
@@ -40,16 +36,12 @@ export const StaticUserMenu: React.FC<StaticUserMenuProps> = ({ user, onSignOut 
         className="flex items-center gap-2 px-3 py-2 h-auto"
       >
         <div className="flex items-center gap-2">
-          {user?.user_metadata?.avatar_url ? (
-            <img src={user.user_metadata.avatar_url} alt={displayName} className="w-6 h-6 rounded-full" />
-          ) : (
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-              <UserIcon className="w-4 h-4 text-primary" />
-            </div>
-          )}
+          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+            <UserIcon className="w-4 h-4 text-primary" />
+          </div>
           <div className="hidden sm:block text-left">
             <div className="text-sm font-medium truncate max-w-32">{displayName}</div>
-            {user?.user_metadata?.full_name && userEmail && (
+            {userEmail && (
               <div className="text-xs text-muted-foreground truncate max-w-32">{userEmail}</div>
             )}
           </div>
@@ -80,13 +72,9 @@ export const StaticUserMenu: React.FC<StaticUserMenuProps> = ({ user, onSignOut 
                 {/* User info */}
                 <div className="px-3 py-2 border-b border-border">
                   <div className="flex items-center gap-3">
-                    {user?.user_metadata?.avatar_url ? (
-                      <img src={user.user_metadata.avatar_url} alt={displayName} className="w-10 h-10 rounded-full" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <UserIcon className="w-5 h-5 text-primary" />
-                      </div>
-                    )}
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <UserIcon className="w-5 h-5 text-primary" />
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-medium truncate">{displayName}</div>
                       <div className="text-xs text-muted-foreground truncate">{userEmail}</div>
