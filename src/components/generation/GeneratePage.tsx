@@ -2,7 +2,7 @@
 import React, { useState, useCallback } from "react";
 import { GenerationStepper, useGenerationStepper } from "./GenerationStepper";
 import { PasteTextarea } from "./PasteTextarea";
-import { StartGenerationButton, GenerationButtonWithError } from "./StartGenerationButton";
+import { GenerationButtonWithError } from "./StartGenerationButton";
 import { ProgressModal, useProgressModal } from "./ProgressModal";
 import { CardGrid, useCardGrid } from "./CardGrid";
 import { BulkActionsBar, useBulkActions } from "./BulkActionsBar";
@@ -11,7 +11,7 @@ import { ErrorToast, useErrorToast } from "./ErrorToast";
 import { useGeneration } from "./GenerationContext";
 import { useGenerationApi } from "@/hooks/useGenerationApi";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+// import { cn } from "@/lib/utils";
 import type { StartGenerationCommand } from "@/types";
 import type { FlashCardProposal } from "@/lib/view-models";
 
@@ -27,7 +27,7 @@ export function GeneratePage() {
     rejectAllBatch,
     undo,
     setCurrentBatch,
-    setStatus,
+    // setStatus,
     setError,
     reset,
   } = useGeneration();
@@ -39,7 +39,7 @@ export function GeneratePage() {
 
   const [pasteText, setPasteText] = useState("");
   const [pasteValid, setPasteValid] = useState(false);
-  const [pasteErrors, setPasteErrors] = useState<Record<string, string>>({});
+  // const [pasteErrors, setPasteErrors] = useState<Record<string, string>>({});
 
   const { currentBatch, goToBatch } = useCardGrid(state.proposals);
   const { canUndo, undoCount, acceptAll, rejectAll } = useBulkActions(

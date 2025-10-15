@@ -17,9 +17,21 @@ const gitignorePath = path.resolve(__dirname, ".gitignore");
 
 const baseConfig = tseslint.config({
   extends: [eslint.configs.recommended, tseslint.configs.strict, tseslint.configs.stylistic],
+  languageOptions: {
+    globals: {
+      process: "readonly",
+    },
+  },
   rules: {
-    "no-console": "warn",
+    "no-console": process.env.CI ? "error" : "warn",
     "no-unused-vars": "off",
+    "@typescript-eslint/no-explicit-any": process.env.CI ? "error" : "warn",
+    "@typescript-eslint/no-unused-vars": process.env.CI ? "error" : "warn",
+    "@typescript-eslint/no-non-null-assertion": process.env.CI ? "error" : "warn",
+    "no-empty": process.env.CI ? "error" : "warn",
+    "no-empty-function": process.env.CI ? "error" : "warn",
+    "no-constant-binary-expression": process.env.CI ? "error" : "warn",
+    "no-case-declarations": process.env.CI ? "error" : "warn",
   },
 });
 
@@ -52,7 +64,21 @@ const reactConfig = tseslint.config({
   rules: {
     ...eslintPluginReactHooks.configs.recommended.rules,
     "react/react-in-jsx-scope": "off",
-    "react-compiler/react-compiler": "error",
+    "react-compiler/react-compiler": process.env.CI ? "error" : "warn",
+  },
+});
+
+const testConfig = tseslint.config({
+  files: ["**/*.test.{js,ts,tsx}", "**/*.spec.{js,ts,tsx}", "tests/**/*.{js,ts,tsx}"],
+  rules: {
+    "no-console": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "no-empty": "off",
+    "no-empty-function": "off",
+    "no-constant-binary-expression": "off",
+    "no-case-declarations": "off",
   },
 });
 
@@ -77,6 +103,7 @@ export default tseslint.config(
   baseConfig,
   jsxA11yConfig,
   reactConfig,
+  testConfig,
   eslintPluginAstro.configs["flat/recommended"],
   eslintPluginPrettier
 );

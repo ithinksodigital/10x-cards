@@ -1,6 +1,6 @@
 // src/components/generation/CardGrid.tsx
 import React, { useMemo, useState, useEffect, useCallback } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { FlashCard } from "./FlashCard";
 import { cn } from "@/lib/utils";

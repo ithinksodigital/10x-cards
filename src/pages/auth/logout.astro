@@ -40,13 +40,15 @@ export const prerender = false;
         credentials: "include",
         headers: { "Content-Type": "application/json" },
       });
-    } catch (e) {
+    } catch {
       // ignore, we still proceed to cleanup and redirect
     } finally {
       try {
         localStorage.removeItem("anonymous_session");
         sessionStorage.clear();
-      } catch {}
+      } catch {
+        // ignore cleanup errors
+      }
       if (container) {
         container.innerHTML = `
           <div class="text-center space-y-4">
