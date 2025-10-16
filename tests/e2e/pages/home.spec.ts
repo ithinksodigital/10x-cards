@@ -15,7 +15,7 @@ test.describe("Home Page", () => {
 
   test("should have proper desktop navigation", async ({ page, browserName }) => {
     // Skip this test on mobile browsers
-    if (browserName === "webkit" && page.viewportSize()?.width && page.viewportSize().width < 768) {
+    if (browserName === "webkit" && page.viewportSize()?.width && page.viewportSize()!.width < 768) {
       test.skip();
     }
 

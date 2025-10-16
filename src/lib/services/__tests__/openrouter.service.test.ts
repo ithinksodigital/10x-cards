@@ -1,7 +1,8 @@
 // src/lib/services/__tests__/openrouter.service.test.ts
 import { describe, it, expect, beforeEach, vi, beforeAll, afterAll } from "vitest";
 import { OpenRouterService } from "../openrouter.service";
-import type { SupabaseClient, OpenRouterConfig, GenerateFlashcardsCommand } from "../../../types";
+import type { OpenRouterConfig, GenerateFlashcardsCommand } from "../../../types";
+import type { SupabaseClient } from "../../../db/supabase.client";
 import { server } from "../../../../tests/mocks/server";
 
 // Mock Supabase client

@@ -120,6 +120,7 @@ export class OpenRouterService {
           error: {
             message: "Failed to generate any flashcards. API limit may be exceeded.",
             code: "NO_CARDS_GENERATED",
+            retryable: true,
           },
         };
       }
