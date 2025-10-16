@@ -5,16 +5,19 @@
 ## 📦 Instalacja
 
 ### 1. Zainstaluj zależności testowe
+
 ```bash
 npm install
 ```
 
 ### 2. Zainstaluj przeglądarki Playwright
+
 ```bash
 npx playwright install
 ```
 
 ### 3. Sprawdź konfigurację
+
 ```bash
 # Sprawdź Vitest
 npx vitest --version
@@ -26,6 +29,7 @@ npx playwright --version
 ## 🚀 Uruchamianie testów
 
 ### Testy jednostkowe
+
 ```bash
 # Wszystkie testy jednostkowe
 npm run test
@@ -41,6 +45,7 @@ npm run test:coverage
 ```
 
 ### Testy e2e
+
 ```bash
 # Wszystkie testy e2e
 npm run test:e2e
@@ -56,6 +61,7 @@ npx playwright test --project=chromium
 ```
 
 ### Wszystkie testy
+
 ```bash
 npm run test:all
 ```
@@ -85,12 +91,14 @@ tests/
 ## ⚙️ Konfiguracja
 
 ### Vitest (vitest.config.ts)
+
 - **Środowisko**: jsdom
 - **Coverage**: ≥90% dla wszystkich metryk
 - **Setup**: tests/setup.ts
-- **Wzorce**: tests/unit/**/*.test.{js,ts,tsx}
+- **Wzorce**: tests/unit/\*_/_.test.{js,ts,tsx}
 
 ### Playwright (playwright.config.ts)
+
 - **Przeglądarki**: Chrome, Firefox, Safari
 - **Viewport**: Desktop + Mobile
 - **Base URL**: http://localhost:3000
@@ -99,6 +107,7 @@ tests/
 ## 🛠️ Narzędzia
 
 ### Unit/Integration Tests
+
 - **Vitest 2.x** - Framework testowy
 - **React Testing Library 16.x** - Testowanie komponentów
 - **MSW 2.x** - Mock Service Worker
@@ -106,6 +115,7 @@ tests/
 - **jsdom** - Środowisko DOM
 
 ### E2E Tests
+
 - **Playwright 1.47.x** - Testy end-to-end
 - **@axe-core/playwright 4.x** - Testy dostępności
 - **Chrome, Firefox, Safari** - Przeglądarki testowe
@@ -113,6 +123,7 @@ tests/
 ## 📊 Coverage
 
 Minimalne wymagania:
+
 - **Branches**: 90%
 - **Functions**: 90%
 - **Lines**: 90%
@@ -121,6 +132,7 @@ Minimalne wymagania:
 ## 🔧 Przykłady testów
 
 ### Test jednostkowy
+
 ```typescript
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
@@ -135,19 +147,21 @@ describe('Button component', () => {
 ```
 
 ### Test e2e
-```typescript
-import { test, expect } from '@playwright/test'
 
-test('should navigate to dashboard', async ({ page }) => {
-  await page.goto('/')
-  await page.click('text=Sign In')
-  await expect(page).toHaveURL('/auth/signin')
-})
+```typescript
+import { test, expect } from "@playwright/test";
+
+test("should navigate to dashboard", async ({ page }) => {
+  await page.goto("/");
+  await page.click("text=Sign In");
+  await expect(page).toHaveURL("/auth/signin");
+});
 ```
 
 ## 🐛 Debugging
 
 ### Vitest
+
 ```bash
 # Debug mode
 npm run test -- --inspect-brk
@@ -157,6 +171,7 @@ npm run test -- --reporter=verbose
 ```
 
 ### Playwright
+
 ```bash
 # Debug mode
 npx playwright test --debug
@@ -168,6 +183,7 @@ npx playwright show-trace test-results/trace.zip
 ## 🚦 CI/CD
 
 Testy są automatycznie uruchamiane w GitHub Actions:
+
 - Lint + Typecheck
 - Unit tests + Coverage
 - E2E tests (Chrome only w CI)

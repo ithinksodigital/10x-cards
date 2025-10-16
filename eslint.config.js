@@ -82,6 +82,21 @@ const testConfig = tseslint.config({
   },
 });
 
+const astroInlineScriptConfig = tseslint.config({
+  files: ["**/*.astro"],
+  languageOptions: {
+    globals: {
+      window: "readonly",
+      document: "readonly",
+      URLSearchParams: "readonly",
+      fetch: "readonly",
+      localStorage: "readonly",
+      sessionStorage: "readonly",
+      setTimeout: "readonly",
+    },
+  },
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   {
@@ -98,12 +113,16 @@ export default tseslint.config(
       "test-results/**/*.ts",
       "playwright-report/**/*.js",
       "playwright-report/**/*.ts",
+      "public/scripts/**/*.js",
+      "src/pages/auth/callback.astro",
+      "src/pages/auth/logout.astro",
     ],
   },
   baseConfig,
   jsxA11yConfig,
   reactConfig,
   testConfig,
+  astroInlineScriptConfig,
   eslintPluginAstro.configs["flat/recommended"],
   eslintPluginPrettier
 );

@@ -9,6 +9,7 @@ node .ai/test-simple.js
 ```
 
 This will test:
+
 - Authentication enforcement (401 errors)
 - UUID validation (400 errors)
 - Error message formatting
@@ -24,11 +25,13 @@ Expected: All tests should pass with proper error responses.
 ```
 
 **Prerequisites:**
+
 - `jq` installed (`brew install jq` on macOS)
 - Valid Supabase JWT token
 
 **Setup:**
 Edit the script and replace the token:
+
 ```bash
 AUTH_TOKEN="your-supabase-jwt-token-here"
 ```
@@ -63,19 +66,16 @@ supabase auth signup --email test@example.com --password testpass123
 ### Option 3: Programmatically (Node.js)
 
 ```javascript
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  'your-project-url',
-  'your-anon-key'
-)
+const supabase = createClient("your-project-url", "your-anon-key");
 
 const { data, error } = await supabase.auth.signUp({
-  email: 'test@example.com',
-  password: 'testpass123'
-})
+  email: "test@example.com",
+  password: "testpass123",
+});
 
-console.log('Token:', data.session?.access_token)
+console.log("Token:", data.session?.access_token);
 ```
 
 ---
@@ -205,6 +205,7 @@ curl -X POST http://localhost:3001/api/sets/$SET_ID/cards \
 ```
 
 Expected response:
+
 ```json
 {
   "error": "LimitExceeded",
@@ -224,6 +225,7 @@ Expected response:
 Similar to above, but across multiple sets. When you reach 1000:
 
 Expected response:
+
 ```json
 {
   "error": "LimitExceeded",
@@ -259,22 +261,27 @@ Expected response:
 ## Testing Error Scenarios
 
 ### Invalid UUID
+
 ```bash
 curl http://localhost:3001/api/sets/invalid-uuid \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
+
 Expected: 400 Bad Request
 
 ### Missing Required Fields
+
 ```bash
 curl -X POST http://localhost:3001/api/sets \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{}'
 ```
+
 Expected: 400 Validation Error
 
 ### Duplicate Card
+
 ```bash
 # Create card
 curl -X POST http://localhost:3001/api/sets/$SET_ID/cards \
@@ -288,9 +295,11 @@ curl -X POST http://localhost:3001/api/sets/$SET_ID/cards \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{"front": "hola", "back": "Hi"}'
 ```
+
 Expected: 409 Conflict
 
 ### Invalid Rating
+
 ```bash
 curl -X POST http://localhost:3001/api/srs/reviews \
   -H "Content-Type: application/json" \
@@ -301,6 +310,7 @@ curl -X POST http://localhost:3001/api/srs/reviews \
     "session_id": "some-uuid"
   }'
 ```
+
 Expected: 400 Validation Error (rating must be 1-5)
 
 ---
@@ -335,18 +345,18 @@ npm install --save-dev jest @types/jest
 Create `tests/api.test.js`:
 
 ```javascript
-describe('API Endpoints', () => {
-  const BASE_URL = 'http://localhost:3001';
+describe("API Endpoints", () => {
+  const BASE_URL = "http://localhost:3001";
   const AUTH_TOKEN = process.env.AUTH_TOKEN;
 
-  test('should require authentication', async () => {
+  test("should require authentication", async () => {
     const response = await fetch(`${BASE_URL}/api/sets`);
     expect(response.status).toBe(401);
   });
 
-  test('should validate UUID format', async () => {
+  test("should validate UUID format", async () => {
     const response = await fetch(`${BASE_URL}/api/sets/invalid-uuid`, {
-      headers: { 'Authorization': `Bearer ${AUTH_TOKEN}` }
+      headers: { Authorization: `Bearer ${AUTH_TOKEN}` },
     });
     expect(response.status).toBe(400);
   });
@@ -362,6 +372,7 @@ describe('API Endpoints', () => {
 ### Issue: 401 Unauthorized even with token
 
 **Solution:**
+
 - Verify token is not expired
 - Check token format (should be JWT)
 - Ensure Authorization header format: `Bearer TOKEN`
@@ -370,6 +381,7 @@ describe('API Endpoints', () => {
 ### Issue: Connection refused
 
 **Solution:**
+
 - Ensure dev server is running: `npm run dev`
 - Check correct port (default: 3001)
 - Verify no firewall blocking
@@ -377,6 +389,7 @@ describe('API Endpoints', () => {
 ### Issue: Database errors
 
 **Solution:**
+
 - Check Supabase connection
 - Verify environment variables set
 - Check RLS policies enabled
@@ -385,6 +398,7 @@ describe('API Endpoints', () => {
 ### Issue: Slow responses
 
 **Solution:**
+
 - Check database indexes
 - Verify RLS policies are optimized
 - Check network connection to Supabase

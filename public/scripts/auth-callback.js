@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // Handle OAuth callback
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("auth-callback-container");
@@ -50,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Redirect after a short delay
         setTimeout(() => {
-          window.location.href = "/dashboard";
+          window.location.href = "/";
         }, 1500);
       }
     }, 2000);

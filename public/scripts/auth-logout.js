@@ -1,3 +1,4 @@
+/* eslint-env browser */
 // Call backend logout API, then redirect
 document.addEventListener("DOMContentLoaded", async () => {
   const container = document.getElementById("logout-container");

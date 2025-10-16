@@ -59,6 +59,7 @@ src/components/
 ## Podsumowanie struktury
 
 ### 📁 auth/ - Komponenty autoryzacji (13 plików)
+
 - **AuthContainer.tsx** - Główny kontener autoryzacji
 - **AuthGuard.tsx** - Ochrona tras i dostęp
 - **AuthProvider.tsx** - Kontekst autoryzacji
@@ -74,6 +75,7 @@ src/components/
 - **README.md** - Dokumentacja autoryzacji
 
 ### 📁 generation/ - Komponenty generowania kart (14 plików)
+
 - **GenerationApp.tsx** - Główna aplikacja generowania
 - **GenerationContext.tsx** - Kontekst stanu generowania
 - **GeneratePage.tsx** - Strona generowania
@@ -90,21 +92,26 @@ src/components/
 - **AccessibilityProvider.tsx** - Kontekst dostępności
 
 ### 📁 ui/ - Komponenty UI (15 plików)
+
 - **Shadcn/ui** - Biblioteka komponentów UI
 - **ThemeToggle.tsx** - Przełącznik motywów
 - Podstawowe komponenty: button, input, card, dialog, etc.
 
 ### 📄 Welcome.astro
+
 - Komponent strony powitalnej
 
 ## Statystyki
+
 - **Łącznie komponentów**: 43
 - **Kategorie funkcjonalne**: 3 (auth, generation, ui)
 - **Pliki testowe**: 1 folder (pusty)
 - **Dokumentacja**: 1 plik README w auth/
 
 ## Architektura
+
 Projekt wykorzystuje:
+
 - **Astro 5** - Framework główny
 - **React 19** - Komponenty dynamiczne
 - **TypeScript 5** - Typowanie

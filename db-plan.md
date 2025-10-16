@@ -12,7 +12,9 @@ The database schema is designed to support an AI-powered flashcard application w
 ### Custom Types
 
 #### `card_status` (enum)
+
 Tracks the learning progress of flashcards:
+
 - `'new'` - Card has never been reviewed
 - `'learning'` - Card is currently being learned
 - `'review'` - Card is in the review phase
@@ -21,9 +23,11 @@ Tracks the learning progress of flashcards:
 ## Tables
 
 ### 1. `profiles`
+
 Extends Supabase Auth users with application-specific metadata.
 
 **Columns:**
+
 - `id` (uuid, PK) - References `auth.users(id)` CASCADE DELETE
 - `cards_count` (integer, default: 0) - Total cards owned (maintained by trigger)
 - `is_admin` (boolean, default: false) - Administrative privileges flag
@@ -31,17 +35,21 @@ Extends Supabase Auth users with application-specific metadata.
 - `updated_at` (timestamptz, default: now()) - Maintained by trigger
 
 **Relationships:**
+
 - Referenced by: `sets`, `generations`, `generation_error_logs`
 
 **Security:**
+
 - RLS: Enabled (policies disabled for development)
 
 ---
 
 ### 2. `sets`
+
 Flashcard collections owned by users.
 
 **Columns:**
+
 - `id` (uuid, PK, default: uuid_generate_v4())
 - `user_id` (uuid, FK → profiles.id) CASCADE DELETE
 - `name` (citext, not null) - Case-insensitive unique per user
@@ -51,22 +59,27 @@ Flashcard collections owned by users.
 - `updated_at` (timestamptz, default: now()) - Maintained by trigger
 
 **Constraints:**
+
 - UNIQUE(user_id, name) - Case-insensitive
 - UNIQUE(id, user_id) - For composite FK from cards
 
 **Indexes:**
+
 - `sets_user_id_idx` - Filter by owner
 - `sets_created_at_idx` - Sort by creation date
 
 **Security:**
+
 - RLS: Enabled (policies disabled for development)
 
 ---
 
 ### 3. `generations`
+
 Tracks AI flashcard generation sessions with detailed analytics.
 
 **Columns:**
+
 - `id` (uuid, PK, default: uuid_generate_v4())
 - `user_id` (uuid, FK → profiles.id) CASCADE DELETE
 - `set_id` (uuid, FK → sets.id, nullable) SET NULL on delete
@@ -87,20 +100,24 @@ Tracks AI flashcard generation sessions with detailed analytics.
 - `updated_at` (timestamptz, default: now()) - Maintained by trigger
 
 **Indexes:**
+
 - `generations_user_id_created_at_idx` - User history queries
 - `generations_source_text_hash_idx` - Deduplication checks
 - `generations_model_created_at_idx` - Model performance analysis
 - `generations_set_id_idx` - Find generations by set
 
 **Security:**
+
 - RLS: Enabled (policies disabled for development)
 
 ---
 
 ### 4. `generation_error_logs`
+
 Tracks errors during AI generation for monitoring and analysis.
 
 **Columns:**
+
 - `id` (uuid, PK, default: uuid_generate_v4())
 - `user_id` (uuid, FK → profiles.id) CASCADE DELETE
 - `model` (text, not null) - AI model that encountered error
@@ -113,22 +130,26 @@ Tracks errors during AI generation for monitoring and analysis.
 - `created_at` (timestamptz, default: now())
 
 **Indexes:**
+
 - `generation_error_logs_user_id_created_at_idx` - User error history
 - `generation_error_logs_error_code_created_at_idx` - Error pattern analysis
 - `generation_error_logs_model_created_at_idx` - Model reliability tracking
 - `generation_error_logs_error_details_idx` (GIN) - Query nested JSON data
 
 **Security:**
+
 - RLS: Enabled (policies disabled for development)
 
 ---
 
 ### 5. `cards`
+
 Individual flashcards with SRS metadata and AI attribution.
 
 **Columns:**
 
 #### Core Fields
+
 - `id` (uuid, PK, default: uuid_generate_v4())
 - `user_id` (uuid, not null) - Denormalized for efficient RLS
 - `set_id` (uuid, FK → sets.id) CASCADE DELETE via composite FK
@@ -138,6 +159,7 @@ Individual flashcards with SRS metadata and AI attribution.
 - `language` (text, nullable) - Inherited from set via trigger
 
 #### Spaced Repetition (SM2 Algorithm)
+
 - `due_at` (timestamptz, nullable) - Next review date
 - `interval_days` (integer, default: 0) - Days until next review
 - `ease_factor` (real, default: 2.5) - SM2 ease factor
@@ -145,6 +167,7 @@ Individual flashcards with SRS metadata and AI attribution.
 - `status` (card_status, default: 'new') - Learning status
 
 #### AI Generation Tracking
+
 - `generation_id` (uuid, FK → generations.id, nullable) SET NULL on delete
 - `source_text_excerpt` (text, nullable) - CHECK: char_length <= 500
 - `ai_confidence_score` (real, nullable) - CHECK: 0.0 to 1.0
@@ -153,13 +176,16 @@ Individual flashcards with SRS metadata and AI attribution.
 - `original_back` (text, nullable) - Pre-edit AI output
 
 #### Timestamps
+
 - `created_at` (timestamptz, default: now())
 - `updated_at` (timestamptz, default: now()) - Maintained by trigger
 
 **Constraints:**
+
 - FK (set_id, user_id) → sets(id, user_id) CASCADE DELETE
 
 **Indexes:**
+
 - `cards_set_id_created_at_id_idx` - Keyset pagination within sets
 - `cards_user_id_idx` - Filter by owner
 - `cards_user_id_due_at_idx` - SRS review queries
@@ -169,6 +195,7 @@ Individual flashcards with SRS metadata and AI attribution.
 - `cards_ai_edited_idx` (partial) - Analytics on edited AI cards
 
 **Security:**
+
 - RLS: Enabled (policies disabled for development)
 
 ---
@@ -176,6 +203,7 @@ Individual flashcards with SRS metadata and AI attribution.
 ## Extensions Used
 
 Based on migrations:
+
 - `uuid-ossp` - UUID generation (uuid_generate_v4())
 - `citext` - Case-insensitive text type
 - `pg_trgm` - Trigram similarity for fuzzy search
@@ -183,21 +211,24 @@ Based on migrations:
 ## Functions & Triggers
 
 According to migrations:
+
 - `20251009100500_create_functions.sql` - Database functions
 - `20251009100600_create_triggers.sql` - Auto-update triggers
 - `20251009100800_extend_functions_for_ai.sql` - AI-related functions
 - `20251009100900_extend_triggers_for_ai.sql` - AI-related triggers
 
-*(Note: Actual function/trigger implementations not documented here - see migration files)*
+_(Note: Actual function/trigger implementations not documented here - see migration files)_
 
 ## Security Model
 
 ### Row Level Security (RLS)
+
 - **Status:** Enabled on all tables
 - **Policies:** All policies dropped (migration 20251009101000)
 - **Current State:** Development mode - no policy enforcement
 
 **To re-enable security for production:**
+
 1. Recreate RLS policies for each table
 2. Policies should enforce user_id = auth.uid() for authenticated users
 3. Consider read-only anonymous access policies
@@ -205,12 +236,14 @@ According to migrations:
 ## Verification Status
 
 ✅ **database.types.ts matches migrations:**
+
 - All tables present with correct columns
 - All relationships properly mapped
 - Enums correctly defined
 - Types match database schema
 
 ✅ **Foreign key relationships verified:**
+
 - profiles → auth.users
 - sets → profiles
 - generations → profiles, sets
@@ -218,6 +251,7 @@ According to migrations:
 - cards → sets (composite FK), generations
 
 ✅ **Indexes verified:**
+
 - All documented indexes exist in migrations
 - Proper GIN indexes for JSONB and trigram search
 - Composite indexes for efficient queries
@@ -246,4 +280,3 @@ According to migrations:
 - Denormalized fields (cards_count, user_id in cards) maintained by triggers
 - Hash-based deduplication for generation caching
 - Comprehensive analytics tracking for AI generation quality
-

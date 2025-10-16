@@ -5,6 +5,7 @@
 Aplikacja jest zorganizowana jako SPA‑like doświadczenie zbudowane na Astro + React. Główne warstwy to: uwierzytelnienie (`AuthProvider`), cache i dane (`DataProvider`), proces generacji (`GenerationProvider`) i sesje powtórkowe (`SRSProvider`). Flow onboardingowy koncentruje się na generowaniu fiszek (wklej → przegląd → zapis), a reszta aplikacji umożliwia zarządzanie zestawami, ręczne tworzenie/edycję fiszek oraz sesje SRS.
 
 Kluczowe założenia:
+
 - Responsywność: mobile-first z breakpoints Tailwind (sm, md, lg).
 - Dostępność: semantic HTML, ARIA, keyboard support, focus management, kontrast kolorów.
 - Bezpieczeństwo: chronione trasy, walidacja po stronie serwera, RLS w backendzie; klient używa Supabase Auth.
@@ -91,6 +92,7 @@ Poniżej opis głównego flow onboardingowego (Paste → Generate → Review →
 10. Sesja SRS: użytkownik ocenia karty (1–5), każda ocena wysyła `POST /api/srs/reviews`. Po zakończeniu UI pokazuje `SessionSummary`.
 
 Dodatkowe ścieżki:
+
 - Zarządzanie zestawami: `/sets` → `/sets/:id` → edycja/usunięcie karty.
 - Historia generacji: `/generations` → podgląd szczegółów → retry (jeśli failed).
 - Panel użytkownika: `/profile` → eksport/usunięcie konta.
@@ -132,7 +134,6 @@ Globalny layout (`Layout.astro`) zawiera Topbar i (na mobile) Hamburger menu. To
 - `GenerationRow` / `GenerationsTable` — history view.
 - `ErrorBanner` / `EmptyState` — consistent error and empty states UI.
 
-
 ## Mapowanie wymagań PRD na elementy UI (wybrane przykłady)
 
 - Generowanie 30 fiszek: `PasteTextarea` + `POST /api/generations` + `ProgressModal` + `CardGrid`.
@@ -165,6 +166,7 @@ Globalny layout (`Layout.astro`) zawiera Topbar i (na mobile) Hamburger menu. To
 ## Mapowanie user stories do UI
 
 (Poniżej przypisanie najważniejszych user stories do widoków/komponentów)
+
 - US‑001 / US‑002: `Login` + `AuthProvider`
 - US‑003 / US‑004 / US‑005 / US‑022: `Generation Flow` (PasteTextarea, ProgressModal, Polling, Retry)
 - US‑006 / US‑007 / US‑008 / US‑009 / US‑010: `CardGrid` + `FlashCard` + `BulkActionsBar` + Undo stack + inline edit modal

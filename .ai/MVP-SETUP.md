@@ -3,6 +3,7 @@
 ## Problem: Hardcoded User ID dla MVP
 
 Wszystkie endpointy używają hardcoded user ID dla MVP (bez autentykacji):
+
 ```
 User ID: 00000000-0000-0000-0000-000000000001
 ```
@@ -43,20 +44,18 @@ supabase db execute --file /tmp/create_mvp_user.sql
 ### Opcja 3: Bezpośrednio przez API
 
 ```javascript
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY // Service role key!
-)
+);
 
-await supabase
-  .from('profiles')
-  .insert({
-    id: '00000000-0000-0000-0000-000000000001',
-    cards_count: 0,
-    sets_count: 0
-  })
+await supabase.from("profiles").insert({
+  id: "00000000-0000-0000-0000-000000000001",
+  cards_count: 0,
+  sets_count: 0,
+});
 ```
 
 **UWAGA:** Potrzebujesz **service role key**, nie anon key!
@@ -73,7 +72,7 @@ curl -X POST http://localhost:3001/api/sets \
   -H "Content-Type: application/json" \
   -d '{"name": "Test Set", "language": "pl"}'
 
-# Test 2: Create card  
+# Test 2: Create card
 curl -X POST http://localhost:3001/api/sets/SET_ID/cards \
   -H "Content-Type: application/json" \
   -d '{"front": "Cześć", "back": "Hello"}'
@@ -84,6 +83,7 @@ curl -X POST http://localhost:3001/api/sets/SET_ID/cards \
 ## Dlaczego to jest potrzebne?
 
 CardService sprawdza limity użytkownika przez:
+
 1. Pobranie profilu z tabeli `profiles`
 2. Sprawdzenie `cards_count` (max 1000)
 3. Sprawdzenie `sets_count` jeśli dotyczy
@@ -120,21 +120,17 @@ Możesz zmodyfikować `CardService` żeby nie wymagał profilu:
 // W src/lib/services/card.service.ts
 // Zamień:
 const { data: profile, error: profileError } = await this.supabase
-  .from('profiles')
-  .select('cards_count')
-  .eq('id', userId)
+  .from("profiles")
+  .select("cards_count")
+  .eq("id", userId)
   .single();
 
 if (profileError || !profile) {
-  throw new Error('Failed to fetch user profile');
+  throw new Error("Failed to fetch user profile");
 }
 
 // Na (dla MVP):
-const { data: profile } = await this.supabase
-  .from('profiles')
-  .select('cards_count')
-  .eq('id', userId)
-  .single();
+const { data: profile } = await this.supabase.from("profiles").select("cards_count").eq("id", userId).single();
 
 // MVP: Jeśli profile nie istnieje, zakładamy 0 kart
 const currentCardsCount = profile?.cards_count || 0;
@@ -159,4 +155,3 @@ const currentCardsCount = profile?.cards_count || 0;
 2. Przetestuj wszystkie endpointy
 3. Zweryfikuj limity działają (200/set, 1000/user)
 4. Przed produkcją: Przełącz na prawdziwą autentykację
-

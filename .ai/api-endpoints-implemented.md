@@ -1,12 +1,15 @@
 # Implemented API Endpoints Summary
 
 ## Overview
+
 All REST API endpoints have been successfully implemented according to the implementation plan. This document provides a quick reference for testing and using the endpoints.
 
 ---
 
 ## 🔐 Authentication
+
 All endpoints require authentication via Supabase Auth:
+
 - Header: `Authorization: Bearer <jwt_token>`
 - User ID is extracted from JWT token automatically
 
@@ -15,11 +18,13 @@ All endpoints require authentication via Supabase Auth:
 ## 📦 Sets Endpoints
 
 ### 1. List Sets
+
 ```
 GET /api/sets
 ```
 
 **Query Parameters:**
+
 - `page` (number, optional, default: 1)
 - `limit` (number, optional, default: 50, max: 50)
 - `search` (string, optional) - search in set names
@@ -27,6 +32,7 @@ GET /api/sets
 - `order` (enum, optional: `asc`, `desc`, default: `desc`)
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": [SetDto[]],
@@ -37,6 +43,7 @@ GET /api/sets
 ---
 
 ### 2. Get Set
+
 ```
 GET /api/sets/:id
 ```
@@ -48,11 +55,13 @@ GET /api/sets/:id
 ---
 
 ### 3. Create Set
+
 ```
 POST /api/sets
 ```
 
 **Body:**
+
 ```json
 {
   "name": "Spanish Vocabulary",
@@ -67,11 +76,13 @@ POST /api/sets
 ---
 
 ### 4. Update Set
+
 ```
 PATCH /api/sets/:id
 ```
 
 **Body:**
+
 ```json
 {
   "name": "Updated Name"
@@ -85,11 +96,13 @@ PATCH /api/sets/:id
 ---
 
 ### 5. Delete Set
+
 ```
 DELETE /api/sets/:id
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "message": "Set and 45 cards successfully deleted"
@@ -103,11 +116,13 @@ DELETE /api/sets/:id
 ## 🃏 Cards Endpoints
 
 ### 1. List Cards in Set
+
 ```
 GET /api/sets/:setId/cards
 ```
 
 **Query Parameters:**
+
 - `page`, `limit` (pagination)
 - `search` (string, optional) - search in front/back text
 - `status` (enum, optional: `new`, `learning`, `review`, `relearning`)
@@ -115,6 +130,7 @@ GET /api/sets/:setId/cards
 - `order` (enum, optional: `asc`, `desc`, default: `desc`)
 
 **Response:** `200 OK`
+
 ```json
 {
   "data": [CardDto[]],
@@ -127,6 +143,7 @@ GET /api/sets/:setId/cards
 ---
 
 ### 2. Get Card
+
 ```
 GET /api/cards/:id
 ```
@@ -138,11 +155,13 @@ GET /api/cards/:id
 ---
 
 ### 3. Create Card (Manual)
+
 ```
 POST /api/sets/:setId/cards
 ```
 
 **Body:**
+
 ```json
 {
   "front": "¿Cómo estás?",
@@ -152,7 +171,8 @@ POST /api/sets/:setId/cards
 
 **Response:** `201 Created` - CardDto
 
-**Errors:** 
+**Errors:**
+
 - `400` - Validation errors
 - `401` - Unauthorized
 - `404` - Set not found
@@ -160,6 +180,7 @@ POST /api/sets/:setId/cards
 - `422` - Limit exceeded (200/set or 1000/user)
 
 **Business Rules:**
+
 - Max 200 cards per set
 - Max 1000 cards per user
 - Duplicate detection by front text (case-insensitive)
@@ -167,11 +188,13 @@ POST /api/sets/:setId/cards
 ---
 
 ### 4. Batch Create Cards
+
 ```
 POST /api/sets/:setId/cards/batch
 ```
 
 **Body:**
+
 ```json
 {
   "generation_id": "uuid",
@@ -192,6 +215,7 @@ POST /api/sets/:setId/cards/batch
 **Limits:** 1-30 cards per batch
 
 **Response:** `201 Created`
+
 ```json
 {
   "created": 30,
@@ -205,11 +229,13 @@ POST /api/sets/:setId/cards/batch
 ---
 
 ### 5. Update Card
+
 ```
 PATCH /api/cards/:id
 ```
 
 **Body:**
+
 ```json
 {
   "front": "Updated front",
@@ -222,6 +248,7 @@ PATCH /api/cards/:id
 **Response:** `200 OK` - UpdateCardResponseDto
 
 **Business Logic:**
+
 - On first edit after AI generation:
   - Saves `original_front` and `original_back`
   - Sets `was_edited_after_generation = true`
@@ -231,11 +258,13 @@ PATCH /api/cards/:id
 ---
 
 ### 6. Delete Card
+
 ```
 DELETE /api/cards/:id
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "message": "Card successfully deleted"
@@ -249,14 +278,17 @@ DELETE /api/cards/:id
 ## 🧠 SRS (Spaced Repetition System) Endpoints
 
 ### 1. Get Due Cards
+
 ```
 GET /api/srs/due
 ```
 
 **Query Parameters:**
+
 - `set_id` (uuid, optional) - filter by specific set
 
 **Response:** `200 OK`
+
 ```json
 {
   "new_cards_available": 15,
@@ -272,6 +304,7 @@ GET /api/srs/due
 ```
 
 **Daily Limits:**
+
 - New cards: 20/day
 - Reviews: 100/day
 
@@ -280,11 +313,13 @@ GET /api/srs/due
 ---
 
 ### 2. Start SRS Session
+
 ```
 POST /api/srs/sessions
 ```
 
 **Body:**
+
 ```json
 {
   "set_id": "uuid",
@@ -294,6 +329,7 @@ POST /api/srs/sessions
 ```
 
 **Response:** `201 Created`
+
 ```json
 {
   "session_id": "uuid",
@@ -305,6 +341,7 @@ POST /api/srs/sessions
 ```
 
 **Errors:**
+
 - `400` - Validation errors
 - `401` - Unauthorized
 - `404` - Set not found
@@ -313,11 +350,13 @@ POST /api/srs/sessions
 ---
 
 ### 3. Submit Card Review
+
 ```
 POST /api/srs/reviews
 ```
 
 **Body:**
+
 ```json
 {
   "card_id": "uuid",
@@ -327,6 +366,7 @@ POST /api/srs/reviews
 ```
 
 **Rating Scale (1-5):**
+
 - `1` - Again (complete blackout)
 - `2` - Hard (incorrect but familiar)
 - `3` - Good (correct with difficulty)
@@ -334,6 +374,7 @@ POST /api/srs/reviews
 - `5` - Perfect (immediate recall)
 
 **Response:** `201 Created`
+
 ```json
 {
   "card_id": "uuid",
@@ -352,11 +393,13 @@ POST /api/srs/reviews
 ---
 
 ### 4. Get Session Summary
+
 ```
 GET /api/srs/sessions/:id/summary
 ```
 
 **Response:** `200 OK`
+
 ```json
 {
   "session_id": "uuid",
@@ -383,6 +426,7 @@ GET /api/srs/sessions/:id/summary
 ## 🔧 Implementation Details
 
 ### Services Created
+
 1. **SetService** (`/src/lib/services/set.service.ts`)
    - CRUD operations for sets
    - Name uniqueness validation
@@ -402,6 +446,7 @@ GET /api/srs/sessions/:id/summary
    - Card scheduling
 
 ### Shared Components
+
 1. **Error Classes** (`/src/lib/errors.ts`)
    - ApiError, ValidationError, UnauthorizedError
    - NotFoundError, ConflictError, DuplicateCardError
@@ -424,6 +469,7 @@ GET /api/srs/sessions/:id/summary
 ## 🧪 Testing Recommendations
 
 ### Manual Testing
+
 1. Test authentication flow with Supabase Auth
 2. Test set CRUD operations
 3. Test card creation limits (200/set, 1000/user)
@@ -434,6 +480,7 @@ GET /api/srs/sessions/:id/summary
 8. Test version history (original values on edit)
 
 ### Edge Cases
+
 - Invalid UUIDs
 - Missing required fields
 - Exceeding limits
@@ -443,6 +490,7 @@ GET /api/srs/sessions/:id/summary
 - Daily limit boundaries
 
 ### Security Testing
+
 - RLS policies enforcement
 - JWT validation
 - Ownership verification
@@ -454,17 +502,20 @@ GET /api/srs/sessions/:id/summary
 ## 📝 Next Steps
 
 ### Phase 5: Testing & Refinement ⏳
+
 - [ ] Create integration tests
 - [ ] Load testing
 - [ ] RLS policy verification
 - [ ] Error scenario testing
 
 ### Phase 6: Authentication ⏳
+
 - [ ] Test with real Supabase Auth tokens
 - [ ] Add auth middleware
 - [ ] Session management
 
 ### Additional Tasks ⏳
+
 - [ ] Add rate limiting (100/hour cards, 1000/hour general)
 - [ ] Create example test scripts
 - [ ] Add API documentation (OpenAPI/Swagger)
@@ -476,6 +527,7 @@ GET /api/srs/sessions/:id/summary
 ## ✅ Completion Status
 
 **Phase 1-4: COMPLETED** ✅
+
 - ✅ Foundation (errors, utils, schemas)
 - ✅ Sets Endpoints (5 endpoints)
 - ✅ Cards Endpoints (6 endpoints)
@@ -484,6 +536,7 @@ GET /api/srs/sessions/:id/summary
 **Total Endpoints Implemented: 15** 🎉
 
 All endpoints follow best practices:
+
 - ✅ Proper error handling
 - ✅ Input validation (Zod)
 - ✅ Authentication enforcement
@@ -491,4 +544,3 @@ All endpoints follow best practices:
 - ✅ Business logic separation (services)
 - ✅ Type safety (TypeScript)
 - ✅ Clean code structure
-

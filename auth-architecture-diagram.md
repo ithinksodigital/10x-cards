@@ -42,7 +42,7 @@ graph TB
             AnonymousGenerate["🔓 POST /api/anonymous/generate<br/>Generowanie bez auth"]
             AnonymousReview["🔓 POST /api/anonymous/review<br/>Przegląd bez auth"]
         end
-        
+
         subgraph "Uwierzytelnione API"
             AuthCallback["🔐 GET /api/auth/callback<br/>OAuth callback"]
             AuthLogout["🔐 POST /api/auth/logout<br/>Wylogowanie"]
@@ -141,6 +141,7 @@ graph TB
 ## Opis architektury
 
 ### 1. Tryb Anonimowy
+
 - **Użytkownik anonimowy** może korzystać z aplikacji bez logowania
 - **Generowanie fiszek** odbywa się przez endpoint `/api/anonymous/generate`
 - **Dane przechowywane** w localStorage (24h) i sessionStorage
@@ -148,24 +149,28 @@ graph TB
 - **Prompt konwersji** pojawia się po zaakceptowaniu fiszek
 
 ### 2. Tryb Uwierzytelniony
+
 - **Logowanie** przez email/password (Supabase Auth)
 - **Pełna funkcjonalność** z persystencją danych
 - **Rate limiting**: 50 generacji na godzinę
 - **RLS (Row Level Security)** zapewnia izolację danych
 
 ### 3. Migracja Danych
+
 - **Wykrycie danych anonimowych** po zalogowaniu
 - **Modal migracji** z opcją wyboru zestawu
 - **Przeniesienie danych** z localStorage do Supabase
 - **Czyszczenie** danych lokalnych po migracji
 
 ### 4. Bezpieczeństwo
+
 - **Middleware autentykacji** sprawdza stan na serwerze
 - **RLS policies** chronią dane na poziomie bazy
 - **Rate limiting** zapobiega nadużyciom
 - **JWT tokeny** Supabase zapewniają bezpieczną autentykację
 
 ### 5. Komponenty Kluczowe
+
 - **AuthProvider**: Zarządza stanem autentykacji
 - **AuthGuard**: Chroni komponenty wymagające logowania
 - **MigrationModal**: Obsługuje przeniesienie danych
@@ -174,6 +179,7 @@ graph TB
 ## Scenariusze użycia
 
 ### Scenariusz 1: Użytkownik anonimowy
+
 1. Wchodzi na stronę bez logowania
 2. Generuje fiszki (dane w localStorage)
 3. Przegląda i selekcjonuje fiszki
@@ -181,6 +187,7 @@ graph TB
 5. Loguje się i migruje dane
 
 ### Scenariusz 2: Użytkownik uwierzytelniony
+
 1. Wchodzi na stronę zalogowany
 2. Widzi dashboard z zestawami
 3. Generuje fiszki (dane w Supabase)
@@ -188,6 +195,7 @@ graph TB
 5. Rozpoczyna sesję SRS
 
 ### Scenariusz 3: Migracja danych
+
 1. System wykrywa dane w localStorage
 2. Pojawia się modal migracji
 3. Użytkownik wybiera zestaw docelowy

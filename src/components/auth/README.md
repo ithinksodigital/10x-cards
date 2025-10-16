@@ -5,10 +5,11 @@ Ten katalog zawiera komponenty React do obsługi autentykacji w aplikacji 10x Ca
 ## Komponenty
 
 ### AuthProvider
+
 Context provider zarządzający stanem autentykacji w całej aplikacji.
 
 ```tsx
-import { AuthProvider, useAuth } from './auth';
+import { AuthProvider, useAuth } from "./auth";
 
 // W komponencie
 const { user, isAuthenticated, signInWithEmail, signOut } = useAuth();
@@ -17,58 +18,73 @@ const { user, isAuthenticated, signInWithEmail, signOut } = useAuth();
 ### Formularze autentykacji
 
 #### LoginForm
+
 Formularz logowania z walidacją email/hasło.
 
 #### RegisterForm
+
 Formularz rejestracji z potwierdzeniem hasła.
 
 #### ForgotPasswordForm
+
 Formularz resetowania hasła.
 
 #### ResetPasswordForm
+
 Formularz ustawiania nowego hasła.
 
 ### AuthContainer
+
 Kontener łączący wszystkie formularze autentykacji z możliwością przełączania między nimi.
 
 ### UserMenu
+
 Menu użytkownika wyświetlane w headerze dla zalogowanych użytkowników.
 
 ### AuthGuard
+
 Komponent chroniący treści wymagające autentykacji.
 
 ```tsx
-import { AuthGuard } from './auth';
+import { AuthGuard } from "./auth";
 
 <AuthGuard requireAuth={true}>
   <ProtectedContent />
-</AuthGuard>
+</AuthGuard>;
 ```
 
 ### MigrationModal
+
 Modal do migracji danych z sesji anonimowej do konta użytkownika.
 
 ## Strony Astro
 
 ### /auth/login
+
 Strona logowania z formularzem email/hasło.
 
 ### /auth/register
+
 Strona rejestracji nowego konta.
 
 ### /auth/forgot-password
+
 Strona resetowania hasła.
 
 ### /auth/reset-password
+
 Strona ustawiania nowego hasła (z tokenem z emaila).
 
 ### /auth/callback
+
 Strona obsługująca OAuth callbacks.
 
 ### /auth/logout
+
 Strona wylogowywania użytkownika.
 
 ### /dashboard
+
 Dashboard dla zalogowanych użytkowników.
 
 ## Schematy walidacji
@@ -92,6 +108,7 @@ Komponenty są przygotowane do integracji z Supabase Auth, ale obecnie używają
 ## Styling
 
 Wszystkie komponenty używają:
+
 - Tailwind CSS dla stylowania
 - shadcn/ui komponenty (Button, Input, Card, Dialog, Alert)
 - Lucide React ikony
@@ -100,6 +117,7 @@ Wszystkie komponenty używają:
 ## Dostępność
 
 Komponenty są zbudowane z myślą o dostępności:
+
 - Proper ARIA labels
 - Keyboard navigation
 - Screen reader support

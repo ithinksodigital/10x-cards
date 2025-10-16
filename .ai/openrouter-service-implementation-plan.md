@@ -5,6 +5,7 @@
 Usługa OpenRouter jest kluczowym komponentem systemu generacji fiszek AI, odpowiedzialnym za komunikację z API OpenRouter.ai w celu generowania strukturalnych propozycji fiszek z długich tekstów. Usługa implementuje zaawansowane mechanizmy obsługi błędów, retry logic, chunkowanie tekstu oraz walidację odpowiedzi zgodnie z wymaganiami MVP.
 
 ### Główne funkcjonalności:
+
 - Generacja 30 fiszek z tekstu źródłowego (10-15k znaków)
 - Wykrywanie i utrzymanie języka wejściowego (PL/EN/ES)
 - Chunkowanie dużych tekstów z deduplikacją
@@ -23,6 +24,7 @@ constructor(
 ```
 
 ### Parametry konstruktora:
+
 - `supabase`: Instancja klienta Supabase do dostępu do bazy danych
 - `config`: Konfiguracja usługi zawierająca:
   - `apiKey`: Klucz API OpenRouter (z Edge Function secrets)
@@ -38,9 +40,11 @@ constructor(
 ### Metody główne:
 
 #### `generateFlashcards(command: GenerateFlashcardsCommand): Promise<GenerationResult>`
+
 Główna metoda generacji fiszek z tekstu źródłowego.
 
 **Parametry:**
+
 ```typescript
 interface GenerateFlashcardsCommand {
   sourceText: string;
@@ -52,6 +56,7 @@ interface GenerateFlashcardsCommand {
 ```
 
 **Zwraca:**
+
 ```typescript
 interface GenerationResult {
   success: boolean;
@@ -69,20 +74,25 @@ interface GenerationResult {
 ```
 
 #### `detectLanguage(text: string): Promise<string>`
+
 Wykrywa język tekstu źródłowego używając OpenRouter API.
 
 #### `validateResponse(response: any, schema: JSONSchema): ValidationResult`
+
 Waliduje odpowiedź API względem zdefiniowanego schematu JSON.
 
 #### `calculateCost(promptTokens: number, completionTokens: number, model: string): number`
+
 Oblicza koszt generacji na podstawie tokenów i modelu.
 
 ### Pola publiczne:
 
 #### `readonly config: OpenRouterConfig`
+
 Konfiguracja usługi (tylko do odczytu).
 
 #### `readonly stats: ServiceStats`
+
 Statystyki usługi (liczba wywołań, koszty, błędy).
 
 ## 4. Prywatne metody i pola
@@ -90,38 +100,49 @@ Statystyki usługi (liczba wywołań, koszty, błędy).
 ### Metody pomocnicze:
 
 #### `private async makeApiRequest(request: OpenRouterRequest): Promise<OpenRouterResponse>`
+
 Wykonuje żądanie HTTP do API OpenRouter z retry logic.
 
 #### `private buildSystemPrompt(language: string): string`
+
 Konstruuje komunikat systemowy w zależności od języka.
 
 #### `private buildUserPrompt(sourceText: string, targetCount: number, language: string): string`
+
 Konstruuje komunikat użytkownika z tekstem źródłowym.
 
 #### `private chunkText(text: string): string[]`
+
 Dzieli długi tekst na chunki o określonym rozmiarze.
 
 #### `private deduplicateChunks(chunks: string[]): string[]`
+
 Usuwa duplikaty między chunkami tekstu.
 
 #### `private parseResponse(response: any): FlashCardProposal[]`
+
 Parsuje odpowiedź API na strukturę fiszek.
 
 #### `private handleApiError(error: any): GenerationError`
+
 Obsługuje błędy API i mapuje je na struktury błędów aplikacji.
 
 #### `private calculateRetryDelay(attempt: number): number`
+
 Oblicza opóźnienie dla retry z exponential backoff.
 
 ### Pola prywatne:
 
 #### `private readonly httpClient: HttpClient`
+
 Klient HTTP do komunikacji z API.
 
 #### `private readonly rateLimiter: RateLimiter`
+
 Mechanizm rate limiting.
 
 #### `private readonly cache: Map<string, any>`
+
 Cache dla odpowiedzi API (opcjonalny).
 
 ## 5. Obsługa błędów
@@ -159,6 +180,7 @@ Cache dla odpowiedzi API (opcjonalny).
 ### Strategie obsługi:
 
 #### Retry Logic:
+
 ```typescript
 private async retryWithBackoff<T>(
   operation: () => Promise<T>,
@@ -171,7 +193,7 @@ private async retryWithBackoff<T>(
       if (attempt === maxRetries || !this.isRetryableError(error)) {
         throw error;
       }
-      
+
       const delay = this.calculateRetryDelay(attempt);
       await this.sleep(delay);
     }
@@ -180,6 +202,7 @@ private async retryWithBackoff<T>(
 ```
 
 #### Error Mapping:
+
 ```typescript
 private mapToGenerationError(error: any): GenerationError {
   if (error.code === 429) {
@@ -198,21 +221,25 @@ private mapToGenerationError(error: any): GenerationError {
 ## 6. Kwestie bezpieczeństwa
 
 ### Ochrona kluczy API:
+
 - Klucze API przechowywane jako Supabase Edge Function secrets
 - Nigdy nie eksponowane w kodzie klienckim
 - Rotacja kluczy przez Supabase dashboard
 
 ### Rate Limiting:
+
 - Maksymalnie 10 generacji na godzinę na użytkownika
 - Circuit breaker pattern dla API failures
 - Exponential backoff z jitter
 
 ### Walidacja danych:
+
 - Sanityzacja tekstu wejściowego
 - Walidacja rozmiaru (100-15,000 znaków)
 - Sprawdzanie formatu języka (ISO 639-1)
 
 ### Logowanie i monitoring:
+
 - Logowanie wszystkich wywołań API
 - Śledzenie kosztów i tokenów
 - Alerty przy przekroczeniu limitów
@@ -220,6 +247,7 @@ private mapToGenerationError(error: any): GenerationError {
 ## 7. Plan wdrożenia krok po kroku
 
 ### Krok 1: Konfiguracja środowiska
+
 ```bash
 # 1. Dodaj klucz API do Supabase Edge Function secrets
 supabase secrets set OPENROUTER_API_KEY=your_api_key_here
@@ -231,6 +259,7 @@ openrouter_api_key = "env(OPENROUTER_API_KEY)"
 ```
 
 ### Krok 2: Utworzenie struktury usługi
+
 ```typescript
 // src/lib/services/openrouter.service.ts
 export class OpenRouterService {
@@ -239,6 +268,7 @@ export class OpenRouterService {
 ```
 
 ### Krok 3: Definicja typów i interfejsów
+
 ```typescript
 // src/types.ts - dodaj nowe typy:
 export interface OpenRouterConfig {
@@ -261,6 +291,7 @@ export interface FlashCardProposal {
 ```
 
 ### Krok 4: Implementacja promptów systemowych
+
 ```typescript
 private buildSystemPrompt(language: string): string {
   const languageMap = {
@@ -268,7 +299,7 @@ private buildSystemPrompt(language: string): string {
     'en': 'You are an expert in creating educational flashcards in English.',
     'es': 'Eres un experto en crear tarjetas educativas en español.'
   };
-  
+
   return `${languageMap[language] || languageMap['en']}
 
 Zasady tworzenia fiszek:
@@ -282,6 +313,7 @@ Format odpowiedzi: JSON z tablicą "cards" zawierającą obiekty z polami: front
 ```
 
 ### Krok 5: Implementacja response_format
+
 ```typescript
 private getResponseFormat(): any {
   return {
@@ -316,6 +348,7 @@ private getResponseFormat(): any {
 ```
 
 ### Krok 6: Integracja z GenerationService
+
 ```typescript
 // src/lib/services/generation.service.ts
 export class GenerationService {
@@ -324,13 +357,13 @@ export class GenerationService {
   constructor(supabase: SupabaseClient) {
     this.supabase = supabase;
     this.openRouterService = new OpenRouterService(supabase, {
-      apiKey: Deno.env.get('OPENROUTER_API_KEY')!,
-      baseUrl: 'https://openrouter.ai/api/v1',
-      defaultModel: 'gpt-4o',
+      apiKey: Deno.env.get("OPENROUTER_API_KEY")!,
+      baseUrl: "https://openrouter.ai/api/v1",
+      defaultModel: "gpt-4o",
       maxRetries: 3,
       timeoutMs: 30000,
       chunkSize: 10000,
-      maxTokens: 4000
+      maxTokens: 4000,
     });
   }
 
@@ -343,43 +376,42 @@ export class GenerationService {
 ```
 
 ### Krok 7: Utworzenie Supabase Edge Function
+
 ```typescript
 // supabase/functions/process-generation/index.ts
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 serve(async (req) => {
   const { generationId } = await req.json();
-  
+
   // Implementacja Edge Function
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  );
-  
+  const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+
   const generationService = new GenerationService(supabase);
   await generationService.processGeneration(generationId);
-  
+
   return new Response(JSON.stringify({ success: true }), {
-    headers: { 'Content-Type': 'application/json' }
+    headers: { "Content-Type": "application/json" },
   });
 });
 ```
 
 ### Krok 8: Testy jednostkowe
+
 ```typescript
 // src/lib/services/__tests__/openrouter.service.test.ts
-describe('OpenRouterService', () => {
-  it('should generate flashcards from source text', async () => {
+describe("OpenRouterService", () => {
+  it("should generate flashcards from source text", async () => {
     const service = new OpenRouterService(mockSupabase, mockConfig);
     const result = await service.generateFlashcards({
-      sourceText: 'Test text',
-      language: 'pl',
+      sourceText: "Test text",
+      language: "pl",
       targetCount: 5,
-      userId: 'user-1',
-      generationId: 'gen-1'
+      userId: "user-1",
+      generationId: "gen-1",
     });
-    
+
     expect(result.success).toBe(true);
     expect(result.cards).toHaveLength(5);
   });
@@ -387,6 +419,7 @@ describe('OpenRouterService', () => {
 ```
 
 ### Krok 9: Monitoring i alerty
+
 ```typescript
 // Dodaj do usługi:
 private async logGenerationMetrics(result: GenerationResult): Promise<void> {
@@ -405,6 +438,7 @@ private async logGenerationMetrics(result: GenerationResult): Promise<void> {
 ```
 
 ### Krok 10: Dokumentacja i deployment
+
 1. Utwórz dokumentację API w README.md
 2. Skonfiguruj CI/CD pipeline w GitHub Actions
 3. Wdróż Edge Functions do Supabase
@@ -412,6 +446,7 @@ private async logGenerationMetrics(result: GenerationResult): Promise<void> {
 5. Przeprowadź testy integracyjne
 
 ### Weryfikacja wdrożenia:
+
 - [ ] Klucz API skonfigurowany w Supabase secrets
 - [ ] Edge Function wdrożona i działająca
 - [ ] Testy jednostkowe przechodzą

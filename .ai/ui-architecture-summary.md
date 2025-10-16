@@ -75,6 +75,7 @@ Najistotniejsze rekomendacje dopasowane do decyzji użytkownika:
 ### Główne wymagania architektury UI
 
 #### Struktura aplikacji
+
 Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadcn/ui** z sześcioma głównymi widokami:
 
 1. **Login** (`/login`) - Supabase OAuth z Google
@@ -87,6 +88,7 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 ### Kluczowe widoki i przepływy
 
 #### 1. Flow uwierzytelniania
+
 - Dedykowana strona `/login` (nie modal) z "Sign in with Google" button
 - Po sukcesie: smart routing → `/generate` (nowi) lub `/sets` (wracający użytkownicy)
 - Session management przez Supabase Client, JWT implementation odłożone poza MVP
@@ -95,12 +97,14 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 #### 2. Generation Flow (3-step unified view)
 
 **Step 1: Paste Text**
+
 - Textarea z character counter (10-15k limit)
 - Optional language selector (default: auto-detect)
 - Walidacja długości z propozycją chunkowania jeśli exceeded
 - "Generate" button → API POST `/api/generations`
 
 **Step 2: Review Proposals (kluczowy widok)**
+
 - Cards grid (responsive: 1-3 cols zależnie od breakpoint)
 - Każda karta: flippable `<FlashCard>` component (przód/tył)
 - Controls per card: checkbox (default checked), Edit button, Delete button
@@ -111,6 +115,7 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 - Back/Next navigation między stepami
 
 **Step 3: Save to Set**
+
 - Dropdown wyboru zestawu (z search) LUB inline form "Create new set"
 - Validation preview: limity (200/set, 1000/account), duplikaty
 - Dwa przyciski: "Save selected (X)" (primary) vs "Save all (30)" (secondary)
@@ -118,11 +123,13 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 - Po sukcesie: Celebration modal z CTA → "Start session" / "View set" / "Generate more"
 
 **State management**:
+
 - `GenerationProvider` (Context API) dla współdzielonego stanu między steps
 - `usePersistedState` hook z localStorage sync (TTL 24h) dla recovery po refresh
 - Tracking: selected cards, edits, current step, generation_id
 
 **Progress handling**:
+
 - Status 202 Accepted → polling GET `/api/generations/:id` co 2s
 - Progress modal: spinner, progress bar (jeśli %), dynamic message z API
 - Frontend timeout 60s z "Keep waiting" / "Cancel" options
@@ -131,11 +138,13 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 #### 3. Sets List View (`/sets`)
 
 **Layout**:
+
 - Cards grid (Shadcn Card components)
 - Top bar: Search input + "+ New set" button
 - Każda card: name (heading), language badge, cards count, "Last studied" timestamp, progress ring (new/review due), actions menu
 
 **Actions menu**:
+
 - Study (→ SRS session)
 - View cards (→ Set detail)
 - Rename (Dialog z form)
@@ -148,6 +157,7 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 #### 4. Set Detail View (`/sets/:id`)
 
 **Tabs structure**:
+
 - **Cards tab**: Table (desktop) / Card list (mobile)
   - Kolumny: Front | Back | Status | Due date | Actions
   - Per-row actions: Edit (modal Dialog), Delete (confirmation)
@@ -155,12 +165,10 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
   - Filtering: status dropdown (new, learning, review, relearning)
   - Search: front/back text (debounced)
   - Pagination: 50 items (API limit)
-  
-- **Study tab**: 
+- **Study tab**:
   - Summary: "X new, Y due today"
   - Daily limits indicators
   - "Start session" button → SRS flow dla tego zestawu
-  
 - **Settings tab**:
   - Rename set form
   - Language display (immutable)
@@ -171,10 +179,12 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 #### 5. SRS Session View
 
 **Entry point** (`/study`):
+
 - Start screen z: Total summary (all sets), Daily limits progress bars
 - Options: "Start mixed session" (all sets) OR lista zestawów z per-set "Study" buttons
 
 **Review interface**:
+
 - Full-screen Dialog (Shadcn) overlay
 - Layout: Progress bar + counter (top) | Large flippable card (center) | Rating buttons 1-5 (bottom)
 - Card flipping: Click/tap to flip, Space bar (desktop)
@@ -183,11 +193,13 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 - "X" button → Pause dialog: "Progress will be saved" → localStorage persistence (TTL 24h)
 
 **Session logic**:
+
 - API: POST `/api/srs/sessions` → otrzymanie kolejki kart
 - Per-card: POST `/api/srs/reviews` z rating → otrzymanie next_review_at
 - Optimistic local update counters (daily limits, progress)
 
 **Session summary** (po zakończeniu):
+
 - Full page / large modal: "Great work! 🎉"
 - Stats: cards reviewed, avg rating, time spent
 - Distribution chart: rating 1-5 jako bars
@@ -196,12 +208,14 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 #### 6. User Panel (`/profile`)
 
 **Sections** (w Card components lub Tabs):
+
 - **Account info**: Email, created date, Google avatar
 - **Statistics**: Total cards, sets, study streak (future), acceptance rate
 - **Generation history**: Table z past generations (status, count, acceptance metrics, timestamp)
 - **Account actions**: Export data (GDPR), Delete account (confirmation flow)
 
 **Top-right avatar menu** (globalna nawigacja):
+
 - Click Avatar → DropdownMenu: Email display | Separator | "Panel użytkownika" | "Wyloguj"
 
 ### Strategia integracji z API
@@ -221,11 +235,13 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 ```
 
 **AuthProvider**:
+
 - State: `user`, `session`, `loading`
 - Methods: `signIn()`, `signOut()`, `getSession()`
 - Effect: Subscribe do `supabase.auth.onAuthStateChange()`
 
 **DataProvider**:
+
 - State: Cached `sets[]`, `cards[]` per set
 - Methods: `fetchSets()`, `fetchCards(setId)`, `invalidateCache(resource)`
 - Pattern: Stale-while-revalidate
@@ -234,11 +250,13 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
   - Due cards: no cache (real-time)
 
 **GenerationProvider**:
+
 - State: `currentStep`, `generationId`, `proposals[]`, `selectedCards`, `edits`, `sourceText`
 - Persistence: `usePersistedState` → localStorage 'generation-flow' (24h TTL)
 - Methods: `setStep()`, `toggleCard()`, `editCard()`, `saveToSet()`
 
 **SRSProvider**:
+
 - State: `sessionId`, `cards[]`, `currentIndex`, `dailyLimits`, `reviewedToday`
 - Persistence: localStorage 'srs-session' (24h TTL)
 - Methods: `startSession()`, `submitRating()`, `pauseSession()`, `resumeSession()`
@@ -269,29 +287,34 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 #### API Error Handling (inline philosophy)
 
 **Validation errors** (400):
+
 - Display bezpośrednio pod polem formularza
 - Character counters: color coding (default → warning → error)
 - Real-time walidacja podczas typing
 - Block submission gdy errors present
 
 **API errors** (500, timeout):
+
 - Context-aware Alert (Shadcn) w aktualnym flow
 - Message z API + rekomendowana akcja
 - "Try again" button dla manual retry
 - Technical details w collapsible section
 
 **Rate limiting** (429):
+
 - Blocking Dialog modal (nie toast - hard limit)
 - Message: "Rate limit reached. X/Y generations used. Try again in Z minutes."
 - Countdown timer
 - Disable form submission do reset
 
 **Partial success**:
+
 - Success toast z warning: "20 cards saved. 10 duplicates skipped."
 - Expandable details z listą issues
 - Log do generation metadata
 
 **Network errors**:
+
 - Inline Alert: "Connection lost. Please check your internet."
 - Auto-retry dla reads (3×)
 - Persist draft w localStorage jeśli możliwe
@@ -307,24 +330,29 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 #### Topbar Navigation
 
 **Desktop (≥ md)**:
+
 - Horizontal NavigationMenu: Logo | Generuj fiszki | Moje zestawy | Sesje powtórkowe
 - Right: Daily indicator + Avatar dropdown
 
 **Mobile (< md)**:
+
 - Hamburger (left) | Logo (center) | Avatar (right)
 - Hamburger → Sheet (Shadcn) slide-in z full menu
 
 #### Component adaptations
 
 **FlashCard component**:
+
 - Desktop: max-w-md, hover states, keyboard hints
 - Mobile: full-width minus padding, larger tap targets, swipe gestures (future)
 
 **SRS Review**:
+
 - Desktop: card max-w-2xl, keyboard shortcuts visible, button labels full
 - Mobile: card fills width, buttons icon+label, larger tap targets (min 44px)
 
 **Tables → Cards on mobile**:
+
 - Set detail Cards tab: Table (desktop) → Card list (mobile)
 - Maintain same information, different presentation
 
@@ -332,7 +360,7 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 
 1. **Semantic HTML**: Proper heading hierarchy, landmark regions, form labels
 2. **ARIA labels**: Explicit labels dla icon-only buttons, card content descriptions
-3. **Keyboard navigation**: 
+3. **Keyboard navigation**:
    - Tab order logical
    - All actions keyboard-accessible
    - Shortcuts dla power users (documented w tooltips)
@@ -347,7 +375,7 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 
 ### Bezpieczeństwo UI-side
 
-1. **Protected Routes**: 
+1. **Protected Routes**:
    - `PrivateRoute` wrapper sprawdza session
    - Redirect do `/login` jeśli unauthorized
    - Token validation przez Supabase Client
@@ -375,6 +403,7 @@ Aplikacja MVP oparta na **Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadc
 ### Kluczowe komponenty Shadcn/ui
 
 **Używane w projekcie**:
+
 - **Layout**: NavigationMenu, Sheet (mobile menu), Tabs, Separator
 - **Forms**: Input, Textarea, Checkbox, Select, Label, Button
 - **Feedback**: Alert, Toast (via Sonner), Progress, Badge, Skeleton
@@ -445,4 +474,3 @@ Na podstawie konwersacji pozostają następujące obszary wymagające doprecyzow
 17. **Error logging client-side**: Błędy API idą do `generation_error_logs` backend. Czy też client-side errors (React Error Boundary)? Jeśli tak, gdzie (Sentry, Supabase)?
 
 18. **Performance monitoring**: Cel: P95 < 10s dla generacji. Czy user-facing performance feedback (np. "This is taking longer than usual...")? Real User Monitoring tool?
-

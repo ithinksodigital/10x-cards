@@ -33,18 +33,18 @@ export OPENROUTER_API_KEY=your_api_key_here
 ### Basic Integration
 
 ```typescript
-import { OpenRouterService } from './lib/services/openrouter.service';
-import { createClient } from './db/supabase.client';
-import type { OpenRouterConfig } from './types';
+import { OpenRouterService } from "./lib/services/openrouter.service";
+import { createClient } from "./db/supabase.client";
+import type { OpenRouterConfig } from "./types";
 
 // Initialize Supabase client
 const supabase = createClient();
 
 // Configure OpenRouter service
 const config: OpenRouterConfig = {
-  apiKey: Deno.env.get('OPENROUTER_API_KEY') || '',
-  baseUrl: 'https://openrouter.ai/api/v1',
-  defaultModel: 'gpt-4o',
+  apiKey: Deno.env.get("OPENROUTER_API_KEY") || "",
+  baseUrl: "https://openrouter.ai/api/v1",
+  defaultModel: "gpt-4o",
   maxRetries: 3,
   timeoutMs: 30000,
   chunkSize: 10000,
@@ -58,7 +58,7 @@ const openRouterService = new OpenRouterService(supabase, config);
 ### Generate Flashcards
 
 ```typescript
-import type { GenerateFlashcardsCommand } from './types';
+import type { GenerateFlashcardsCommand } from "./types";
 
 const command: GenerateFlashcardsCommand = {
   sourceText: `
@@ -66,32 +66,30 @@ const command: GenerateFlashcardsCommand = {
     that can learn from data. It includes supervised learning, unsupervised learning, 
     and reinforcement learning.
   `,
-  language: 'en', // Optional: 'en', 'pl', 'es'
+  language: "en", // Optional: 'en', 'pl', 'es'
   targetCount: 10, // Optional: 1-30, default 30
-  userId: 'user-123',
-  generationId: 'gen-456',
+  userId: "user-123",
+  generationId: "gen-456",
 };
 
 const result = await openRouterService.generateFlashcards(command);
 
 if (result.success) {
   console.log(`Generated ${result.cards.length} flashcards`);
-  result.cards.forEach(card => {
+  result.cards.forEach((card) => {
     console.log(`Front: ${card.front}`);
     console.log(`Back: ${card.back}`);
     console.log(`Confidence: ${card.confidence}`);
   });
 } else {
-  console.error('Generation failed:', result.error);
+  console.error("Generation failed:", result.error);
 }
 ```
 
 ### Language Detection
 
 ```typescript
-const detectedLanguage = await openRouterService.detectLanguage(
-  "This is an English text about machine learning."
-);
+const detectedLanguage = await openRouterService.detectLanguage("This is an English text about machine learning.");
 console.log(`Detected language: ${detectedLanguage}`); // 'en'
 ```
 
@@ -100,7 +98,7 @@ console.log(`Detected language: ${detectedLanguage}`); // 'en'
 ```typescript
 const stats = openRouterService.readonlyStats;
 console.log(`Total calls: ${stats.totalCalls}`);
-console.log(`Success rate: ${(stats.successfulCalls / stats.totalCalls * 100).toFixed(1)}%`);
+console.log(`Success rate: ${((stats.successfulCalls / stats.totalCalls) * 100).toFixed(1)}%`);
 console.log(`Total cost: $${stats.totalCost.toFixed(4)}`);
 ```
 
@@ -109,16 +107,19 @@ console.log(`Total cost: $${stats.totalCost.toFixed(4)}`);
 The `GenerationService` has been updated to use the `OpenRouterService`:
 
 ```typescript
-import { GenerationService } from './lib/services/generation.service';
+import { GenerationService } from "./lib/services/generation.service";
 
 const generationService = new GenerationService(supabase);
 
 // Start generation (now uses AI instead of simulation)
-const response = await generationService.startGeneration({
-  source_text: "Your text here",
-  language: "en",
-  target_count: 15
-}, userId);
+const response = await generationService.startGeneration(
+  {
+    source_text: "Your text here",
+    language: "en",
+    target_count: 15,
+  },
+  userId
+);
 ```
 
 ## Configuration Options
@@ -149,17 +150,17 @@ const result = await openRouterService.generateFlashcards(command);
 
 if (!result.success) {
   switch (result.error?.code) {
-    case 'RATE_LIMIT_EXCEEDED':
-      console.log('Rate limit exceeded, retry after:', result.error.retryAfter);
+    case "RATE_LIMIT_EXCEEDED":
+      console.log("Rate limit exceeded, retry after:", result.error.retryAfter);
       break;
-    case 'QUOTA_EXCEEDED':
-      console.log('API quota exceeded');
+    case "QUOTA_EXCEEDED":
+      console.log("API quota exceeded");
       break;
-    case 'TEXT_PROCESSING_FAILED':
-      console.log('Text validation failed:', result.error.message);
+    case "TEXT_PROCESSING_FAILED":
+      console.log("Text validation failed:", result.error.message);
       break;
     default:
-      console.log('Unknown error:', result.error?.message);
+      console.log("Unknown error:", result.error?.message);
   }
 }
 ```
@@ -197,7 +198,7 @@ npm test openrouter.service.test.ts
 Run examples:
 
 ```typescript
-import { runAllExamples } from './lib/services/openrouter.examples';
+import { runAllExamples } from "./lib/services/openrouter.examples";
 
 await runAllExamples();
 ```

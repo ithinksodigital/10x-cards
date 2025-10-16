@@ -8,7 +8,6 @@
 
 This table stores additional user metadata. Supabase Auth manages `auth.users`, and the `id` column references `auth.users(id)`.
 
-
 - **id**: `uuid` PRIMARY KEY REFERENCES `auth.users(id)` ON DELETE CASCADE
 
 - **cards_count**: `integer` NOT NULL DEFAULT `0`
@@ -17,6 +16,7 @@ This table stores additional user metadata. Supabase Auth manages `auth.users`, 
 - **updated_at**: `timestamptz` NOT NULL DEFAULT `now()`
 
 ### sets
+
 - **id**: `uuid` PRIMARY KEY
 - **user_id**: `uuid` NOT NULL REFERENCES `profiles(id)` ON DELETE CASCADE
 - **name**: `citext` NOT NULL
@@ -65,6 +65,7 @@ This table logs errors during AI generation for diagnostics and monitoring.
 - **created_at**: `timestamptz` NOT NULL DEFAULT `now()`
 
 ### cards
+
 - **id**: `uuid` PRIMARY KEY
 - **user_id**: `uuid` NOT NULL
 - **set_id**: `uuid` NOT NULL
@@ -72,7 +73,7 @@ This table logs errors during AI generation for diagnostics and monitoring.
 - **front**: `text` NOT NULL CHECK (`char_length(front) <= 200`)
 - **back**: `text` NOT NULL CHECK (`char_length(back) <= 500`)
 - **front_normalized**: `text` GENERATED ALWAYS AS (`lower(front)`) STORED
-- **language**: `text` NOT NULL DEFAULT (NULL)  <!-- inherit via trigger from sets.language -->
+- **language**: `text` NOT NULL DEFAULT (NULL) <!-- inherit via trigger from sets.language -->
 - **due_at**: `timestamptz`
 - **interval_days**: `integer` NOT NULL DEFAULT `0`
 - **ease_factor**: `real` NOT NULL DEFAULT `2.5`
@@ -89,12 +90,12 @@ This table logs errors during AI generation for diagnostics and monitoring.
 
 ## 2. Relationships
 
-- **profiles** 1 — * `sets` via `profiles.id = sets.user_id`
-- **profiles** 1 — * `generations` via `profiles.id = generations.user_id`
-- **profiles** 1 — * `generation_error_logs` via `profiles.id = generation_error_logs.user_id`
-- **sets** 1 — * `cards` via composite `sets(id, user_id) = cards(set_id, user_id)`
-- **sets** 1 — * `generations` via `sets.id = generations.set_id` (optional)
-- **generations** 1 — * `cards` via `generations.id = cards.generation_id` (optional)
+- **profiles** 1 — \* `sets` via `profiles.id = sets.user_id`
+- **profiles** 1 — \* `generations` via `profiles.id = generations.user_id`
+- **profiles** 1 — \* `generation_error_logs` via `profiles.id = generation_error_logs.user_id`
+- **sets** 1 — \* `cards` via composite `sets(id, user_id) = cards(set_id, user_id)`
+- **sets** 1 — \* `generations` via `sets.id = generations.set_id` (optional)
+- **generations** 1 — \* `cards` via `generations.id = cards.generation_id` (optional)
 
 ## 3. Indexes
 
@@ -164,7 +165,7 @@ CREATE POLICY cards_select_update ON cards
   - Counter triggers on `cards` to update `sets.cards_count` and `profiles.cards_count`.
   - Counter triggers to update `generations` statistics when cards are accepted/rejected/edited.
   - Validation trigger on `cards` to enforce 200 cards per set and 1000 cards per user.
-  
+
 ## 6. AI Generation Analytics
 
 The extended schema enables:

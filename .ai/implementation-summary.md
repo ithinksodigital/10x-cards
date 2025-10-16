@@ -7,9 +7,11 @@ Data zakończenia: 2025-10-09
 ## Zrealizowane elementy
 
 ### 1. ✅ API Endpoint Handler
+
 **Plik:** `src/pages/api/generations.ts`
 
 **Funkcjonalności:**
+
 - ✅ Metoda POST z prawidłowym Astro handler
 - ✅ Autoryzacja JWT przez `context.locals.supabase.auth.getUser()`
 - ✅ Walidacja request body przez Zod schema
@@ -18,6 +20,7 @@ Data zakończenia: 2025-10-09
 - ✅ Pełne error handling zgodnie z `ErrorResponseDto`
 
 **Kody statusu HTTP:**
+
 - `202 Accepted` - Sukces, generacja rozpoczęta
 - `400 Bad Request` - Błędy walidacji (Zod)
 - `401 Unauthorized` - Brak/nieprawidłowy token
@@ -25,10 +28,12 @@ Data zakończenia: 2025-10-09
 - `500 Internal Server Error` - Błędy serwera
 
 ### 2. ✅ GenerationService
+
 **Plik:** `src/lib/services/generation.service.ts`
 
 **Funkcjonalności:**
-- ✅ Metoda `startGeneration(command, userId)` 
+
+- ✅ Metoda `startGeneration(command, userId)`
 - ✅ Obliczanie SHA-256 hash (Web Crypto API)
 - ✅ Rate limiting - maksymalnie 10 generacji/godzinę
 - ✅ Insert do tabeli `generations`
@@ -36,6 +41,7 @@ Data zakończenia: 2025-10-09
 - ✅ Kalkulacja `estimated_duration_ms`
 
 **Parametry konfiguracyjne:**
+
 - Model: `gpt-4o` (domyślny)
 - Szacowany czas/fiszka: 300ms
 - Bazowy overhead: 2000ms
@@ -43,6 +49,7 @@ Data zakończenia: 2025-10-09
 ### 3. ✅ Walidacja danych (Zod Schema)
 
 **Parametry:**
+
 - `source_text`: string, 100-15,000 znaków (wymagane)
 - `language`: string, ISO 639-1 kod (pl, en, es) (opcjonalne)
 - `target_count`: number, 1-30, domyślnie 30 (opcjonalne)
@@ -50,6 +57,7 @@ Data zakończenia: 2025-10-09
 ### 4. ✅ Obsługa błędów
 
 **Implementacja:**
+
 - Guard clauses i early returns
 - Szczegółowe komunikaty błędów dla użytkownika
 - Mapowanie błędów na `ErrorResponseDto`
@@ -67,6 +75,7 @@ Data zakończenia: 2025-10-09
 ### 6. ✅ Dokumentacja
 
 **Utworzone pliki:**
+
 1. `.ai/api-endpoint-generations.md` - Pełna dokumentacja API
 2. `.ai/testing-guide.md` - Przewodnik testowania z 9 scenariuszami
 3. `.ai/example-tests.md` - Przykłady testów jednostkowych (Vitest)
@@ -120,10 +129,12 @@ README.md                            # ✅ Zaktualizowany
 ## Zależności
 
 **Zainstalowane:**
+
 - `zod` - Walidacja request body
 - `@types/node` - Typy Node.js
 
 **Wykorzystane (istniejące):**
+
 - `@supabase/supabase-js` - Client Supabase
 - `astro` - Framework
 
@@ -172,6 +183,7 @@ Zobacz: `.ai/testing-guide.md` dla szczegółów.
 ## Następne kroki (do zaimplementowania)
 
 ### Priorytet 1: Edge Function
+
 ```typescript
 // supabase/functions/generate-flashcards/index.ts
 // - Pobierz generation record po ID
@@ -182,6 +194,7 @@ Zobacz: `.ai/testing-guide.md` dla szczegółów.
 ```
 
 ### Priorytet 2: Status checking endpoint
+
 ```typescript
 // GET /api/generations/:id
 // - Sprawdzenie statusu generacji
@@ -190,6 +203,7 @@ Zobacz: `.ai/testing-guide.md` dla szczegółów.
 ```
 
 ### Priorytet 3: Listy generacji
+
 ```typescript
 // GET /api/generations
 // - Lista generacji użytkownika
@@ -198,12 +212,14 @@ Zobacz: `.ai/testing-guide.md` dla szczegółów.
 ```
 
 ### Priorytet 4: Framework testowania
+
 ```bash
 npm install -D vitest @vitest/ui
 # Implementacja testów z .ai/example-tests.md
 ```
 
 ### Priorytet 5: Monitoring i logi
+
 - Structured logging (np. Pino)
 - Error tracking (np. Sentry)
 - Metryki (czas odpowiedzi, success rate)
@@ -253,7 +269,7 @@ curl -X POST http://localhost:4321/api/generations \
 
 ```sql
 -- Sprawdź utworzone generacje
-SELECT 
+SELECT
   id,
   user_id,
   source_text_length,
@@ -269,47 +285,50 @@ LIMIT 5;
 
 ### Z planu implementacji (view-implementation-plan.md):
 
-| Wymaganie | Status | Notatki |
-|-----------|--------|---------|
-| POST /api/generations | ✅ | Zaimplementowany |
-| Walidacja Zod | ✅ | source_text, language, target_count |
-| Autoryzacja JWT | ✅ | Supabase Auth |
-| Rate limiting | ✅ | 10/godzinę |
-| SHA-256 hash | ✅ | Web Crypto API |
-| Insert do DB | ✅ | Tabela generations |
-| Error handling | ✅ | Wszystkie kody HTTP |
-| Response 202 | ✅ | StartGenerationResponseDto |
-| Dokumentacja | ✅ | 3 pliki markdown |
-| Testy | ⚠️ | Przykłady, nie zaimplementowane |
+| Wymaganie             | Status | Notatki                             |
+| --------------------- | ------ | ----------------------------------- |
+| POST /api/generations | ✅     | Zaimplementowany                    |
+| Walidacja Zod         | ✅     | source_text, language, target_count |
+| Autoryzacja JWT       | ✅     | Supabase Auth                       |
+| Rate limiting         | ✅     | 10/godzinę                          |
+| SHA-256 hash          | ✅     | Web Crypto API                      |
+| Insert do DB          | ✅     | Tabela generations                  |
+| Error handling        | ✅     | Wszystkie kody HTTP                 |
+| Response 202          | ✅     | StartGenerationResponseDto          |
+| Dokumentacja          | ✅     | 3 pliki markdown                    |
+| Testy                 | ⚠️     | Przykłady, nie zaimplementowane     |
 
 ### Z cursor rules:
 
-| Reguła | Status | Notatki |
-|--------|--------|---------|
-| Early returns | ✅ | Konsekwentnie stosowane |
-| Guard clauses | ✅ | Walidacja na początku |
-| Error handling | ✅ | Szczegółowe komunikaty |
-| Zod validation | ✅ | API endpoints |
-| Supabase from context | ✅ | context.locals.supabase |
-| SupabaseClient type | ✅ | Z src/db/supabase.client.ts |
-| Uppercase HTTP methods | ✅ | POST |
-| prerender = false | ✅ | API route |
+| Reguła                 | Status | Notatki                     |
+| ---------------------- | ------ | --------------------------- |
+| Early returns          | ✅     | Konsekwentnie stosowane     |
+| Guard clauses          | ✅     | Walidacja na początku       |
+| Error handling         | ✅     | Szczegółowe komunikaty      |
+| Zod validation         | ✅     | API endpoints               |
+| Supabase from context  | ✅     | context.locals.supabase     |
+| SupabaseClient type    | ✅     | Z src/db/supabase.client.ts |
+| Uppercase HTTP methods | ✅     | POST                        |
+| prerender = false      | ✅     | API route                   |
 
 ## Gotowość do produkcji
 
 ### ✅ Gotowe
+
 - API endpoint struktura
 - Walidacja i bezpieczeństwo
 - Error handling
 - Dokumentacja
 
 ### ⚠️ Wymaga uwagi
+
 - Edge Function implementation (placeholder)
 - Automated tests (przykłady ready)
 - Monitoring i logging
 - Performance testing pod obciążeniem
 
 ### ❌ Brakujące
+
 - CI/CD pipeline
 - Load testing
 - Production error tracking
@@ -329,6 +348,7 @@ LIMIT 5;
 ## Kontakt i wsparcie
 
 Dla pytań dotyczących implementacji, zobacz:
+
 - `.ai/api-endpoint-generations.md` - Dokumentacja API
 - `.ai/testing-guide.md` - Jak testować
 - `.ai/example-tests.md` - Przykłady testów
@@ -339,5 +359,3 @@ Dla pytań dotyczących implementacji, zobacz:
 **Implementacja zakończona zgodnie z planem.**  
 **Status:** ✅ READY FOR TESTING  
 **Next:** Implementacja Edge Function dla AI generation
-
-

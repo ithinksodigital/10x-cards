@@ -18,6 +18,7 @@ node .ai/test-simple.js
 ## 📍 All Endpoints
 
 ### Sets (5 endpoints)
+
 ```
 GET    /api/sets              # List sets
 POST   /api/sets              # Create set
@@ -27,6 +28,7 @@ DELETE /api/sets/:id          # Delete set
 ```
 
 ### Cards (6 endpoints)
+
 ```
 GET    /api/sets/:setId/cards       # List cards
 POST   /api/sets/:setId/cards       # Create card
@@ -37,6 +39,7 @@ DELETE /api/cards/:id               # Delete card
 ```
 
 ### SRS (4 endpoints)
+
 ```
 GET    /api/srs/due                      # Get due cards
 POST   /api/srs/sessions                 # Start session
@@ -49,6 +52,7 @@ GET    /api/srs/sessions/:id/summary     # Session stats
 ## 🔑 Authentication
 
 All endpoints require:
+
 ```
 Authorization: Bearer <jwt-token>
 ```
@@ -58,6 +62,7 @@ Authorization: Bearer <jwt-token>
 ## 📝 Common Requests
 
 ### Create Set
+
 ```bash
 curl -X POST http://localhost:3001/api/sets \
   -H "Authorization: Bearer TOKEN" \
@@ -66,6 +71,7 @@ curl -X POST http://localhost:3001/api/sets \
 ```
 
 ### Create Card
+
 ```bash
 curl -X POST http://localhost:3001/api/sets/SET_ID/cards \
   -H "Authorization: Bearer TOKEN" \
@@ -74,6 +80,7 @@ curl -X POST http://localhost:3001/api/sets/SET_ID/cards \
 ```
 
 ### Start Session
+
 ```bash
 curl -X POST http://localhost:3001/api/srs/sessions \
   -H "Authorization: Bearer TOKEN" \
@@ -86,6 +93,7 @@ curl -X POST http://localhost:3001/api/srs/sessions \
 ```
 
 ### Submit Review
+
 ```bash
 curl -X POST http://localhost:3001/api/srs/reviews \
   -H "Authorization: Bearer TOKEN" \
@@ -186,19 +194,23 @@ src/
 ## 🔧 Troubleshooting
 
 **Dev server not running?**
+
 ```bash
 npm run dev
 ```
 
 **Port already in use?**
+
 - Dev server will auto-select next port
 - Check console output for actual port
 
 **401 errors?**
+
 - Get JWT token from Supabase
 - Add to Authorization header
 
 **Database errors?**
+
 - Check Supabase connection
 - Verify environment variables
 - Run migrations
@@ -241,4 +253,3 @@ npm run dev
 
 **Last Updated:** October 12, 2025  
 **Status:** All 15 endpoints implemented and tested ✅
-

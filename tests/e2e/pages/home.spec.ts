@@ -15,7 +15,7 @@ test.describe("Home Page", () => {
 
   test("should have proper desktop navigation", async ({ page, browserName }) => {
     // Skip this test on mobile browsers
-    if (browserName === 'webkit' && page.viewportSize()?.width && page.viewportSize().width < 768) {
+    if (browserName === "webkit" && page.viewportSize()?.width && page.viewportSize().width < 768) {
       test.skip();
     }
 
@@ -87,8 +87,10 @@ test.describe("Home Page", () => {
       if (msg.type() === "error") {
         const errorText = msg.text();
         // Ignore known Astro hydration errors in Safari/WebKit
-        if (!errorText.includes("[astro-island] Error hydrating") && 
-            !errorText.includes("TypeError: Importing a module script failed")) {
+        if (
+          !errorText.includes("[astro-island] Error hydrating") &&
+          !errorText.includes("TypeError: Importing a module script failed")
+        ) {
           consoleErrors.push(errorText);
         }
       }
@@ -109,16 +111,16 @@ test.describe("Home Page", () => {
     // Check if bottom navigation is present and shows appropriate items
     const bottomNav = page.locator("nav.bottom-nav");
     await expect(bottomNav).toBeVisible();
-    
+
     // For unauthenticated users, we should see Profile button
     // (This test assumes the user is not authenticated)
     const profileButton = page.locator('nav.bottom-nav button[aria-label="Profil"]');
     await expect(profileButton).toBeVisible();
-    
+
     // We should also see Home and Generate buttons for all users
     await expect(page.locator('nav.bottom-nav button[aria-label="Strona główna"]')).toBeVisible();
     await expect(page.locator('nav.bottom-nav button[aria-label="Generuj"]')).toBeVisible();
-    
+
     // Sets and Study buttons should be hidden for unauthenticated users
     await expect(page.locator('nav.bottom-nav button[aria-label="Zestawy"]')).not.toBeVisible();
     await expect(page.locator('nav.bottom-nav button[aria-label="Nauka"]')).not.toBeVisible();

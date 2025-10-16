@@ -1,46 +1,38 @@
 import React from "react";
 import { Button } from "../ui/button";
-import { 
-  HomeIcon, 
-  SparklesIcon, 
-  BookOpenIcon, 
-  BrainIcon
-} from "lucide-react";
+import { HomeIcon, SparklesIcon, BookOpenIcon, BrainIcon } from "lucide-react";
 
 interface DesktopNavigationProps {
   isAuthenticated?: boolean;
   currentPath?: string;
 }
 
-export const DesktopNavigation: React.FC<DesktopNavigationProps> = ({
-  isAuthenticated,
-  currentPath = "/"
-}) => {
+export const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ isAuthenticated, currentPath = "/" }) => {
   const navigationItems = [
     {
       href: "/",
       label: "Strona główna",
       icon: HomeIcon,
-      show: true
+      show: true,
     },
     {
       href: "/generate",
       label: "Generuj fiszki",
       icon: SparklesIcon,
-      show: true
+      show: true,
     },
     {
       href: "/sets",
       label: "Moje zestawy",
       icon: BookOpenIcon,
-      show: isAuthenticated
+      show: isAuthenticated,
     },
     {
       href: "/study",
       label: "Sesje powtórkowe",
       icon: BrainIcon,
-      show: isAuthenticated
-    }
+      show: isAuthenticated,
+    },
   ];
 
   const isActive = (href: string) => {
@@ -53,10 +45,10 @@ export const DesktopNavigation: React.FC<DesktopNavigationProps> = ({
     <nav className="hidden md:flex items-center gap-1">
       {navigationItems.map((item) => {
         if (!item.show) return null;
-        
+
         const Icon = item.icon;
         const active = isActive(item.href);
-        
+
         return (
           <Button
             key={item.href}

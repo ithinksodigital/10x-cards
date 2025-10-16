@@ -41,9 +41,7 @@ export const StaticUserMenu: React.FC<StaticUserMenuProps> = ({ user, onSignOut 
           </div>
           <div className="hidden sm:block text-left">
             <div className="text-sm font-medium truncate max-w-32">{displayName}</div>
-            {userEmail && (
-              <div className="text-xs text-muted-foreground truncate max-w-32">{userEmail}</div>
-            )}
+            {userEmail && <div className="text-xs text-muted-foreground truncate max-w-32">{userEmail}</div>}
           </div>
         </div>
         <ChevronDownIcon className="w-4 h-4" />

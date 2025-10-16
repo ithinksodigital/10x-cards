@@ -85,7 +85,7 @@ test.describe("Authentication Flow", () => {
 
     // Submit form and wait for navigation
     await page.click('button[type="submit"]');
-    
+
     // Wait for navigation to complete - either redirect to / or stay on login
     try {
       await page.waitForURL("/", { timeout: 10000 });
@@ -140,7 +140,7 @@ test.describe("Authentication Flow", () => {
 
     // Submit form and wait for navigation
     await page.click('button[type="submit"]');
-    
+
     // Wait for successful login - either redirect to / or stay on login
     try {
       await page.waitForURL("/", { timeout: 10000 });
@@ -163,7 +163,7 @@ test.describe("Authentication Flow", () => {
 
     // Click logout and wait for redirect
     await logoutButton.click();
-    
+
     // Wait for logout redirect
     try {
       await page.waitForURL("/", { timeout: 10000 });
@@ -174,7 +174,7 @@ test.describe("Authentication Flow", () => {
 
     // Check if user is logged out - should be redirected to login page
     await expect(page).toHaveURL("/auth/login");
-    
+
     // Verify we're on the login page by checking for the login form
     await expect(page.locator('input[type="email"]')).toBeVisible();
     await expect(page.locator('input[type="password"]')).toBeVisible();

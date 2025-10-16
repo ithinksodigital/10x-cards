@@ -1,14 +1,18 @@
 <!-- Plik wygenerowany automatycznie: plan implementacji widoku /generate -->
+
 # Plan implementacji widoku Generate (Paste → Review → Save)
 
 ## 1. Przegląd
+
 Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicjację asynchronicznej generacji 30 propozycji fiszek przez backend (AI), interaktywne przeglądanie propozycji w batchach po 10, akceptację/odrzucenie (swipe / przyciski), inline edycję i zapis zaakceptowanych fiszek do istniejącego lub nowego zestawu. Widok musi dostarczać jasny feedback o postępie generacji (polling `GET /api/generations/:id`), obsługiwać timeouty/retry, walidować limity pól oraz przygotować request do batchowego zapisu `POST /api/sets/:setId/cards/batch`.
 
 ## 2. Routing widoku
+
 - Ścieżka: `/generate`
 - Ochrona: PrivateRoute — wymaga zalogowanego użytkownika (Supabase Auth)
 
 ## 3. Struktura komponentów
+
 - `GeneratePage` (page) — wrapper layoutowy, orchestration
   - `GenerationStepper` — krokowy UI (Paste → Review → Save)
   - `PasteTextarea` — textarea z licznikiem i opcją chunkowania
@@ -21,7 +25,9 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
   - `GenerationHistoryLink` — do `/generations`
 
 ## 4. Szczegóły komponentów
+
 ### GeneratePage
+
 - Opis: Strona najwyższego poziomu — integruje providery (GenerationProvider), zawiera `GenerationStepper` i zarządza przepływem kroków.
 - Główne elementy: `GenerationStepper`, `PasteTextarea`, `CardGrid`, `ProgressModal`, `SaveToSetDialog`.
 - Obsługiwane zdarzenia: onStartGeneration(command), onGenerationUpdate(dto), onAccept(cardId), onReject(cardId), onBulkAccept(), onBulkReject(), onSaveToSet(setId, selectedCards)
@@ -30,6 +36,7 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
 - Propsy: brak (page-level), używa hooków i contextu.
 
 ### PasteTextarea
+
 - Opis: Kontrolowana textarea z licznikiem znaków i sugestią chunkowania; wykrywa język (opcjonalnie) i ustawia target_count.
 - Elementy HTML: `<textarea>`, badge języka, counter, small hint pod textarea, chunk suggestion modal/link
 - Zdarzenia: onChange(text), onValidate(valid:boolean, errors:Record)
@@ -38,6 +45,7 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
 - Propsy: onSubmit(command)
 
 ### StartGenerationButton
+
 - Opis: Inicjuje POST `/api/generations` i otwiera `ProgressModal` z pollingiem.
 - Zdarzenia: onClick -> wywołanie API; obsługuje loading i błędy (429, 400)
 - Walidacja: disable gdy textarea invalid lub request w toku; debounce/submission lock
@@ -45,6 +53,7 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
 - Propsy: disabled:boolean, command: StartGenerationCommand
 
 ### ProgressModal
+
 - Opis: Modal pokazujący postęp generacji; polluje `GET /api/generations/:id` co ~2s; obsługuje stany processing/completed/failed oraz retry.
 - Elementy: progress bar (percentage), message text, spinner, retry button (visible on failed or timeout), cancel/close.
 - Zdarzenia: onComplete(completedDto), onFailed(errorDto), onRetry(), onCancel()
@@ -53,6 +62,7 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
 - Propsy: generationId, onComplete, onFailed
 
 ### CardGrid
+
 - Opis: Rysuje 30 kart w formie paginacji batchów po 10; pozwala na swipe/keyboard oraz bulk actions.
 - Elementy: grid/list, pager/tab bar for batches (1..3), each cell -> `FlashCard`.
 - Zdarzenia: onAccept(cardIndex), onReject(cardIndex), onEdit(cardIndex, editedCard), onUndo(), onSelect(cardIndex, selected)
@@ -61,6 +71,7 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
 - Propsy: proposals: FlashCardProposal[], selectedIds:Set<string>, batchIndex:number, onAction callbacks
 
 ### FlashCard
+
 - Opis: pojedynczy flippable card z widokiem preview i edycją inline; wspiera swipe (mobile) i buttons (desktop).
 - Elementy: front side, back side, edit icon, save/cancel in edit mode, confidence badge, language badge.
 - Zdarzenia: onFlip(), onEditStart(), onEditSave(edited), onEditCancel(), onAccept(), onReject()
@@ -69,14 +80,16 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
 - Propsy: proposal, index, disabled, onAccept, onReject, onEditSave
 
 ### BulkActionsBar
+
 - Opis: kontrolki globalne do batch operations: Accept all / Reject all / Undo (max 5) / Select all in batch
 - Elementy: buttons, undo counter, confirmation modal for bulk actions
 - Zdarzenia: onAcceptAll(), onRejectAll(), onUndo(), onSelectAllInBatch()
 - Walidacja: confirm modal for Accept all / Reject all
 - Typy: none new; uses proposals state
-- Propsy: batchIndex, canUndo, on* callbacks
+- Propsy: batchIndex, canUndo, on\* callbacks
 
 ### SaveToSetDialog
+
 - Opis: modal do wyboru istniejącego zestawu lub utworzenia nowego; waliduje limity (200/set, 1000/account) i wysyła `POST /api/sets/:setId/cards/batch`.
 - Elementy: search input, sets list (paginated), create new set form (name + language), submit button, summary of selected cards count
 - Zdarzenia: onCreateSet(command), onSelectSet(setId), onSubmit(selectedCards)
@@ -85,6 +98,7 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
 - Propsy: selectedCards: FlashCardProposal[], onSaveSuccess
 
 ## 5. Typy (DTO i ViewModel)
+
 - StartGenerationCommand (z `src/types.ts`): { source_text: string; language?: string; target_count?: number }
 - StartGenerationResponseDto (z `src/types.ts`)
 - ProcessingGenerationDto / CompletedGenerationDto (z `src/types.ts`)
@@ -106,6 +120,7 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
 - PasteFormViewModel: { source_text:string; language?: 'pl'|'en'|'es'; target_count:number }
 
 ## 6. Zarządzanie stanem i hooki
+
 - GenerationProvider / useGeneration hook — centralny store dla flow generacji:
   - Przechowuje generationId, proposals, selectedIds, edits, currentBatch, undoStack
   - API: startGeneration(command), pollStatus(), accept(cardId), reject(cardId), toggleSelect(cardId), edit(cardId, data), acceptAllBatch(), rejectAllBatch(), undo()
@@ -115,6 +130,7 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
 - useBatchSave hook — przygotowuje `BatchCreateCardsCommand`, waliduje limity przez wywołanie preflight (opcjonalne) lub lokalnymi obliczeniami; wykonuje POST `/api/sets/:setId/cards/batch` i obsługuje partial success / conflicts
 
 ## 7. Wywołania API i akcje frontendowe
+
 - POST /api/generations — startGeneration (body: StartGenerationCommand) -> 202 + StartGenerationResponseDto
   - Frontend: show ProgressModal, start polling
 - GET /api/generations/:id — polling status -> Processing or Completed DTO
@@ -127,6 +143,7 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
   - Response: BatchCreateCardsResponseDto
 
 ## 8. Mapowanie user stories na implementację
+
 - US-003/US-004: `PasteTextarea` + `StartGenerationButton` + `ProgressModal` (validation, chunk suggestion, polling, retry)
 - US-005: `ProgressModal` → `CardGrid` (wyświetlenie 30 unikatowych propozycji), walidacja limitów długości
 - US-006/US-007/US-008/US-009/US-010: `CardGrid`, `FlashCard`, `BulkActionsBar`, undoStack w `GenerationProvider`, inline edit modal w `FlashCard`
@@ -134,6 +151,7 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
 - US-022: `ProgressModal` retries i wyświetlanie komunikatów po wyczerpaniu prób
 
 ## 9. Interakcje użytkownika i oczekiwane wyniki
+
 - Wklejenie tekstu: live counter; jeśli invalid -> disable Generate
 - Klik Generate: request -> ProgressModal; user sees progress; po completed modal zamyka się i ujawnia `CardGrid`
 - Przegląd batchów: nawigacja pomiędzy batchami, stany accept/reject zachowywane
@@ -143,11 +161,13 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
 - Save: otwórz `SaveToSetDialog`, wybierz set lub utwórz nowy; frontend waliduje limity przed wysłaniem; po sukcesie pokaż celebrację i CTA Start session
 
 ## 10. Warunki API i weryfikacja w komponencie
+
 - StartGeneration: verify request body corresponds to `StartGenerationCommand` (frontend z Zod lub minimalna walidacja) — source_text length 100–15000, target_count 1–30
 - Polling: handle responses `processing`/`completed`/`failed`. On `completed` expect `cards` array length <=30; frontend assumes uniqueness ale nadal może deduplikować po `normalized_front` przy wyświetlaniu
 - Batch create: validate each card front (1..200) and back (1..500) before POST; check requestedCount <= available slots (200 - set.cards_count and 1000 - profile.cards_count) — if preflight not available, handle 422 from API and present details to user
 
 ## 11. Scenariusze błędów i obsługa
+
 - 400 Bad Request (walidacja) — pokaż error banner z detailami (z `ErrorResponseDto.details`)
 - 401 Unauthorized — redirect do `/login` z zachowaniem local draft
 - 429 Rate limit — specjalny modal z countdown; disable form until retry
@@ -156,6 +176,7 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
 - Batch create conflicts (409) lub 422 limit exceeded — prezentacja partial success: tabelka created vs conflicts; umożliwić userowi resolve (skip/conflict edit)
 
 ## 12. Potencjalne wyzwania i rekomendacje
+
 - Latency: długi czas generacji → UX: progress messages, optimistic UI, nie blokować całej strony
 - Duplikaty: backend deduplikuje, frontend powinien wykonać heurystyczne porównanie (lowercase + trim) i oznaczyć podejrzane
 - Undo: implementować bounded stack (max 5) w providerze, serializowany do session storage, nie do backendu
@@ -165,5 +186,3 @@ Widok `Generate` umożliwia wklejenie długiego tekstu (10–15k znaków), inicj
 ---
 
 <!-- Koniec pliku -->
-
-

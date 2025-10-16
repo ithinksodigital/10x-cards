@@ -3,9 +3,11 @@
 ## 1. Wprowadzenie i cele testowania
 
 ### 1.1 Cel główny
+
 Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z naciskiem na krytyczne ścieżki użytkownika: generowanie fiszek (także anonimowo), zapis do zestawów, sesje SRS, oraz bezpieczeństwo danych użytkownika przez RLS.
 
 ### 1.2 Cele szczegółowe
+
 - Zapewnienie poprawności walidacji danych i obsługi błędów w API.
 - Weryfikacja ścieżek z opcjonalną autentykacją (anonimowy → zalogowany) i bramkowania stron przez `src/middleware/index.ts`.
 - Sprawdzenie zgodności z wymaganiami niefunkcjonalnymi (wydajność, odporność na błędy, UX komunikatów).
@@ -13,7 +15,9 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 - Wykorzystanie i rozszerzenie istniejącej infrastruktury testowej (bash scripts, example tests).
 
 ### 1.3 Status infrastruktury testowej
+
 **Istniejące zasoby:**
+
 - ✅ `.ai/test-api-endpoints.sh` – bash script do manualnych testów API
 - ✅ `.ai/test-simple.js` – Node.js script dla podstawowych testów
 - ✅ `.ai/example-tests.md` – przykładowe testy jednostkowe (wymaga implementacji)
@@ -22,6 +26,7 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 - ✅ `.ai/testing-results.md` – wyniki testów manualnych (100% coverage dla auth/validation)
 
 **Do zaimplementowania:**
+
 - ❌ Vitest + konfiguracja
 - ❌ Playwright dla testów E2E UI
 - ❌ MSW dla mockowania OpenRouter API
@@ -33,17 +38,20 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 ### 2.1 W zakresie testów
 
 #### Frontend (Astro 5 + React 19 + TS)
+
 - **Strony**: `index.astro`, `generate.astro`, `dashboard.astro`, `auth/*`
-- **Komponenty React**: 
+- **Komponenty React**:
   - Auth: `src/components/auth/*` (AuthProvider, AuthGuard, LoginForm, RegisterForm, MigrationModal)
   - Generation: `src/components/generation/*` (GeneratePage, CardGrid, BulkActionsBar, ProgressModal)
   - UI: `src/components/ui/*` (shadcn/ui components)
 - **Hooki**: `useGenerationApi`, `useSetsApi`, `useRetry`, `useDarkMode`, `useProgressPolling`
 
 #### Middleware
+
 - `src/middleware/index.ts` – routing guards, publiczne vs chronione zasoby, wstrzykiwanie Supabase do `locals`
 
 #### API Endpoints (`src/pages/api/*`)
+
 - **Auth**: `auth/login.ts`, `auth/logout.ts`, `auth/register.ts`
 - **Generacje**: `generations.ts`, `generations/[id].ts`
 - **Zestawy**: `sets.ts`, `sets/[id].ts`
@@ -51,18 +59,21 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 - **SRS**: `srs/sessions.ts`, `srs/sessions/[id]/summary.ts`, `srs/due.ts`, `srs/reviews.ts`
 
 #### Warstwa usług
+
 - `generation.service.ts` – orchestracja generowania AI
 - `openrouter.service.ts` – komunikacja z OpenRouter API (już ma testy w `__tests__/`)
 - `set.service.ts`, `card.service.ts`, `srs.service.ts` – logika biznesowa
 - Walidacje: `src/lib/schemas.ts` (Zod schemas)
 
 #### Baza danych i RLS
+
 - Migracje: `supabase/migrations/*` (20+ plików)
 - Typy: `src/db/database.types.ts`
 - Klient: `src/db/supabase.client.ts` (SSR + browser instances)
 - Polityki RLS dla tabel: `profiles`, `sets`, `cards`, `generations`, `srs_*`
 
 ### 2.2 Poza zakresem MVP
+
 - Wdrożenia produkcyjne (deployment testing)
 - Pełne testy dostępności (ograniczamy się do podstawowych: fokus, kontrast, ARIA labels)
 - Pełna internacjonalizacja UI (MVP wspiera tylko język treści, nie UI)
@@ -74,9 +85,11 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 ## 3. Typy testów do przeprowadzenia
 
 ### 3.1 Testy jednostkowe (Unit Tests)
+
 **Framework**: Vitest + React Testing Library
 
 **Zakres**:
+
 - **Usługi** (`src/lib/services/*`):
   - ✅ `openrouter.service.ts` – **rozszerzyć istniejące testy** (`__tests__/openrouter.service.test.ts`):
     - Chunking tekstu (10-15k znaków)
@@ -88,7 +101,6 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
     - `getGenerationStatus()` – mapowanie statusów (Processing/Completed/Failed)
     - Obsługa błędów OpenRouter
   - ❌ `set.service.ts`, `card.service.ts`, `srs.service.ts` – logika biznesowa bez DB
-  
 - **Walidacje** (`src/lib/schemas.ts`):
   - Zod schemas: `StartGenerationSchema`, `CreateSetSchema`, `CreateCardSchema`, etc.
   - Edge cases: min/max length, required fields, format validation
@@ -100,6 +112,7 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
   - `useProgressPolling` – polling interval, timeout, state transitions
 
 **Strategia mockowania**:
+
 - Supabase client: `vi.mock('src/db/supabase.client.ts')`
 - OpenRouter API: mockować przez `vi.spyOn(OpenRouterService.prototype, 'generateFlashcards')`
 - Nie używać MSW w unit testach (za ciężkie)
@@ -107,35 +120,40 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 **Coverage target**: ≥ 90% dla services i schemas, ≥ 80% dla hooków
 
 ### 3.2 Testy integracyjne (Integration Tests)
+
 **Framework**: Vitest + MSW (dla OpenRouter) + Lokalna Supabase
 
 **Zakres**:
+
 - **API Endpoints** (`src/pages/api/*`) z pełnym stackiem (middleware + service + DB):
   - Auth: login/logout/register z prawdziwą sesją Supabase
   - Generations: POST z mockiem OpenRouter (MSW), GET status, retry
   - Sets/Cards: CRUD z walidacją RLS
   - SRS: sessions, reviews z algorytmem SM-2
-  
 - **Middleware** (`src/middleware/index.ts`):
   - Public paths (dostęp bez tokenu)
   - Protected paths (redirect do `/auth/login`)
   - Injection `locals.supabase` i `locals.user`
 
 **Środowisko**:
+
 - Lokalna Supabase (Supabase CLI `supabase start`)
 - Reset DB przed każdym testem suite (`supabase db reset`)
 - MSW handlers dla `https://openrouter.ai/api/*`
 
 **Wykorzystanie istniejących narzędzi**:
+
 - ✅ `.ai/test-simple.js` – przekonwertować na Vitest jako **smoke tests**
 - ✅ `.ai/test-api-endpoints.sh` – zostawić jako **manual testing tool**
 
 **Coverage target**: ≥ 90% głównych ścieżek (2xx/4xx), ≥ 70% edge cases
 
 ### 3.3 Testy E2E (End-to-End Tests)
+
 **Framework**: Playwright
 
 **Zakres** (tylko krytyczne ścieżki UI):
+
 1. **Generacja anonimowa**:
    - Wklejenie tekstu → walidacja → start generacji → progress modal → wyświetlenie kart
    - Acceptance/rejection/undo flow
@@ -156,6 +174,7 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
    - Weryfikacja metryki (new cards, review cards, accuracy)
 
 **Nie testować przez E2E**:
+
 - Podstawowych CRUD API (to integration tests)
 - Wszystkich edge cases walidacji (to unit tests)
 - Komponentów w izolacji (to nie jest component testing tool)
@@ -163,14 +182,15 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 **Coverage target**: 100% krytycznych user journeys (4 scenariusze powyżej)
 
 ### 3.4 Testy wydajnościowe (Performance Tests)
+
 **Framework**: Lighthouse CLI (w CI)
 
 **Zakres**:
+
 - **Lighthouse audits** dla kluczowych stron:
   - `/` (landing page)
   - `/generate` (główna ścieżka użytkownika)
   - `/dashboard` (authenticated)
-  
 - **Metryki**:
   - First Contentful Paint (FCP) < 1.8s
   - Largest Contentful Paint (LCP) < 2.5s
@@ -178,14 +198,17 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
   - Cumulative Layout Shift (CLS) < 0.1
 
 **POZA ZAKRESEM MVP**:
+
 - ❌ k6/Artillery dla load testing (odłożone do post-MVP przed public launch)
 - ❌ Testy wydajności generowania AI (zależne od OpenRouter, kosztowne)
 
 **Strategia**:
+
 - API endpoints: mierzyć tylko operacje **bez** wywołań OpenRouter
 - OpenRouter mock (MSW) dla stabilnych testów wydajnościowych
 
 ### 3.5 Testy bezpieczeństwa (Security Tests)
+
 **Zakres**:
 
 1. **RLS (Row Level Security)**:
@@ -207,13 +230,16 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
    - XSS protection (React auto-escaping, CSP headers)
 
 **POZA ZAKRESEM MVP**:
+
 - ❌ ZAP/Burp Suite (pentesting – post-MVP)
 - ❌ Dependency scanning (Snyk/Dependabot – konfiguracja w CI, ale nie w planie testów)
 
 ### 3.6 Testy dostępności (Accessibility Tests)
+
 **Framework**: @axe-core/playwright
 
 **Zakres podstawowy**:
+
 - Automatyczne skanowanie kluczowych stron:
   - `/auth/login`, `/generate`, `/dashboard`
 - Sprawdzenie:
@@ -223,18 +249,22 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
   - Alt text dla obrazów (jeśli są)
 
 **Strategia**:
+
 - Integracja z Playwright E2E (jeden dodatek na końcu każdego testu)
 - Automatyczne raporty w CI
 
 **Coverage target**: WCAG 2.1 Level A (minimum), dążyć do AA dla krytycznych ścieżek
 
 **POZA ZAKRESEM MVP**:
+
 - Pełne testy manualne (screen readers)
 - WCAG AAA
 - Pełna dokumentacja a11y
 
 ### 3.7 Testy limitów i walidacji biznesowej
+
 **Zakres**:
+
 - Limit 200 kart/zestaw:
   - Seed: zestaw z 199 kartami
   - Test: 200. karta OK (201), 201. karta FAIL (422)
@@ -245,10 +275,12 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 - Daily limits (20 new cards, 100 reviews)
 
 **Strategia seed data**:
+
 - Direct DB inserts przez Supabase SQL (szybsze niż API)
 - Script: `supabase/seed-limits.sql`
 
 ### 3.8 Definition of Done per typ testu
+
 - **Unit test**: ✅ Test passed + coverage ≥90% + 0 linter errors
 - **Integration test**: ✅ Test passed + DB cleanup + 0 side effects
 - **E2E test**: ✅ User journey completed + screenshots on failure + video recording
@@ -261,6 +293,7 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 ### 4.1 Autentykacja i middleware
 
 #### TC-AUTH-001: Dostęp anonimowy do generacji
+
 - **Warunek wstępny**: Brak tokenu JWT
 - **Kroki**:
   1. POST `/api/generations` z poprawnym payload (bez `Authorization` header)
@@ -269,6 +302,7 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 - **Typ**: Integration
 
 #### TC-AUTH-002: Redirect z chronionej strony
+
 - **Warunek wstępny**: Brak sesji w cookies
 - **Kroki**:
   1. GET `/dashboard`
@@ -277,17 +311,19 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 - **Typ**: Integration / E2E
 
 #### TC-AUTH-003: Logowanie poprawne
+
 - **Warunek wstępny**: Użytkownik test@example.com istnieje w DB
 - **Kroki**:
   1. POST `/api/auth/login` z `{email, password}`
   2. Sprawdź cookies w response
   3. GET `/dashboard`
-- **Oczekiwany wynik**: 
+- **Oczekiwany wynik**:
   - Cookies ustawione (`httpOnly`, `secure`, `sameSite=lax`)
   - Dashboard dostępny (200)
 - **Typ**: Integration + E2E
 
 #### TC-AUTH-004: Logowanie błędne (niepoprawne hasło)
+
 - **Warunek wstępny**: Użytkownik istnieje
 - **Kroki**:
   1. POST `/api/auth/login` z błędnym password
@@ -295,7 +331,8 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 - **Typ**: Integration
 
 #### TC-AUTH-005: Migracja danych po zalogowaniu
-- **Warunek wstępny**: 
+
+- **Warunek wstępny**:
   - localStorage zawiera dane generacji anonimowej (proposals, selectedIds)
   - Użytkownik się loguje
 - **Kroki**:
@@ -308,6 +345,7 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 - **Typ**: E2E
 
 #### TC-AUTH-006: Middleware injection
+
 - **Warunek wstępny**: Middleware aktywne
 - **Kroki**:
   1. Request do dowolnego endpoint z tokenem
@@ -318,6 +356,7 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 ### 4.2 Generowanie fiszek
 
 #### TC-GEN-001: Poprawne generowanie (PL)
+
 - **Warunek wstępny**: Mock OpenRouter zwraca 30 kart
 - **Payload**:
   ```json
@@ -331,39 +370,45 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
   1. POST `/api/generations`
   2. Sprawdź response
   3. Poll GET `/api/generations/:id` aż `status = "completed"`
-- **Oczekiwany wynik**: 
+- **Oczekiwany wynik**:
   - 202 z `id`, `status: "pending"`, `estimated_duration_ms`
   - Po polling: `status: "completed"`, 30 kart w `proposals`
 - **Typ**: Integration (z MSW mock)
 
 #### TC-GEN-002: Walidacja – tekst za krótki
+
 - **Payload**: `source_text` = 50 znaków (< 100 min)
 - **Oczekiwany wynik**: 400 z `details.source_text` = "must be at least 100 characters"
 - **Typ**: Unit (Zod schema) + Integration (API)
 
 #### TC-GEN-003: Walidacja – tekst za długi
+
 - **Payload**: `source_text` = 20000 znaków (> 15000 max)
 - **Oczekiwany wynik**: 400 z `details.source_text` = "must not exceed 15,000 characters"
 - **Typ**: Unit + Integration
 
 #### TC-GEN-004: Walidacja – niepoprawny język
+
 - **Payload**: `language` = "xyz" (nie ISO 639-1)
 - **Oczekiwany wynik**: 400 z `details.language` = "must be a valid ISO 639-1 code"
 - **Typ**: Unit + Integration
 
 #### TC-GEN-005: Brak klucza OpenRouter
+
 - **Warunek wstępny**: `OPENROUTER_API_KEY` nie ustawiony w env
 - **Oczekiwany wynik**: 500 Internal Server Error (kontrolowany błąd, logowany)
 - **Typ**: Integration (manual test, nie w CI)
 
 #### TC-GEN-006: Timeout OpenRouter
+
 - **Warunek wstępny**: MSW mock opóźnia odpowiedź o 65s (> timeout)
-- **Oczekiwany wynik**: 
+- **Oczekiwany wynik**:
   - Status generacji → `"failed"`
   - Error message użytkownika: "Generation timed out. Please try again."
 - **Typ**: Integration
 
 #### TC-GEN-007: Retry failed generation
+
 - **Warunek wstępny**: Generacja w statusie `"failed"`
 - **Kroki**:
   1. POST `/api/generations/:id/retry`
@@ -372,6 +417,7 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 - **Typ**: Integration + E2E
 
 #### TC-GEN-008: Frontend – Progress Modal
+
 - **Kroki** (E2E):
   1. Wklej tekst w `PasteTextarea`
   2. Click "Generate"
@@ -382,13 +428,14 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 - **Typ**: E2E
 
 #### TC-GEN-009: Frontend – Accept/Reject/Undo
+
 - **Warunek wstępny**: 30 kart wygenerowanych
 - **Kroki**:
   1. Accept 10 kart
   2. Reject 5 kart
   3. Click Undo
   4. Sprawdź stan
-- **Oczekiwany wynik**: 
+- **Oczekiwany wynik**:
   - Po accept: `selectedIds.length = 10`
   - Po reject: `rejectedIds.length = 5`
   - Po undo: ostatnia akcja cofnięta
@@ -397,19 +444,22 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 ### 4.3 Zestawy i karty
 
 #### TC-SET-001: Utworzenie zestawu
+
 - **Payload**: `{name: "Spanish 101", language: "es"}`
 - **Oczekiwany wynik**: 201 Created z `id`, `name`, `language`, `card_count: 0`
 - **Typ**: Integration
 
 #### TC-SET-002: Duplikat nazwy zestawu
+
 - **Warunek wstępny**: Zestaw "Spanish 101" istnieje dla usera
 - **Payload**: `{name: "Spanish 101", language: "es"}`
 - **Oczekiwany wynik**: 409 Conflict (lub 400 z message)
 - **Typ**: Integration
 
 #### TC-SET-003: Batch save kart
+
 - **Warunek wstępny**: Zestaw z 0 kartami, 10 zaakceptowanych proposals
-- **Payload**: 
+- **Payload**:
   ```json
   {
     "cards": [
@@ -418,26 +468,29 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
     ]
   }
   ```
-- **Oczekiwany wynik**: 
+- **Oczekiwany wynik**:
   - 201 Created z `created_count: 10`, `skipped_count: 0`
   - DB: 10 kart w zestawie
 - **Typ**: Integration
 
 #### TC-SET-004: Limit 200 kart/zestaw
+
 - **Warunek wstępny**: Zestaw z 199 kartami
 - **Payload**: Batch 2 karty
-- **Oczekiwany wynik**: 
+- **Oczekiwany wynik**:
   - 1. karta OK, 2. karta FAIL
   - 422 Unprocessable Entity: "Set limit of 200 cards exceeded"
 - **Typ**: Integration (wymaga seed script)
 
 #### TC-CARD-001: Aktualizacja karty
+
 - **Warunek wstępny**: Karta należy do usera
 - **Payload**: PATCH `/api/cards/:id` z `{front: "Updated"}`
 - **Oczekiwany wynik**: 200 OK, karta zaktualizowana, `version++`
 - **Typ**: Integration
 
 #### TC-CARD-002: Usunięcie karty innego użytkownika (RLS)
+
 - **Warunek wstępny**: Karta należy do User B
 - **Kroki**: User A próbuje DELETE `/api/cards/:id`
 - **Oczekiwany wynik**: 403 Forbidden lub 404 Not Found (RLS policy)
@@ -446,32 +499,36 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 ### 4.4 SRS (Spaced Repetition System)
 
 #### TC-SRS-001: Start sesji
+
 - **Warunek wstępny**: 10 kart due (5 new, 5 review)
 - **Kroki**: POST `/api/srs/sessions`
-- **Oczekiwany wynik**: 
+- **Oczekiwany wynik**:
   - 201 z `session_id`, `queue: [{card_id, type: "new"|"review"}]`
   - Queue posortowana (new cards first)
 - **Typ**: Integration
 
 #### TC-SRS-002: Submit review (rating 4)
+
 - **Warunek wstępny**: Sesja aktywna, karta new
 - **Payload**: `{card_id, rating: 4, response_time_ms: 5000}`
-- **Oczekiwany wynik**: 
+- **Oczekiwany wynik**:
   - 200 OK
   - Karta: `interval = 1` (SM-2 algorithm)
   - `due_date = now + 1 day`
 - **Typ**: Integration (sprawdź algorytm)
 
 #### TC-SRS-003: Daily limit new cards
+
 - **Warunek wstępny**: 20 new cards zrecenzowanych dzisiaj
 - **Kroki**: Review 21. new card
 - **Oczekiwany wynik**: 422 "Daily limit of 20 new cards exceeded"
 - **Typ**: Integration
 
 #### TC-SRS-004: Session summary
+
 - **Warunek wstępny**: Sesja zakończona (5 kart zrecenzowanych)
 - **Kroki**: GET `/api/srs/sessions/:id/summary`
-- **Oczekiwany wynik**: 
+- **Oczekiwany wynik**:
   ```json
   {
     "total_cards": 5,
@@ -486,6 +543,7 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 ### 4.5 RLS i bezpieczeństwo
 
 #### TC-SEC-001: Izolacja zestawów (RLS)
+
 - **Setup**: User A ma zestaw "Set A", User B ma "Set B"
 - **Kroki**:
   1. User A: GET `/api/sets`
@@ -494,21 +552,24 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 - **Typ**: Integration
 
 #### TC-SEC-002: Próba dostępu do karty innego usera
+
 - **Setup**: Karta należy do User B
 - **Kroki**: User A: GET `/api/cards/:id`
 - **Oczekiwany wynik**: 404 Not Found (RLS policy ukrywa)
 - **Typ**: Integration (security)
 
 #### TC-SEC-003: Cookies flags
+
 - **Kroki**:
   1. Zaloguj użytkownika
   2. Inspect cookies w browser/Playwright
-- **Oczekiwany wynik**: 
+- **Oczekiwany wynik**:
   - `sb-access-token`: `HttpOnly=true`, `Secure=true`, `SameSite=Lax`
   - `sb-refresh-token`: `HttpOnly=true`, `Secure=true`, `SameSite=Lax`
 - **Typ**: E2E
 
 #### TC-SEC-004: localStorage po zalogowaniu
+
 - **Kroki**:
   1. Zaloguj użytkownika
   2. Sprawdź localStorage
@@ -518,6 +579,7 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 ### 4.6 UX i dostępność
 
 #### TC-A11Y-001: Keyboard navigation
+
 - **Kroki**:
   1. Otwórz `/auth/login`
   2. Nawiguj tylko Tab/Enter
@@ -527,16 +589,19 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 - **Typ**: E2E (manual lub automated Playwright)
 
 #### TC-A11Y-002: Axe scan
+
 - **Kroki**: Uruchom @axe-core/playwright na `/generate`
 - **Oczekiwany wynik**: 0 critical violations, ≤5 warnings
 - **Typ**: E2E (automated)
 
 #### TC-UX-001: Komunikaty błędów
+
 - **Scenariusze**: 401, 429, 400, 5xx z różnych endpointów
 - **Oczekiwany wynik**: Toast z czytelnym message (PL/EN/ES zgodnie z językiem)
 - **Typ**: E2E
 
 #### TC-UX-002: Responsywność
+
 - **Kroki**: Playwright z viewports: mobile (375px), tablet (768px), desktop (1920px)
 - **Oczekiwany wynik**: Layout poprawny, brak overflow, przyciski klikalne
 - **Typ**: E2E (visual test opcjonalnie)
@@ -546,11 +611,13 @@ Zweryfikowanie jakości i niezawodności aplikacji Flash Cards AI (MVP) z nacisk
 ### 5.1 Lokalne (Development)
 
 **Wymagania**:
+
 - Node 20 LTS
 - pnpm (lub npm)
 - Supabase CLI (`brew install supabase/tap/supabase`)
 
 **Setup**:
+
 ```bash
 # 1. Instalacja zależności testowych
 pnpm add -D vitest @vitest/ui @testing-library/react @testing-library/jest-dom
@@ -573,6 +640,7 @@ pnpm test:e2e          # E2E (Playwright)
 ```
 
 **Zmienne środowiskowe** (`.env.test`):
+
 ```bash
 SUPABASE_URL=http://localhost:54321
 SUPABASE_KEY=eyJhbGciOiJIUzI1... # anon key z supabase start
@@ -580,6 +648,7 @@ OPENROUTER_API_KEY=mock           # nie używane w testach (MSW)
 ```
 
 **Lokalna Supabase**:
+
 - API: `http://localhost:54321`
 - Studio: `http://localhost:54323`
 - Reset DB: `supabase db reset` (przed każdym test suite)
@@ -587,6 +656,7 @@ OPENROUTER_API_KEY=mock           # nie używane w testach (MSW)
 ### 5.2 CI/CD (GitHub Actions)
 
 **Pipeline**:
+
 ```yaml
 # .github/workflows/test.yml
 name: Test Suite
@@ -596,7 +666,7 @@ jobs:
   lint:
     - run: pnpm lint
     - run: pnpm typecheck
-  
+
   unit-integration:
     services:
       postgres:
@@ -605,14 +675,14 @@ jobs:
       - run: supabase db reset --linked
       - run: pnpm test --coverage
       - upload: coverage report
-  
+
   e2e:
     steps:
       - run: supabase start
       - run: pnpm build
       - run: pnpm test:e2e --reporter=html
       - upload: test-results/, playwright-report/
-  
+
   performance:
     steps:
       - run: pnpm build
@@ -621,11 +691,13 @@ jobs:
 ```
 
 **Baza testowa**:
+
 - Reset przed każdym job (`supabase db reset`)
 - Seed data: 2 użytkowników (test-a@example.com, test-b@example.com)
 - Automatyczne cleanup po testach
 
 **Artifacts**:
+
 - Coverage reports (Codecov/Coveralls)
 - E2E screenshots/videos (tylko failures)
 - Lighthouse reports (performance trending)
@@ -634,46 +706,41 @@ jobs:
 
 ### 6.1 Framework i biblioteki
 
-| Kategoria | Narzędzie | Wersja | Zastosowanie |
-|-----------|-----------|--------|--------------|
-| **Unit/Integration** | Vitest | ^2.x | Framework testowy (replacement dla Jest) |
-| | @testing-library/react | ^16.x | Testowanie komponentów React |
-| | @testing-library/jest-dom | ^6.x | Custom matchers dla DOM |
-| **E2E** | Playwright | ^1.47.x | Testy przeglądarki (Chrome, Firefox, Safari) |
-| | @axe-core/playwright | ^4.x | Testy dostępności (a11y) |
-| **Mocking** | MSW | ^2.x | Mock Service Worker dla API calls |
-| | Vitest mocks | built-in | vi.mock(), vi.spyOn() dla unit tests |
-| **Performance** | Lighthouse CLI | ^12.x | Core Web Vitals, accessibility audit |
-| **Coverage** | Vitest coverage | built-in | @vitest/coverage-v8 |
-| **Linting** | ESLint | 9.23.0 | ✅ Już w projekcie |
-| | TypeScript | 5.x | ✅ Już w projekcie (strict mode) |
-| **Pre-commit** | Husky | 9.1.7 | ✅ Już w projekcie |
-| | lint-staged | 15.5.0 | ✅ Już w projekcie |
+| Kategoria            | Narzędzie                 | Wersja   | Zastosowanie                                 |
+| -------------------- | ------------------------- | -------- | -------------------------------------------- |
+| **Unit/Integration** | Vitest                    | ^2.x     | Framework testowy (replacement dla Jest)     |
+|                      | @testing-library/react    | ^16.x    | Testowanie komponentów React                 |
+|                      | @testing-library/jest-dom | ^6.x     | Custom matchers dla DOM                      |
+| **E2E**              | Playwright                | ^1.47.x  | Testy przeglądarki (Chrome, Firefox, Safari) |
+|                      | @axe-core/playwright      | ^4.x     | Testy dostępności (a11y)                     |
+| **Mocking**          | MSW                       | ^2.x     | Mock Service Worker dla API calls            |
+|                      | Vitest mocks              | built-in | vi.mock(), vi.spyOn() dla unit tests         |
+| **Performance**      | Lighthouse CLI            | ^12.x    | Core Web Vitals, accessibility audit         |
+| **Coverage**         | Vitest coverage           | built-in | @vitest/coverage-v8                          |
+| **Linting**          | ESLint                    | 9.23.0   | ✅ Już w projekcie                           |
+|                      | TypeScript                | 5.x      | ✅ Już w projekcie (strict mode)             |
+| **Pre-commit**       | Husky                     | 9.1.7    | ✅ Już w projekcie                           |
+|                      | lint-staged               | 15.5.0   | ✅ Już w projekcie                           |
 
 ### 6.2 Konfiguracja narzędzi
 
 #### Vitest (`vitest.config.ts`)
+
 ```typescript
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import path from 'path';
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+import path from "path";
 
 export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
+    environment: "jsdom",
+    setupFiles: ["./src/test/setup.ts"],
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
-      exclude: [
-        'node_modules/',
-        'src/test/',
-        '**/*.d.ts',
-        '**/*.config.*',
-        '**/mockData',
-      ],
+      provider: "v8",
+      reporter: ["text", "json", "html", "lcov"],
+      exclude: ["node_modules/", "src/test/", "**/*.d.ts", "**/*.config.*", "**/mockData"],
       thresholds: {
         statements: 80,
         branches: 75,
@@ -684,36 +751,37 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });
 ```
 
 #### Playwright (`playwright.config.ts`)
+
 ```typescript
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
-  testDir: './e2e',
+  testDir: "./e2e",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  reporter: "html",
   use: {
-    baseURL: 'http://localhost:4321',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    baseURL: "http://localhost:4321",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'mobile', use: { ...devices['iPhone 13'] } },
+    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    { name: "mobile", use: { ...devices["iPhone 13"] } },
   ],
   webServer: {
-    command: 'pnpm preview',
+    command: "pnpm preview",
     port: 4321,
     reuseExistingServer: !process.env.CI,
   },
@@ -721,24 +789,27 @@ export default defineConfig({
 ```
 
 #### MSW Handlers (`src/test/mocks/handlers.ts`)
+
 ```typescript
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from "msw";
 
 export const handlers = [
   // Mock OpenRouter API
-  http.post('https://openrouter.ai/api/v1/chat/completions', async ({ request }) => {
+  http.post("https://openrouter.ai/api/v1/chat/completions", async ({ request }) => {
     // Return mock flashcards
     return HttpResponse.json({
-      choices: [{
-        message: {
-          content: JSON.stringify({
-            flashcards: Array.from({ length: 30 }, (_, i) => ({
-              front: `Front ${i + 1}`,
-              back: `Back ${i + 1}`,
-            }))
-          })
-        }
-      }]
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              flashcards: Array.from({ length: 30 }, (_, i) => ({
+                front: `Front ${i + 1}`,
+                back: `Back ${i + 1}`,
+              })),
+            }),
+          },
+        },
+      ],
     });
   }),
 ];
@@ -747,12 +818,14 @@ export const handlers = [
 ### 6.3 Wykorzystanie istniejących narzędzi
 
 **✅ Zachowane (już w projekcie)**:
+
 - ESLint 9.23.0 z konfiguracją Astro + React
 - TypeScript 5.x strict mode
 - Prettier + plugin-astro
 - Husky + lint-staged (pre-commit hooks)
 
 **✅ Migracja/rozszerzenie**:
+
 - `.ai/test-simple.js` → `src/test/smoke/api-basic.test.ts` (Vitest)
 - `.ai/test-api-endpoints.sh` → zostawić jako manual testing tool
 - `src/lib/services/__tests__/openrouter.service.test.ts` → rozszerzyć coverage
@@ -760,6 +833,7 @@ export const handlers = [
 ### 6.4 Narzędzia POZA zakresem MVP
 
 ❌ **Nie używamy**:
+
 - k6/Artillery (load testing) – post-MVP
 - ZAP/Burp Suite (pentesting) – post-MVP
 - Percy/Chromatic (visual regression) – post-MVP
@@ -769,9 +843,11 @@ export const handlers = [
 ## 7. Harmonogram testów
 
 ### Tydzień 0: Setup infrastruktury (3-5 dni)
+
 **Cel**: Przygotowanie środowiska testowego i narzędzi
 
 **Zadania**:
+
 - [ ] Instalacja zależności (Vitest, Playwright, MSW, @axe-core)
 - [ ] Konfiguracja Vitest (`vitest.config.ts`, setup files)
 - [ ] Konfiguracja Playwright (`playwright.config.ts`, e2e folder structure)
@@ -786,6 +862,7 @@ export const handlers = [
 - [ ] Dokumentacja: `README-TESTING.md`
 
 **Deliverables**:
+
 - ✅ `pnpm test` działa (nawet jeśli 0 testów)
 - ✅ `pnpm test:e2e` działa
 - ✅ Lokalna Supabase z seed data
@@ -794,9 +871,11 @@ export const handlers = [
 ---
 
 ### Tydzień 1: Testy jednostkowe (5 dni)
+
 **Cel**: Coverage ≥90% dla services i schemas
 
 **Zadania**:
+
 - [ ] **Walidacje (Zod schemas)** – `src/lib/schemas.ts`:
   - TC-GEN-002, TC-GEN-003, TC-GEN-004 (generation validation)
   - Set/Card schemas validation
@@ -818,15 +897,18 @@ export const handlers = [
 **Coverage target**: ≥90% services, ≥90% schemas, ≥80% hooks
 
 **Deliverables**:
+
 - ✅ 40-50 unit testów passed
 - ✅ Coverage report: services 90%+, schemas 95%+
 
 ---
 
 ### Tydzień 2: Testy integracyjne API (5 dni)
+
 **Cel**: Coverage ≥90% endpointów API + middleware + RLS
 
 **Zadania**:
+
 - [ ] **Middleware** (`src/middleware/index.ts`):
   - TC-AUTH-001 (anonimowy dostęp do generations)
   - TC-AUTH-002 (redirect /dashboard)
@@ -855,6 +937,7 @@ export const handlers = [
 **Coverage target**: ≥90% głównych ścieżek (2xx/4xx), ≥70% edge cases
 
 **Deliverables**:
+
 - ✅ 60-80 integration testów passed
 - ✅ RLS verified (user A nie widzi danych user B)
 - ✅ Wszystkie kody błędów (400/401/403/422/5xx) przetestowane
@@ -862,9 +945,11 @@ export const handlers = [
 ---
 
 ### Tydzień 3: Testy E2E (5 dni)
+
 **Cel**: 100% krytycznych user journeys
 
 **Zadania**:
+
 - [ ] **Generacja anonimowa** (TC-GEN-008, TC-GEN-009):
   - Paste text → walidacja → generate → progress modal → cards display
   - Accept/Reject/Undo flow
@@ -890,6 +975,7 @@ export const handlers = [
 **Environment**: Playwright z lokalną Supabase + build production
 
 **Deliverables**:
+
 - ✅ 20-30 E2E testów passed (4 main journeys + a11y + UX)
 - ✅ Screenshots/videos dla failures
 - ✅ Test reports (HTML, CI artifacts)
@@ -897,11 +983,13 @@ export const handlers = [
 ---
 
 ### Tydzień 4: Testy bezpieczeństwa i wydajności (5 dni)
+
 **Cel**: Weryfikacja RLS + Lighthouse audits
 
 **Zadania**:
+
 - [ ] **Dogłębne testy RLS**:
-  - User A/B isolation dla wszystkich tabel (sets, cards, generations, srs_*)
+  - User A/B isolation dla wszystkich tabel (sets, cards, generations, srs\_\*)
   - Próby SQL injection (parametryzowane queries Supabase)
   - Direct DB queries (bypass API) – RLS musi blokować
 - [ ] **Cookies i sesje** (TC-SEC-003, TC-SEC-004):
@@ -918,6 +1006,7 @@ export const handlers = [
   - Naprawa krytycznych błędów znalezionych w tygodniach 1-3
 
 **Deliverables**:
+
 - ✅ RLS verified: 0 policy bypasses
 - ✅ Lighthouse reports: wszystkie strony ≥90 score
 - ✅ Security audit report
@@ -926,9 +1015,11 @@ export const handlers = [
 ---
 
 ### Tydzień 5: Stabilizacja i dokumentacja (3-5 dni)
+
 **Cel**: Finalizacja, dokumentacja, raport końcowy
 
 **Zadania**:
+
 - [ ] **Fixy P3/P4**:
   - Usterki UI/UX, edge cases
   - Warnings a11y (≤5 dozwolonych)
@@ -952,6 +1043,7 @@ export const handlers = [
   - Sign-off na kryteria akceptacji (sekcja 8)
 
 **Deliverables**:
+
 - ✅ Raport testów końcowy (PDF/Markdown)
 - ✅ Dokumentacja zaktualizowana
 - ✅ CI/CD pipeline production-ready
@@ -960,6 +1052,7 @@ export const handlers = [
 ---
 
 ### Podsumowanie timeline
+
 - **Tydzień 0**: Setup (3-5 dni)
 - **Tydzień 1**: Unit tests (5 dni)
 - **Tydzień 2**: Integration tests (5 dni)
@@ -978,6 +1071,7 @@ export const handlers = [
 ### 8.1 Funkcjonalne
 
 #### Must-have (blokujące release)
+
 - ✅ **100% krytycznych E2E user journeys** przechodzi:
   - Generacja anonimowa (paste → generate → cards display)
   - Logowanie + migracja danych
@@ -996,6 +1090,7 @@ export const handlers = [
   - Daily limits (20 new, 100 reviews) → 422
 
 #### Should-have (nie blokujące, ale ważne)
+
 - ✅ **Coverage**: unit tests ≥90% (services/schemas), integration ≥85% (endpoints)
 - ✅ **Error handling**: wszystkie kody błędów (400/401/403/422/429/5xx) mają testy
 - ✅ **Edge cases**: ≥70% coverage (granice walidacji, timeouts, duplikaty)
@@ -1003,6 +1098,7 @@ export const handlers = [
 ### 8.2 Niefunkcjonalne
 
 #### Performance
+
 - ✅ **Lighthouse scores** ≥90 dla kluczowych stron (`/`, `/generate`, `/dashboard`):
   - First Contentful Paint (FCP) < 1.8s
   - Largest Contentful Paint (LCP) < 2.5s
@@ -1014,10 +1110,12 @@ export const handlers = [
   - GET endpoints → ≤ 500ms (p95)
 
 **POZA ZAKRESEM MVP** (nie testujemy):
+
 - Pełna ścieżka generacji AI (P95 ≤30s) – zależna od OpenRouter, nie możemy kontrolować w testach
 - Load testing (1000+ concurrent users)
 
 #### Security
+
 - ✅ **RLS policies**: 100% tabel z user_id mają polityki, 0 bypasses
 - ✅ **Cookies flags**: `httpOnly=true`, `secure=true`, `sameSite=lax` (wszystkie auth cookies)
 - ✅ **localStorage**: brak tokenów/wrażliwych danych po zalogowaniu
@@ -1025,6 +1123,7 @@ export const handlers = [
 - ✅ **XSS**: React auto-escaping + CSP headers (0 critical findings)
 
 #### Accessibility
+
 - ✅ **WCAG 2.1 Level A** (minimum) dla krytycznych stron
 - ✅ **Axe-core audits**: 0 critical violations, ≤5 warnings (documented)
 - ✅ **Keyboard navigation**: pełna funkcjonalność bez myszy (login, generate, dashboard)
@@ -1033,6 +1132,7 @@ export const handlers = [
 ### 8.3 CI/CD
 
 #### Pipeline requirements
+
 - ✅ **Automatyczne testy** w PR (unit + integration + E2E)
 - ✅ **Blocking conditions**:
   - Linter errors → block merge
@@ -1046,6 +1146,7 @@ export const handlers = [
   - Coverage drop >5% (warning, review)
 
 #### Artifacts
+
 - ✅ **Coverage reports** uploaded (Codecov/Coveralls)
 - ✅ **E2E screenshots/videos** (tylko failures, max 7 days retention)
 - ✅ **Lighthouse reports** (trending, porównanie z poprzednimi runs)
@@ -1054,6 +1155,7 @@ export const handlers = [
 ### 8.4 Documentation
 
 #### Must-have
+
 - ✅ **README-TESTING.md**:
   - Setup instructions (lokalne + CI)
   - Komendy: `pnpm test`, `pnpm test:e2e`, `pnpm test:coverage`
@@ -1062,12 +1164,14 @@ export const handlers = [
 - ✅ **Test case IDs** w komentarzach (TC-AUTH-001, TC-GEN-001, etc.)
 
 #### Nice-to-have
+
 - ✅ **Test execution report** (final): metrics, findings, recommendations
 - ✅ **Known issues** dokumentowane (GitHub Issues z tag `known-issue`)
 
 ### 8.5 Sign-off checklist
 
 Przed akceptacją MVP jako "ready for beta":
+
 - [ ] Wszystkie kryteria "Must-have" spełnione (sekcje 8.1-8.4)
 - [ ] Regression test suite passed (pełny run: unit + integration + E2E)
 - [ ] CI/CD pipeline production-ready (wszystkie jobs green)
@@ -1084,7 +1188,9 @@ Przed akceptacją MVP jako "ready for beta":
 ### 9.1 Zespół testowy
 
 #### QA Engineer (Lead)
+
 **Odpowiedzialności**:
+
 - ✅ Opracowanie i utrzymanie planu testów
 - ✅ Setup infrastruktury (Vitest, Playwright, MSW, CI/CD)
 - ✅ Implementacja testów:
@@ -1101,13 +1207,16 @@ Przed akceptacją MVP jako "ready for beta":
 - ✅ Code review testów (peer review z developerami)
 
 **Deliverables**:
+
 - Test suites (unit/integration/E2E)
 - Seed scripts
 - CI/CD configuration
 - Test reports i dokumentacja
 
 #### Backend Developer
+
 **Odpowiedzialności**:
+
 - ✅ Wsparcie kontraktów API (dokumentacja endpointów, DTOs)
 - ✅ Fixy bugs znalezionych w testach:
   - RLS policies
@@ -1119,12 +1228,15 @@ Przed akceptacją MVP jako "ready for beta":
 - ✅ Observability: logi błędów, monitoring (opcjonalnie)
 
 **Deliverables**:
+
 - Fixed bugs (P1/P2)
 - Unit tests dla nowych features
 - Migracje DB (jeśli potrzebne dla testów)
 
 #### Frontend Developer
+
 **Odpowiedzialności**:
+
 - ✅ Stabilność UI/UX:
   - Error handling (toasts, modals)
   - Loading states (ProgressModal)
@@ -1138,12 +1250,15 @@ Przed akceptacją MVP jako "ready for beta":
   - Focus management
 
 **Deliverables**:
+
 - Fixed bugs (UX/a11y)
 - Unit tests dla hooków
 - Improved error messages
 
 #### Tech Lead
+
 **Odpowiedzialności**:
+
 - ✅ Priorytetyzacja testów (risk-based)
 - ✅ Akceptacja kryteriów (sekcja 8)
 - ✅ Decyzje architektoniczne:
@@ -1155,7 +1270,9 @@ Przed akceptacją MVP jako "ready for beta":
 - ✅ Sign-off końcowy (sekcja 8.5)
 
 #### Product Owner (PO)
+
 **Odpowiedzialności**:
+
 - ✅ Akceptacja user journeys E2E (zgodność z PRD)
 - ✅ Priorytetyzacja bugów (P1-P4)
 - ✅ Akceptacja trade-offs (MVP scope)
@@ -1163,20 +1280,21 @@ Przed akceptacją MVP jako "ready for beta":
 
 ### 9.2 Macierz RACI
 
-| Zadanie | QA | Backend | Frontend | Tech Lead | PO |
-|---------|-----|---------|----------|-----------|-----|
-| Plan testów | **R** | C | C | **A** | I |
-| Setup infrastruktury | **R/A** | C | C | I | - |
-| Unit tests (services) | C | **R/A** | - | I | - |
-| Unit tests (hooks) | C | - | **R/A** | I | - |
-| Integration tests | **R/A** | C | C | I | - |
-| E2E tests | **R/A** | I | C | I | C |
-| Security tests (RLS) | **R** | **A** | - | C | I |
-| A11y tests | **R** | - | **A** | I | C |
-| Bug fixing | I | **R/A** | **R/A** | C | I |
-| Sign-off | C | I | I | **A** | **A** |
+| Zadanie               | QA      | Backend | Frontend | Tech Lead | PO    |
+| --------------------- | ------- | ------- | -------- | --------- | ----- |
+| Plan testów           | **R**   | C       | C        | **A**     | I     |
+| Setup infrastruktury  | **R/A** | C       | C        | I         | -     |
+| Unit tests (services) | C       | **R/A** | -        | I         | -     |
+| Unit tests (hooks)    | C       | -       | **R/A**  | I         | -     |
+| Integration tests     | **R/A** | C       | C        | I         | -     |
+| E2E tests             | **R/A** | I       | C        | I         | C     |
+| Security tests (RLS)  | **R**   | **A**   | -        | C         | I     |
+| A11y tests            | **R**   | -       | **A**    | I         | C     |
+| Bug fixing            | I       | **R/A** | **R/A**  | C         | I     |
+| Sign-off              | C       | I       | I        | **A**     | **A** |
 
 **Legenda**:
+
 - **R** (Responsible): wykonuje zadanie
 - **A** (Accountable): odpowiedzialny za wynik
 - **C** (Consulted): konsultowany
@@ -1185,6 +1303,7 @@ Przed akceptacją MVP jako "ready for beta":
 ## 10. Procedury raportowania błędów
 
 ### 10.1 Kanał raportowania
+
 **GitHub Issues** z szablonem `.github/ISSUE_TEMPLATE/bug_report.md`
 
 ### 10.2 Szablon bug report
@@ -1193,6 +1312,7 @@ Przed akceptacją MVP jako "ready for beta":
 ## 🐛 Bug Report
 
 ### Typ błędu
+
 - [ ] Funkcjonalny (logika)
 - [ ] UI/UX
 - [ ] Security (RLS, auth)
@@ -1200,37 +1320,46 @@ Przed akceptacją MVP jako "ready for beta":
 - [ ] Accessibility
 
 ### Priorytet
+
 - [ ] P1 - Critical (blocker release)
 - [ ] P2 - High (major impact)
 - [ ] P3 - Medium (minor impact)
 - [ ] P4 - Low (cosmetic)
 
 ### Środowisko
+
 - Branch/Commit: `main@abc1234`
 - Environment: `local` / `CI` / `staging`
 - Browser (E2E): Chrome 120 / Firefox 121 / Safari 17
 - Test type: `unit` / `integration` / `e2e`
 
 ### Związane TC (Test Case)
+
 TC-AUTH-001, TC-GEN-003 (jeśli dotyczy)
 
 ### Opis
+
 Krótki opis błędu (1-2 zdania).
 
 ### Kroki reprodukcji
+
 1. Zaloguj się jako user A
 2. POST /api/sets z payload {...}
 3. Sprawdź response
 
 ### Oczekiwany wynik
+
 201 Created z `{id, name, ...}`
 
 ### Rzeczywisty wynik
+
 400 Bad Request z `{error: "ValidationError", ...}`
 
 ### Logi/Screenshots
 ```
+
 [Log output lub screenshot]
+
 ```
 
 ### Dodatkowy kontekst
@@ -1242,18 +1371,22 @@ Krótki opis błędu (1-2 zdania).
 ### 10.3 Priorytety bugów
 
 #### P1 - Critical (SLA: fix w 24h)
+
 **Definicja**:
+
 - Blokuje krytyczną ścieżkę użytkownika (nie można wygenerować kart, zalogować się)
 - Luka bezpieczeństwa (RLS bypass, XSS, SQL injection)
 - Data loss (utrata danych użytkownika)
 - App crash (nie odpowiada, błąd 500 na każdym requestcie)
 
 **Przykłady**:
+
 - User A widzi zestawy User B (RLS bypass)
 - POST /api/generations zwraca 500 dla każdego requestu
 - Logowanie niemożliwe (auth broken)
 
 **Workflow**:
+
 1. Zgłoszenie → natychmiastowe powiadomienie Tech Lead
 2. Assignee: developer (backend/frontend)
 3. Fix w 24h (lub workaround + task fix)
@@ -1262,18 +1395,22 @@ Krótki opis błędu (1-2 zdania).
 6. Deploy hotfix (jeśli production)
 
 #### P2 - High (SLA: fix w 3 dni)
+
 **Definicja**:
+
 - Błąd funkcjonalny wysokiego wpływu (nie działa feature)
 - Złe limity (200 kart/zestaw nie działa)
 - Error handling niepoprawny (błędny komunikat, brak recovery)
 - A11y critical (keyboard navigation broken)
 
 **Przykłady**:
+
 - Batch save kart zawsze zwraca 422 (nawet dla 10 kart)
 - Progress Modal nie zamyka się po completion
 - Undo nie działa
 
 **Workflow**:
+
 1. Zgłoszenie → triage (QA + Tech Lead) w 24h
 2. Assignee: developer
 3. Fix w 3 dni robocze
@@ -1282,18 +1419,22 @@ Krótki opis błędu (1-2 zdania).
 6. Merge do main
 
 #### P3 - Medium (SLA: fix w tygodniu lub next sprint)
+
 **Definicja**:
+
 - Usterki UI/UX (minor)
 - Edge cases (rzadkie scenariusze)
 - Performance minor (page load 3-4s zamiast <2s)
 - A11y warnings (nie critical)
 
 **Przykłady**:
+
 - Toast error message niejasny (400 vs 422)
 - Responsywność: button overflow na mobile 360px
 - Kontrast nieznacznie poniżej WCAG AA (3.8:1 zamiast 4.5:1)
 
 **Workflow**:
+
 1. Zgłoszenie → triage w 3 dni
 2. Backlog lub current sprint (decyzja PO)
 3. Fix w ramach sprintu lub next
@@ -1301,16 +1442,20 @@ Krótki opis błędu (1-2 zdania).
 5. QA verification
 
 #### P4 - Low (SLA: backlog, fix gdy czas pozwala)
+
 **Definicja**:
+
 - Defekty kosmetyczne (typo, alignment)
 - Nice-to-have improvements
 - Dokumentacja (typos, outdated info)
 
 **Przykłady**:
+
 - Typo w error message: "Genration" → "Generation"
 - Padding button 8px zamiast 10px (design mismatch minor)
 
 **Workflow**:
+
 1. Zgłoszenie → backlog
 2. Fix w ramach innych tasks (jeśli convenient)
 3. PR (bez dedykowanego testu)
@@ -1350,6 +1495,7 @@ Krótki opis błędu (1-2 zdania).
 ### 10.5 Metryki i KPIs
 
 **Tracked metrics** (weekly report):
+
 - Bugs opened/closed (per priority)
 - Mean time to fix (MTTF): P1 < 1d, P2 < 3d
 - Regression rate: % bugów które wracają
@@ -1357,6 +1503,7 @@ Krótki opis błędu (1-2 zdania).
 - Coverage trend: unit/integration/E2E
 
 **Alerts** (CI/CD):
+
 - P1 bug opened → Slack notification
 - Test pass rate < 95% → warning
 - Coverage drop > 5% → block PR
@@ -1366,21 +1513,23 @@ Krótki opis błędu (1-2 zdania).
 ### 11.1 Seed scripts (do implementacji)
 
 #### `supabase/seed-test-users.sql`
+
 ```sql
 -- 2 użytkowników testowych (A i B)
 -- Hasło: TestPass123!
 INSERT INTO auth.users (id, email, encrypted_password, ...)
-VALUES 
+VALUES
   ('00000000-0000-0000-0000-000000000001', 'test-a@example.com', ...),
   ('00000000-0000-0000-0000-000000000002', 'test-b@example.com', ...);
 
 INSERT INTO profiles (id, email, display_name)
-VALUES 
+VALUES
   ('00000000-0000-0000-0000-000000000001', 'test-a@example.com', 'Test User A'),
   ('00000000-0000-0000-0000-000000000002', 'test-b@example.com', 'Test User B');
 ```
 
 #### `supabase/seed-limits.sql`
+
 ```sql
 -- Zestaw z 199 kartami (test limit 200)
 INSERT INTO sets (id, user_id, name, language)
@@ -1395,6 +1544,7 @@ FROM generate_series(1, 199) i;
 ```
 
 #### `supabase/seed-fixtures.sql`
+
 ```sql
 -- Podstawowe dane testowe: 2 zestawy, 20 kart per user
 -- (kompletny przykład do basic tests)
@@ -1403,6 +1553,7 @@ FROM generate_series(1, 199) i;
 ### 11.2 Dane do generacji (fixtures)
 
 Przygotować pliki tekstowe:
+
 - `fixtures/generation-short.txt` (500 znaków, PL)
 - `fixtures/generation-medium.txt` (5000 znaków, EN)
 - `fixtures/generation-long.txt` (14000 znaków, ES)
@@ -1412,6 +1563,7 @@ Przygotować pliki tekstowe:
 ### 11.3 Checklist Tydzień 0 (rozszerzony)
 
 **Setup lokalny**:
+
 - [ ] Node 20 LTS zainstalowany
 - [ ] pnpm/npm działa
 - [ ] Supabase CLI zainstalowany (`supabase --version`)
@@ -1420,12 +1572,14 @@ Przygotować pliki tekstowe:
 - [ ] Seed scripts działają (test users, limits, fixtures)
 
 **Instalacja dependencies**:
+
 - [ ] `pnpm add -D vitest @vitest/ui @testing-library/react @testing-library/jest-dom`
 - [ ] `pnpm add -D @playwright/test @axe-core/playwright`
 - [ ] `pnpm add -D msw`
 - [ ] `pnpm add -D @vitest/coverage-v8`
 
 **Konfiguracja**:
+
 - [ ] `vitest.config.ts` utworzony i działa
 - [ ] `playwright.config.ts` utworzony i działa
 - [ ] `src/test/setup.ts` (Vitest setup file)
@@ -1433,11 +1587,13 @@ Przygotować pliki tekstowe:
 - [ ] `.env.test` z credentials (local Supabase)
 
 **Weryfikacja**:
+
 - [ ] `pnpm test` uruchamia się (0 testów OK)
 - [ ] `pnpm test:e2e` uruchamia się
 - [ ] `pnpm test:coverage` generuje raport
 
 **CI/CD**:
+
 - [ ] `.github/workflows/test.yml` utworzony
 - [ ] Pipeline działa na PR (lint + typecheck minimum)
 
@@ -1449,5 +1605,3 @@ Przygotować pliki tekstowe:
 **Wersja**: 1.0 (poprawiona)  
 **Data**: 2025-01-14  
 **Status**: Draft → Review → Approved
-
-

@@ -29,6 +29,7 @@ tests/
 ## Narzędzia testowe
 
 ### Unit/Integration Tests
+
 - **Vitest 2.x** - Framework testowy
 - **React Testing Library 16.x** - Testowanie komponentów React
 - **MSW 2.x** - Mock Service Worker dla API
@@ -36,6 +37,7 @@ tests/
 - **jsdom** - Środowisko DOM dla testów
 
 ### E2E Tests
+
 - **Playwright 1.47.x** - Testy end-to-end
 - **@axe-core/playwright 4.x** - Testy dostępności
 - **Chrome, Firefox, Safari** - Przeglądarki testowe
@@ -43,6 +45,7 @@ tests/
 ## Uruchamianie testów
 
 ### Testy jednostkowe
+
 ```bash
 # Wszystkie testy jednostkowe
 npm run test
@@ -58,6 +61,7 @@ npm run test:coverage
 ```
 
 ### Testy e2e
+
 ```bash
 # Wszystkie testy e2e
 npm run test:e2e
@@ -73,6 +77,7 @@ npx playwright test --project=chromium
 ```
 
 ### Wszystkie testy
+
 ```bash
 npm run test:all
 ```
@@ -80,12 +85,14 @@ npm run test:all
 ## Konfiguracja
 
 ### Vitest (vitest.config.ts)
+
 - Środowisko: jsdom
 - Coverage: ≥90% dla wszystkich metryk
 - Setup: tests/setup.ts
-- Wzorce: tests/unit/**/*.test.{js,ts,tsx}
+- Wzorce: tests/unit/\*_/_.test.{js,ts,tsx}
 
 ### Playwright (playwright.config.ts)
+
 - Przeglądarki: Chrome, Firefox, Safari
 - Viewport: Desktop + Mobile
 - Base URL: http://localhost:3000
@@ -94,6 +101,7 @@ npm run test:all
 ## Pisanie testów
 
 ### Testy jednostkowe
+
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
@@ -108,44 +116,48 @@ describe('Button component', () => {
 ```
 
 ### Testy e2e
-```typescript
-import { test, expect } from '@playwright/test'
 
-test('should navigate to home page after login', async ({ page }) => {
-  await page.goto('/')
-  await page.click('text=Sign In')
-  await expect(page).toHaveURL('/auth/signin')
-})
+```typescript
+import { test, expect } from "@playwright/test";
+
+test("should navigate to home page after login", async ({ page }) => {
+  await page.goto("/");
+  await page.click("text=Sign In");
+  await expect(page).toHaveURL("/auth/signin");
+});
 ```
 
 ## Mockowanie
 
 ### MSW Handlers
+
 ```typescript
 // tests/mocks/handlers.ts
 export const handlers = [
-  http.get('/api/sets', () => {
-    return HttpResponse.json(mockSets)
-  })
-]
+  http.get("/api/sets", () => {
+    return HttpResponse.json(mockSets);
+  }),
+];
 ```
 
 ### Vitest Mocks
+
 ```typescript
-import { vi } from 'vitest'
+import { vi } from "vitest";
 
 // Mock funkcji
-const mockFn = vi.fn()
+const mockFn = vi.fn();
 
 // Mock modułu
-vi.mock('@/lib/api', () => ({
-  fetchData: vi.fn()
-}))
+vi.mock("@/lib/api", () => ({
+  fetchData: vi.fn(),
+}));
 ```
 
 ## Coverage
 
 Minimalne wymagania coverage:
+
 - **Branches**: 90%
 - **Functions**: 90%
 - **Lines**: 90%
@@ -156,18 +168,19 @@ Minimalne wymagania coverage:
 Wszystkie testy e2e automatycznie sprawdzają dostępność używając axe-core:
 
 ```typescript
-import { injectAxe, checkA11y } from '@axe-core/playwright'
+import { injectAxe, checkA11y } from "@axe-core/playwright";
 
-test('should be accessible', async ({ page }) => {
-  await page.goto('/')
-  await injectAxe(page)
-  await checkA11y(page)
-})
+test("should be accessible", async ({ page }) => {
+  await page.goto("/");
+  await injectAxe(page);
+  await checkA11y(page);
+});
 ```
 
 ## Best Practices
 
 ### Testy jednostkowe
+
 1. **Arrange-Act-Assert** - Struktura testów
 2. **Early returns** - Obsługa błędów na początku
 3. **Guard clauses** - Sprawdzanie warunków wstępnych
@@ -175,6 +188,7 @@ test('should be accessible', async ({ page }) => {
 5. **Inline snapshots** - Dla złożonych assertions
 
 ### Testy e2e
+
 1. **Page Object Model** - Dla złożonych stron
 2. **Locators** - Zamiast selektorów CSS
 3. **API testing** - Testuj backend osobno
@@ -182,6 +196,7 @@ test('should be accessible', async ({ page }) => {
 5. **Parallel execution** - Szybsze uruchamianie
 
 ### Ogólne
+
 1. **Descriptive names** - Czytelne nazwy testów
 2. **Single responsibility** - Jeden test = jedna funkcjonalność
 3. **Independent tests** - Testy nie zależą od siebie
@@ -191,6 +206,7 @@ test('should be accessible', async ({ page }) => {
 ## Debugging
 
 ### Vitest
+
 ```bash
 # Debug mode
 npm run test -- --inspect-brk
@@ -200,6 +216,7 @@ npm run test -- --reporter=verbose
 ```
 
 ### Playwright
+
 ```bash
 # Debug mode
 npx playwright test --debug
@@ -211,6 +228,7 @@ npx playwright show-trace test-results/trace.zip
 ## CI/CD
 
 Testy są automatycznie uruchamiane w GitHub Actions:
+
 - Lint + Typecheck
 - Unit tests + Coverage
 - E2E tests (Chrome only w CI)
@@ -219,11 +237,13 @@ Testy są automatycznie uruchamiane w GitHub Actions:
 ## Troubleshooting
 
 ### Częste problemy
+
 1. **Timeout errors** - Zwiększ timeout w konfiguracji
 2. **Flaky tests** - Dodaj proper waits
 3. **Coverage issues** - Sprawdź exclude patterns
 4. **MSW not working** - Sprawdź setup w tests/setup.ts
 
 ### Logi
+
 - Vitest: `npm run test -- --reporter=verbose`
 - Playwright: `npx playwright test --reporter=list`

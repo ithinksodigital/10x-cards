@@ -2,12 +2,12 @@
 
 ## 1. Resources
 
-| Resource | Database Table | Description |
-|----------|---------------|-------------|
-| Profile | `profiles` | User profile and metadata |
-| Set | `sets` | Collection of flashcards owned by user |
-| Card | `cards` | Individual flashcard with SRS data |
-| Generation | `generations` | AI generation session metadata |
+| Resource    | Database Table  | Description                            |
+| ----------- | --------------- | -------------------------------------- |
+| Profile     | `profiles`      | User profile and metadata              |
+| Set         | `sets`          | Collection of flashcards owned by user |
+| Card        | `cards`         | Individual flashcard with SRS data     |
+| Generation  | `generations`   | AI generation session metadata         |
 | SRS Session | N/A (ephemeral) | Active spaced repetition study session |
 
 ## 2. Endpoints
@@ -15,6 +15,7 @@
 ### 2.2 Sets
 
 #### List Sets
+
 - **Method:** `GET`
 - **Path:** `/api/sets`
 - **Description:** Returns paginated list of user's sets
@@ -53,6 +54,7 @@
   - `400 Bad Request` - Invalid query parameters
 
 #### Get Set
+
 - **Method:** `GET`
 - **Path:** `/api/sets/:id`
 - **Description:** Returns single set details
@@ -75,6 +77,7 @@
   - `404 Not Found` - Set not found or does not belong to user
 
 #### Create Set
+
 - **Method:** `POST`
 - **Path:** `/api/sets`
 - **Description:** Creates new flashcard set
@@ -114,6 +117,7 @@
   - `409 Conflict` - Set with this name already exists for user
 
 #### Update Set
+
 - **Method:** `PATCH`
 - **Path:** `/api/sets/:id`
 - **Description:** Updates set metadata (name only; language is immutable)
@@ -144,6 +148,7 @@
   - `409 Conflict` - Set with new name already exists
 
 #### Delete Set
+
 - **Method:** `DELETE`
 - **Path:** `/api/sets/:id`
 - **Description:** Deletes set and all its cards (cascade)
@@ -164,6 +169,7 @@
 ### 2.3 Cards
 
 #### List Cards in Set
+
 - **Method:** `GET`
 - **Path:** `/api/sets/:setId/cards`
 - **Description:** Returns paginated list of cards in a set
@@ -214,6 +220,7 @@
   - `400 Bad Request` - Invalid query parameters
 
 #### Get Card
+
 - **Method:** `GET`
 - **Path:** `/api/cards/:id`
 - **Description:** Returns single card with full details
@@ -248,6 +255,7 @@
   - `404 Not Found` - Card not found
 
 #### Create Card (Manual)
+
 - **Method:** `POST`
 - **Path:** `/api/sets/:setId/cards`
 - **Description:** Manually creates a new card in set
@@ -308,6 +316,7 @@
     ```
 
 #### Batch Create Cards (From AI Generation)
+
 - **Method:** `POST`
 - **Path:** `/api/sets/:setId/cards/batch`
 - **Description:** Creates multiple cards at once from AI generation acceptance
@@ -333,7 +342,9 @@
   ```json
   {
     "created": 30,
-    "cards": [ /* array of created card objects */ ],
+    "cards": [
+      /* array of created card objects */
+    ],
     "generation_updated": true
   }
   ```
@@ -356,6 +367,7 @@
     ```
 
 #### Update Card
+
 - **Method:** `PATCH`
 - **Path:** `/api/cards/:id`
 - **Description:** Updates card content (creates version history)
@@ -390,6 +402,7 @@
   - `409 Conflict` - Duplicate card detected
 
 #### Delete Card
+
 - **Method:** `DELETE`
 - **Path:** `/api/cards/:id`
 - **Description:** Deletes card and updates counters
@@ -410,6 +423,7 @@
 ### 2.4 AI Generation
 
 #### Start Generation
+
 - **Method:** `POST`
 - **Path:** `/api/generations`
 - **Description:** Initiates AI generation of flashcards from source text (async operation)
@@ -458,6 +472,7 @@
     ```
 
 #### Get Generation Status
+
 - **Method:** `GET`
 - **Path:** `/api/generations/:id`
 - **Description:** Polls generation status and retrieves results when complete
@@ -516,6 +531,7 @@
   - `404 Not Found` - Generation not found
 
 #### Retry Failed Generation
+
 - **Method:** `POST`
 - **Path:** `/api/generations/:id/retry`
 - **Description:** Retries a failed generation
@@ -535,6 +551,7 @@
   - `409 Conflict` - Generation already completed or processing
 
 #### List Generations
+
 - **Method:** `GET`
 - **Path:** `/api/generations`
 - **Description:** Returns user's generation history
@@ -574,6 +591,7 @@
 ### 2.5 SRS Sessions
 
 #### Get Due Cards
+
 - **Method:** `GET`
 - **Path:** `/api/srs/due`
 - **Description:** Returns cards due for review today
@@ -608,6 +626,7 @@
   - `401 Unauthorized` - Invalid or missing token
 
 #### Start SRS Session
+
 - **Method:** `POST`
 - **Path:** `/api/srs/sessions`
 - **Description:** Creates new SRS study session
@@ -654,6 +673,7 @@
     ```
 
 #### Submit Card Review
+
 - **Method:** `POST`
 - **Path:** `/api/srs/reviews`
 - **Description:** Records user rating for a card (1-5 scale, SM-2 algorithm)
@@ -692,6 +712,7 @@
     ```
 
 #### Get Session Summary
+
 - **Method:** `GET`
 - **Path:** `/api/srs/sessions/:id/summary`
 - **Description:** Returns statistics for completed or ongoing session
@@ -725,11 +746,13 @@
 ## 3. Authentication and Authorization
 
 ### Mechanism
+
 The API uses **Supabase Auth** with JWT bearer tokens for authentication.
 
 ### Implementation Details
 
 #### Client Authentication Flow
+
 1. User clicks "Login with Google" in frontend
 2. Frontend calls Supabase Auth SDK: `supabase.auth.signInWithOAuth({ provider: 'google' })`
 3. OAuth flow redirects to Google, user authorizes
@@ -738,11 +761,13 @@ The API uses **Supabase Auth** with JWT bearer tokens for authentication.
 6. All API requests include token in `Authorization: Bearer <token>` header
 
 #### Server-Side Validation
+
 1. Every API endpoint validates JWT token via Supabase Auth
 2. Token contains `user_id` (mapped to `auth.uid()`)
 3. Row Level Security (RLS) policies enforce user isolation at database level
 
 #### RLS Policies
+
 All user tables (`profiles`, `sets`, `cards`, `generations`, `generation_error_logs`) have RLS enabled with policies:
 
 ```sql
@@ -755,12 +780,14 @@ CREATE POLICY sets_select_update ON sets
 This ensures users can only access their own data, even if API logic has bugs.
 
 #### Session Management
+
 - Sessions persist across browser refreshes (stored in localStorage by Supabase)
 - Token refresh handled automatically by Supabase client
 - Logout invalidates session server-side
 - Expired tokens return `401 Unauthorized` and trigger re-authentication
 
 #### Edge Functions Security
+
 - AI generation calls executed in Supabase Edge Functions
 - API keys (OpenRouter) stored as Edge Function secrets
 - Never exposed to client
@@ -773,6 +800,7 @@ This ensures users can only access their own data, even if API logic has bugs.
 ### 4.1 Card Validation
 
 #### Field Constraints
+
 - `front`: Required, 1-200 characters
 - `back`: Required, 1-500 characters
 - `language`: Must be one of: `pl`, `en`, `es`
@@ -780,6 +808,7 @@ This ensures users can only access their own data, even if API logic has bugs.
 - `source_text_excerpt`: Optional, max 500 characters
 
 #### Business Rules
+
 1. **Duplicate Detection**
    - Before creating/updating card, check for existing card with identical `front_normalized` in same set
    - `front_normalized` is auto-generated as `lower(front)` via database trigger
@@ -799,10 +828,12 @@ This ensures users can only access their own data, even if API logic has bugs.
 ### 4.2 Set Validation
 
 #### Field Constraints
+
 - `name`: Required, case-insensitive unique per user (via `citext` type)
 - `language`: Required, must be `pl`, `en`, or `es`
 
 #### Business Rules
+
 1. **Name Uniqueness**
    - Set name must be unique per user (case-insensitive)
    - Return `409 Conflict` if duplicate name detected
@@ -814,11 +845,13 @@ This ensures users can only access their own data, even if API logic has bugs.
 ### 4.3 Generation Validation
 
 #### Field Constraints
+
 - `source_text`: Required, 100-15,000 characters
 - `language`: Optional (auto-detected if not provided), must be `pl`, `en`, or `es`
 - `target_count`: Optional, default 30, range 1-30
 
 #### Business Rules
+
 1. **Text Chunking**
    - If source text > 10,000 characters, split into chunks of ~5,000 characters
    - Process each chunk separately
@@ -847,12 +880,14 @@ This ensures users can only access their own data, even if API logic has bugs.
 ### 4.4 SRS Session Logic
 
 #### Daily Limits
+
 - **New Cards:** 20 per day (global default)
 - **Reviews:** 100 per day (global default)
 - Limits reset at midnight UTC
 - Track daily progress in ephemeral session state
 
 #### SM-2 Algorithm Implementation
+
 Card scheduling follows SuperMemo 2 (SM-2) algorithm:
 
 1. **Initial State** (`status: 'new'`)
@@ -885,6 +920,7 @@ Card scheduling follows SuperMemo 2 (SM-2) algorithm:
    - `relearning` → `review` (after 2 successful reviews)
 
 #### Session Card Selection
+
 1. Fetch cards where `due_at <= NOW()` OR `status = 'new'`
 2. Order by: `due_at ASC NULLS LAST, created_at ASC`
 3. Limit by daily remaining allowance (new/review)
@@ -893,13 +929,16 @@ Card scheduling follows SuperMemo 2 (SM-2) algorithm:
 ### 4.5 Analytics and Tracking
 
 #### Generation Analytics
+
 Track in `generations` table:
+
 - `accepted_count`: Cards saved from this generation
 - `accepted_unedited_count`: Cards saved without edits
 - `accepted_edited_count`: Cards saved after inline editing
 - `rejected_count`: Cards not accepted (derived: `generated_count - accepted_count`)
 
 Updated via API when user saves batch:
+
 ```json
 POST /api/sets/:id/cards/batch
 {
@@ -911,7 +950,9 @@ POST /api/sets/:id/cards/batch
 Backend increments counters based on `was_edited` flag in request.
 
 #### Error Logging
+
 Failed generations logged to `generation_error_logs`:
+
 - `error_code`: TIMEOUT, API_ERROR, RATE_LIMIT, INVALID_RESPONSE
 - `error_message`: Human-readable description
 - `error_details`: JSON with stack trace, API response, etc.
@@ -920,6 +961,7 @@ Failed generations logged to `generation_error_logs`:
 ### 4.6 Data Export (GDPR)
 
 #### Export Format
+
 ```json
 {
   "profile": {
@@ -976,6 +1018,7 @@ All error responses follow consistent structure:
 ```
 
 ### Standard HTTP Status Codes
+
 - `200 OK` - Successful GET/PATCH/DELETE
 - `201 Created` - Successful POST
 - `202 Accepted` - Async operation initiated
@@ -993,12 +1036,14 @@ All error responses follow consistent structure:
 ## 6. Performance Considerations
 
 ### Pagination
+
 - Default page size: 50 items
 - Maximum page size: 50 items (enforced)
 - Use keyset pagination for cards: `ORDER BY created_at, id` with cursor
 - Response includes pagination metadata (total, pages, current page)
 
 ### Database Indexes
+
 Optimized for common queries:
 
 - **sets**: `(user_id, name)`, `(user_id, created_at)`
@@ -1006,12 +1051,14 @@ Optimized for common queries:
 - **generations**: `(user_id, created_at)`, `(source_text_hash)`, `(model, created_at)`
 
 ### Caching Strategy
+
 - Card lists: Cache for 5 minutes with user-specific keys
 - Set metadata: Cache for 10 minutes
 - Due cards: No caching (must be real-time)
 - Generation status: Cache for 1 second (polling endpoint)
 
 ### Rate Limiting
+
 - AI Generation: 10 requests/hour per user
 - Card Creation: 100 requests/hour per user
 - General API: 1000 requests/hour per user
@@ -1027,4 +1074,3 @@ API versioning handled via URL path prefix:
 - Future: `/api/v2/...`
 
 Breaking changes require new version. Non-breaking changes (new fields, endpoints) added to current version.
-
