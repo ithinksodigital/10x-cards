@@ -11,18 +11,28 @@ Projekt został skonfigurowany do deploymentu na Cloudflare Pages z wykorzystani
 
 ## Wymagane zmienne środowiskowe
 
-### GitHub Secrets
+### GitHub Secrets (dane poufne)
 
-W ustawieniach repozytorium GitHub dodaj następujące secrets:
+W ustawieniach repozytorium GitHub → **Secrets and variables** → **Actions** → **Secrets** dodaj:
 
 ```
 CLOUDFLARE_API_TOKEN=your_cloudflare_api_token
 CLOUDFLARE_ACCOUNT_ID=your_cloudflare_account_id
-CLOUDFLARE_PROJECT_NAME=your_cloudflare_pages_project_name
 SUPABASE_URL=your_supabase_project_url
 SUPABASE_KEY=your_supabase_anon_key
 OPENROUTER_API_KEY=your_openrouter_api_key
 ```
+
+### GitHub Environment Variables (dane niepoufne)
+
+W ustawieniach repozytorium GitHub → **Secrets and variables** → **Actions** → **Variables** dodaj:
+
+```
+CLOUDFLARE_PROJECT_NAME=10x-cards
+PUBLIC_ENV_NAME=prod
+```
+
+**Uwaga**: Environment Variables są dostępne przez `${{ vars.VARIABLE_NAME }}`, a Secrets przez `${{ secrets.SECRET_NAME }}`.
 
 ### Cloudflare Pages Environment Variables
 
