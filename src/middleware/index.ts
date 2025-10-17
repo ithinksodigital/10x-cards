@@ -17,7 +17,7 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
   try {
     // Check if auth feature is enabled
     const authEnabled = isFeatureEnabled("auth");
-    
+
     // Attach per-request Supabase instance
     const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
     locals.supabase = supabase;
@@ -30,7 +30,7 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
       } = await supabase.auth.getUser();
       user = authUser;
     }
-    
+
     if (user) {
       locals.user = { id: user.id, email: user.email || null };
     } else {
