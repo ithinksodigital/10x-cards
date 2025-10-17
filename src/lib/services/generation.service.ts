@@ -50,6 +50,9 @@ export class GenerationService {
    * Creates a database record and enqueues background processing
    */
   async startGeneration(command: StartGenerationCommand, userId: string): Promise<StartGenerationResponseDto> {
+    // eslint-disable-next-line no-console
+    console.log("🎬 Starting generation for user:", userId, "text length:", command.source_text.length);
+
     // 1. Calculate source text hash (SHA-256)
     const sourceTextHash = await this.calculateHash(command.source_text);
     const sourceTextLength = command.source_text.length;
@@ -97,7 +100,11 @@ export class GenerationService {
     }
 
     // 4. Enqueue background job (Edge Function or worker)
+    // eslint-disable-next-line no-console
+    console.log("📝 About to enqueue generation job for:", generation.id);
     await this.enqueueGenerationJob(generation.id, command);
+    // eslint-disable-next-line no-console
+    console.log("📝 Generation job enqueued for:", generation.id);
 
     // 5. Calculate estimated duration
     const targetCount = command.target_count ?? 30;
@@ -163,23 +170,27 @@ export class GenerationService {
     // eslint-disable-next-line no-console
     console.log("🚀 Enqueueing generation job for:", generationId);
 
-    // Start processing asynchronously to avoid API timeout
-    // Starting background generation
-    setTimeout(() => {
-      console.log("⏰ Starting background processing for:", generationId);
-      this.processGeneration(generationId, command).catch((error) => {
-        // Background generation failed
-        console.error("❌ Background generation failed:", error);
-        this.updateGenerationStatus(
-          generationId,
-          "failed",
-          0,
-          "Background generation failed",
-          undefined,
-          error instanceof Error ? error.message : "Unknown error"
-        );
-      });
-    }, 100); // Small delay to ensure the response is sent first
+    // For Cloudflare Pages, try immediate processing instead of setTimeout
+    // eslint-disable-next-line no-console
+    console.log("⏰ Starting immediate processing for:", generationId);
+
+    try {
+      await this.processGeneration(generationId, command);
+      // eslint-disable-next-line no-console
+      console.log("✅ Processing completed successfully for:", generationId);
+    } catch (error) {
+      // Processing failed
+      // eslint-disable-next-line no-console
+      console.error("❌ Processing failed for:", generationId, error);
+      await this.updateGenerationStatus(
+        generationId,
+        "failed",
+        0,
+        "Processing failed",
+        undefined,
+        error instanceof Error ? error.message : "Unknown error"
+      );
+    }
   }
 
   /**
@@ -187,10 +198,12 @@ export class GenerationService {
    */
   private async processGeneration(generationId: string, command: StartGenerationCommand): Promise<void> {
     try {
+      // eslint-disable-next-line no-console
       console.log("🔄 Starting processGeneration for:", generationId);
 
       // Update status to processing with progress
       await this.updateGenerationStatus(generationId, "processing", 25, "Analyzing source text...");
+      // eslint-disable-next-line no-console
       console.log("✅ Updated status to 25% - Analyzing source text");
 
       // Get user ID from generation record
@@ -206,6 +219,7 @@ export class GenerationService {
 
       // Check if OpenRouter API key is available
       const apiKey = getSecret("OPENROUTER_API_KEY") || "";
+      // eslint-disable-next-line no-console
       console.log("🔑 API Key check:", {
         hasKey: !!apiKey,
         keyLength: apiKey?.length || 0,
@@ -216,6 +230,7 @@ export class GenerationService {
 
       if (!apiKey || !apiKey.startsWith("sk-or-")) {
         // OpenRouter API key not found or invalid, using simulation mode
+        // eslint-disable-next-line no-console
         console.log("🎭 Using simulation mode - no valid API key");
         await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
         // Simulation completed
@@ -224,9 +239,11 @@ export class GenerationService {
 
       // Update progress
       await this.updateGenerationStatus(generationId, "processing", 50, "Generating flashcards with AI...");
+      // eslint-disable-next-line no-console
       console.log("✅ Updated status to 50% - Generating flashcards with AI");
 
       // Starting OpenRouter API call
+      // eslint-disable-next-line no-console
       console.log("🤖 Starting OpenRouter API call...");
 
       // Use OpenRouter service to generate flashcards with shorter timeout
@@ -314,10 +331,12 @@ export class GenerationService {
    */
   private async simulateGeneration(generationId: string, sourceText: string, targetCount: number): Promise<void> {
     try {
+      // eslint-disable-next-line no-console
       console.log("🎭 Starting simulation for:", generationId, "targetCount:", targetCount);
 
       // Update status to processing with progress
       await this.updateGenerationStatus(generationId, "processing", 50, "Generating flashcards...");
+      // eslint-disable-next-line no-console
       console.log("✅ Simulation: Updated status to 50%");
 
       // Split text into sentences and create flashcards
@@ -377,6 +396,7 @@ export class GenerationService {
         flashcards
       );
 
+      // eslint-disable-next-line no-console
       console.log("🎉 Simulation completed! Generated", flashcards.length, "flashcards");
       // Generated flashcards via simulation
     } catch (error) {
