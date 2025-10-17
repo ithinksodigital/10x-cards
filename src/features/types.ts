@@ -2,9 +2,9 @@
  * Typy dla systemu feature flagów
  */
 
-export type Environment = 'local' | 'integration' | 'prod';
+export type Environment = "local" | "integration" | "prod";
 
-export type FeatureFlag = 'auth' | 'collections';
+export type FeatureFlag = "auth" | "collections";
 
 export interface FeatureFlags {
   auth: boolean;

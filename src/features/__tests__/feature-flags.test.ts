@@ -43,17 +43,17 @@ describe("Feature Flags System", () => {
     });
   });
 
-  describe('configuration', () => {
-    it('should have valid configuration structure', () => {
+  describe("configuration", () => {
+    it("should have valid configuration structure", () => {
       const flags = getFeatureFlags();
-      
+
       // Check that all expected flags exist
-      expect(flags).toHaveProperty('auth');
-      expect(flags).toHaveProperty('collections');
-      
+      expect(flags).toHaveProperty("auth");
+      expect(flags).toHaveProperty("collections");
+
       // Check that values are boolean
-      expect(typeof flags.auth).toBe('boolean');
-      expect(typeof flags.collections).toBe('boolean');
+      expect(typeof flags.auth).toBe("boolean");
+      expect(typeof flags.collections).toBe("boolean");
     });
   });
 });

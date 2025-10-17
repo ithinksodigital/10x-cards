@@ -26,7 +26,7 @@ export const prerender = false;
  */
 export const GET = withErrorHandling(async (context: APIContext) => {
   // 0. Check if collections feature is enabled
-  if (!isFeatureEnabled('collections')) {
+  if (!isFeatureEnabled("collections")) {
     return new Response(
       JSON.stringify({
         error: "Feature Unavailable",
@@ -92,7 +92,7 @@ export const GET = withErrorHandling(async (context: APIContext) => {
  */
 export const POST = withErrorHandling(async (context: APIContext) => {
   // 0. Check if collections feature is enabled
-  if (!isFeatureEnabled('collections')) {
+  if (!isFeatureEnabled("collections")) {
     return new Response(
       JSON.stringify({
         error: "Feature Unavailable",

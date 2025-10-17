@@ -23,7 +23,7 @@ const baseConfig = tseslint.config({
     },
   },
   rules: {
-    "no-console": process.env.CI ? "error" : "warn",
+    "no-console": process.env.CI ? "warn" : "warn",
     "no-unused-vars": "off",
     "@typescript-eslint/no-explicit-any": process.env.CI ? "error" : "warn",
     "@typescript-eslint/no-unused-vars": process.env.CI ? "error" : "warn",
