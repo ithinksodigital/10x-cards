@@ -20,8 +20,18 @@ let cachedFlags: FeatureFlags | null = null;
 function getCurrentEnvironment(): Environment {
   // Use Astro 5 environment variables system
   const envName = PUBLIC_ENV_NAME;
+
+  // Debug logging
+  // eslint-disable-next-line no-console
+  console.log("Feature flags - environment check:", {
+    envName,
+    hasEnvName: !!envName,
+    type: typeof envName,
+  });
+
   if (!envName) {
-    // console.warn("PUBLIC_ENV_NAME not set, defaulting to \"local\"");
+    // eslint-disable-next-line no-console
+    console.warn('PUBLIC_ENV_NAME not set, defaulting to "local"');
     return "local";
   }
 

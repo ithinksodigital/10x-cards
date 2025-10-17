@@ -17,8 +17,14 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   redirectTo = "/auth/login",
   requireAuth = true,
 }) => {
-  const { isAuthenticated, isLoading } = useAuth();
   const authEnabled = isFeatureEnabled("auth");
+  
+  // If auth is disabled, always render children
+  if (!authEnabled) {
+    return <>{children}</>;
+  }
+  
+  const { isAuthenticated, isLoading } = useAuth();
 
   // Handle redirect using useEffect - always call hooks
   useEffect(() => {
@@ -26,11 +32,6 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
       window.location.href = redirectTo;
     }
   }, [authEnabled, requireAuth, isAuthenticated, isLoading, redirectTo]);
-
-  // If auth is disabled, always render children
-  if (!authEnabled) {
-    return <>{children}</>;
-  }
 
   // Show loading state
   if (isLoading) {
