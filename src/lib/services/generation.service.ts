@@ -160,12 +160,15 @@ export class GenerationService {
    */
   private async enqueueGenerationJob(generationId: string, command: StartGenerationCommand): Promise<void> {
     // Starting AI generation
+    console.log("🚀 Enqueueing generation job for:", generationId);
 
     // Start processing asynchronously to avoid API timeout
     // Starting background generation
-    Promise.resolve().then(() => {
+    setTimeout(() => {
+      console.log("⏰ Starting background processing for:", generationId);
       this.processGeneration(generationId, command).catch((error) => {
         // Background generation failed
+        console.error("❌ Background generation failed:", error);
         this.updateGenerationStatus(
           generationId,
           "failed",
@@ -175,7 +178,7 @@ export class GenerationService {
           error instanceof Error ? error.message : "Unknown error"
         );
       });
-    });
+    }, 100); // Small delay to ensure the response is sent first
   }
 
   /**
@@ -183,8 +186,11 @@ export class GenerationService {
    */
   private async processGeneration(generationId: string, command: StartGenerationCommand): Promise<void> {
     try {
+      console.log("🔄 Starting processGeneration for:", generationId);
+      
       // Update status to processing with progress
       await this.updateGenerationStatus(generationId, "processing", 25, "Analyzing source text...");
+      console.log("✅ Updated status to 25% - Analyzing source text");
 
       // Get user ID from generation record
       const { data: generation, error: fetchError } = await this.supabase
@@ -199,11 +205,13 @@ export class GenerationService {
 
       // Check if OpenRouter API key is available
       const apiKey = getSecret("OPENROUTER_API_KEY") || "";
+      console.log("🔑 API Key check:", { hasKey: !!apiKey, keyLength: apiKey?.length || 0, startsWithSkOr: apiKey?.startsWith("sk-or-") });
 
       // API Key check completed
 
       if (!apiKey || !apiKey.startsWith("sk-or-")) {
         // OpenRouter API key not found or invalid, using simulation mode
+        console.log("🎭 Using simulation mode - no valid API key");
         await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
         // Simulation completed
         return;
@@ -211,8 +219,10 @@ export class GenerationService {
 
       // Update progress
       await this.updateGenerationStatus(generationId, "processing", 50, "Generating flashcards with AI...");
+      console.log("✅ Updated status to 50% - Generating flashcards with AI");
 
       // Starting OpenRouter API call
+      console.log("🤖 Starting OpenRouter API call...");
 
       // Use OpenRouter service to generate flashcards with shorter timeout
       const result = await Promise.race([
@@ -299,8 +309,11 @@ export class GenerationService {
    */
   private async simulateGeneration(generationId: string, sourceText: string, targetCount: number): Promise<void> {
     try {
+      console.log("🎭 Starting simulation for:", generationId, "targetCount:", targetCount);
+      
       // Update status to processing with progress
       await this.updateGenerationStatus(generationId, "processing", 50, "Generating flashcards...");
+      console.log("✅ Simulation: Updated status to 50%");
 
       // Split text into sentences and create flashcards
       const sentences = sourceText.split(/[.!?]+/).filter((s) => s.trim().length > 15);
@@ -359,6 +372,7 @@ export class GenerationService {
         flashcards
       );
 
+      console.log("🎉 Simulation completed! Generated", flashcards.length, "flashcards");
       // Generated flashcards via simulation
     } catch (error) {
       await this.updateGenerationStatus(
