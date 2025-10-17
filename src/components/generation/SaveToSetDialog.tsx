@@ -42,36 +42,17 @@ export function SaveToSetDialog({
   const { sets, fetchSets, createSet, batchCreateCards, isLoading, error } = useSetsApi();
   const collectionsEnabled = isFeatureEnabled("collections");
 
-  // If collections feature is disabled, show message
-  if (!collectionsEnabled) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className={cn("sm:max-w-md", className)}>
-          <DialogHeader>
-            <DialogTitle>Funkcjonalność niedostępna</DialogTitle>
-            <DialogDescription>
-              Funkcjonalność kolekcji jest obecnie wyłączona w tym środowisku.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end">
-            <Button onClick={onClose}>Zamknij</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  // Fetch sets when dialog opens
+  // Fetch sets when dialog opens - always call hooks
   useEffect(() => {
-    if (isOpen) {
+    if (collectionsEnabled && isOpen) {
       fetchSets().catch((error) => {
         // eslint-disable-next-line no-console
         console.error(error);
       });
     }
-  }, [isOpen, fetchSets]);
+  }, [collectionsEnabled, isOpen, fetchSets]);
 
-  // Reset form when dialog closes
+  // Reset form when dialog closes - always call hooks
   useEffect(() => {
     if (!isOpen) {
       setSelectedSetId(undefined);
@@ -154,6 +135,23 @@ export function SaveToSetDialog({
     onSaveSuccess,
     onClose,
   ]);
+
+  // If collections feature is disabled, show message
+  if (!collectionsEnabled) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className={cn("sm:max-w-md", className)}>
+          <DialogHeader>
+            <DialogTitle>Funkcjonalność niedostępna</DialogTitle>
+            <DialogDescription>Funkcjonalność kolekcji jest obecnie wyłączona w tym środowisku.</DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <Button onClick={onClose}>Zamknij</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

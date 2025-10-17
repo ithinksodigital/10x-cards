@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     if (!authEnabled) {
       throw new Error("Authentication feature is disabled");
     }
-    
+
     setIsLoading(true);
     // TODO: Implement actual Supabase sign in
     // Mock success
@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     if (!authEnabled) {
       throw new Error("Authentication feature is disabled");
     }
-    
+
     setIsLoading(true);
     // TODO: Implement actual Supabase sign up
     // Mock success
@@ -86,7 +86,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
     if (!authEnabled) {
       throw new Error("Authentication feature is disabled");
     }
-    
+
     setIsLoading(true);
     // TODO: Implement actual Supabase sign out
     // Mock success

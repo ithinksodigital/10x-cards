@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { isFeatureEnabled, getFeatureFlags, resetFeatureFlagsCache } from "../feature-flags";
+import { isFeatureEnabled, getFeatureFlags, resetFeatureFlagsCache } from "../../../src/features/feature-flags";
 
 describe("Feature Flags System", () => {
   beforeEach(() => {

@@ -9,85 +9,70 @@ const collectionsEnabled = isFeatureEnabled("collections");
 <Layout title="Moje zestawy - 10x Cards">
   <div class="container mx-auto px-4 py-8">
     <div class="max-w-6xl mx-auto">
-      {collectionsEnabled ? (
-        <>
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-            <div>
-              <h1 class="text-3xl font-bold text-foreground mb-2">Moje zestawy</h1>
-              <p class="text-muted-foreground">Zarządzaj swoimi zestawami fiszek</p>
+      {
+        collectionsEnabled ? (
+          <>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+              <div>
+                <h1 class="text-3xl font-bold text-foreground mb-2">Moje zestawy</h1>
+                <p class="text-muted-foreground">Zarządzaj swoimi zestawami fiszek</p>
+              </div>
+              <button class="mt-4 sm:mt-0 bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors">
+                Utwórz nowy zestaw
+              </button>
             </div>
-            <button
-              class="mt-4 sm:mt-0 bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
-            >
-              Utwórz nowy zestaw
-            </button>
-          </div>
 
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <!-- Placeholder for sets -->
-        <div class="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
-          <h3 class="text-lg font-semibold mb-2">Angielski - Podstawy</h3>
-          <p class="text-muted-foreground mb-4">25 fiszek • Ostatnia sesja: 1 dzień temu</p>
-          <div class="flex gap-2">
-            <button
-              class="flex-1 bg-primary text-primary-foreground px-3 py-2 rounded-md hover:bg-primary/90 transition-colors text-sm"
-            >
-              Ucz się
-            </button>
-            <button
-              class="flex-1 bg-secondary text-secondary-foreground px-3 py-2 rounded-md hover:bg-secondary/90 transition-colors text-sm"
-            >
-              Edytuj
-            </button>
-          </div>
-        </div>
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div class="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
+                <h3 class="text-lg font-semibold mb-2">Angielski - Podstawy</h3>
+                <p class="text-muted-foreground mb-4">25 fiszek • Ostatnia sesja: 1 dzień temu</p>
+                <div class="flex gap-2">
+                  <button class="flex-1 bg-primary text-primary-foreground px-3 py-2 rounded-md hover:bg-primary/90 transition-colors text-sm">
+                    Ucz się
+                  </button>
+                  <button class="flex-1 bg-secondary text-secondary-foreground px-3 py-2 rounded-md hover:bg-secondary/90 transition-colors text-sm">
+                    Edytuj
+                  </button>
+                </div>
+              </div>
 
-        <div class="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
-          <h3 class="text-lg font-semibold mb-2">Historia Polski</h3>
-          <p class="text-muted-foreground mb-4">42 fiszki • Ostatnia sesja: 3 dni temu</p>
-          <div class="flex gap-2">
-            <button
-              class="flex-1 bg-primary text-primary-foreground px-3 py-2 rounded-md hover:bg-primary/90 transition-colors text-sm"
-            >
-              Ucz się
-            </button>
-            <button
-              class="flex-1 bg-secondary text-secondary-foreground px-3 py-2 rounded-md hover:bg-secondary/90 transition-colors text-sm"
-            >
-              Edytuj
-            </button>
-          </div>
-        </div>
+              <div class="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
+                <h3 class="text-lg font-semibold mb-2">Historia Polski</h3>
+                <p class="text-muted-foreground mb-4">42 fiszki • Ostatnia sesja: 3 dni temu</p>
+                <div class="flex gap-2">
+                  <button class="flex-1 bg-primary text-primary-foreground px-3 py-2 rounded-md hover:bg-primary/90 transition-colors text-sm">
+                    Ucz się
+                  </button>
+                  <button class="flex-1 bg-secondary text-secondary-foreground px-3 py-2 rounded-md hover:bg-secondary/90 transition-colors text-sm">
+                    Edytuj
+                  </button>
+                </div>
+              </div>
 
-        <div class="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
-          <h3 class="text-lg font-semibold mb-2">Matematyka - Algebra</h3>
-          <p class="text-muted-foreground mb-4">18 fiszek • Ostatnia sesja: 5 dni temu</p>
-          <div class="flex gap-2">
-            <button
-              class="flex-1 bg-primary text-primary-foreground px-3 py-2 rounded-md hover:bg-primary/90 transition-colors text-sm"
-            >
-              Ucz się
-            </button>
-            <button
-              class="flex-1 bg-secondary text-secondary-foreground px-3 py-2 rounded-md hover:bg-secondary/90 transition-colors text-sm"
-            >
-              Edytuj
-            </button>
+              <div class="bg-card border border-border rounded-lg p-6 hover:shadow-md transition-shadow">
+                <h3 class="text-lg font-semibold mb-2">Matematyka - Algebra</h3>
+                <p class="text-muted-foreground mb-4">18 fiszek • Ostatnia sesja: 5 dni temu</p>
+                <div class="flex gap-2">
+                  <button class="flex-1 bg-primary text-primary-foreground px-3 py-2 rounded-md hover:bg-primary/90 transition-colors text-sm">
+                    Ucz się
+                  </button>
+                  <button class="flex-1 bg-secondary text-secondary-foreground px-3 py-2 rounded-md hover:bg-secondary/90 transition-colors text-sm">
+                    Edytuj
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div class="text-center py-12">
+            <h1 class="text-3xl font-bold text-foreground mb-4">Moje zestawy</h1>
+            <div class="p-6 bg-muted rounded-lg max-w-md mx-auto">
+              <h2 class="text-xl font-semibold text-foreground mb-2">Funkcjonalność niedostępna</h2>
+              <p class="text-muted-foreground">Funkcjonalność kolekcji jest obecnie wyłączona w tym środowisku.</p>
+            </div>
           </div>
-        </div>
-      </div>
-        </>
-      ) : (
-        <div class="text-center py-12">
-          <h1 class="text-3xl font-bold text-foreground mb-4">Moje zestawy</h1>
-          <div class="p-6 bg-muted rounded-lg max-w-md mx-auto">
-            <h2 class="text-xl font-semibold text-foreground mb-2">Funkcjonalność niedostępna</h2>
-            <p class="text-muted-foreground">
-              Funkcjonalność kolekcji jest obecnie wyłączona w tym środowisku.
-            </p>
-          </div>
-        </div>
-      )}
+        )
+      }
     </div>
   </div>
 </Layout>

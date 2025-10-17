@@ -2,31 +2,31 @@
 import Layout from "../layouts/Layout.astro";
 import { DashboardWrapper } from "../components/auth/DashboardWrapper";
 import { isFeatureEnabled } from "../features";
+import type { User } from "@supabase/supabase-js";
 
 // Use authenticated user from middleware (Supabase SSR)
-const user = Astro.locals.user;
+const user = Astro.locals.user as User | null;
 const session = null;
 const isAuthenticated = !!user;
 
 // Sprawdź czy funkcjonalności są włączone
 const authEnabled = isFeatureEnabled("auth");
-const collectionsEnabled = isFeatureEnabled("collections");
 ---
 
 <Layout title="10x Cards" user={user} session={session} isAuthenticated={isAuthenticated}>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    {authEnabled ? (
-      <DashboardWrapper client:load user={user as any || null} session={session} />
-    ) : (
-      <div class="text-center py-12">
-        <h1 class="text-4xl font-bold text-foreground mb-4">10x Cards</h1>
-        <div class="p-6 bg-muted rounded-lg max-w-md mx-auto">
-          <h2 class="text-xl font-semibold text-foreground mb-2">Funkcjonalność niedostępna</h2>
-          <p class="text-muted-foreground">
-            Autoryzacja jest obecnie wyłączona w tym środowisku.
-          </p>
+    {
+      authEnabled ? (
+        <DashboardWrapper client:load user={user} session={session} />
+      ) : (
+        <div class="text-center py-12">
+          <h1 class="text-4xl font-bold text-foreground mb-4">10x Cards</h1>
+          <div class="p-6 bg-muted rounded-lg max-w-md mx-auto">
+            <h2 class="text-xl font-semibold text-foreground mb-2">Funkcjonalność niedostępna</h2>
+            <p class="text-muted-foreground">Autoryzacja jest obecnie wyłączona w tym środowisku.</p>
+          </div>
         </div>
-      </div>
-    )}
+      )
+    }
   </div>
 </Layout>
