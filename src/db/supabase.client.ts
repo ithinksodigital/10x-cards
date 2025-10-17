@@ -22,7 +22,7 @@ export type SupabaseClient = typeof supabaseClient;
 
 export const cookieOptions: CookieOptionsWithName = {
   path: "/",
-  secure: false, // Changed to false for localhost testing
+  secure: import.meta.env.PUBLIC_ENV_NAME === "prod", // Use secure cookies in production
   httpOnly: true,
   sameSite: "lax",
 };

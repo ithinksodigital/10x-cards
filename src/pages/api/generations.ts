@@ -5,17 +5,7 @@ import { GenerationService } from "../../lib/services/generation.service";
 import type { ErrorResponseDto, StartGenerationResponseDto } from "../../types";
 import { isFeatureEnabled } from "../../features";
 
-// Load environment variables from .env file
-import dotenv from "dotenv";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
-
-// Get the directory of the current file
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Load .env file from project root
-dotenv.config({ path: join(__dirname, "../../../.env") });
+// Environment variables are available via import.meta.env on Cloudflare Pages
 
 export const prerender = false;
 
@@ -118,9 +108,9 @@ export async function POST(context: APIContext): Promise<Response> {
     // Check environment variables
     // eslint-disable-next-line no-console
     console.log("Environment check:", {
-      hasOpenRouterKey: !!process.env.OPENROUTER_API_KEY,
-      openRouterKeyLength: process.env.OPENROUTER_API_KEY?.length || 0,
-      allEnvKeys: Object.keys(process.env).filter((k) => k.includes("OPENROUTER")),
+      hasOpenRouterKey: !!import.meta.env.OPENROUTER_API_KEY,
+      openRouterKeyLength: import.meta.env.OPENROUTER_API_KEY?.length || 0,
+      allEnvKeys: Object.keys(import.meta.env).filter((k) => k.includes("OPENROUTER")),
     });
 
     const generationService = new GenerationService(supabase);
