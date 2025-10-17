@@ -20,9 +20,22 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     const body = await request.json();
+    // eslint-disable-next-line no-console
+    console.log("Registration request body:", { email: body.email, passwordLength: body.password?.length });
+
     const { email, password } = BodySchema.parse(body);
+    // eslint-disable-next-line no-console
+    console.log("Registration data validated successfully");
 
     const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
+    
+    // Test Supabase connection
+    // eslint-disable-next-line no-console
+    console.log("Testing Supabase connection...");
+    const { data: healthCheck } = await supabase.from("generations").select("id").limit(1);
+    // eslint-disable-next-line no-console
+    console.log("Supabase connection test result:", healthCheck !== null ? "OK" : "FAILED");
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -31,7 +44,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     if (error) {
       // eslint-disable-next-line no-console
-      console.error("Supabase registration error:", error);
+      console.error("Supabase registration error:", {
+        message: error.message,
+        status: error.status,
+        name: error.name,
+      });
       return new Response(JSON.stringify({ error: "registration_failed", message: error.message }), { status: 400 });
     }
 
@@ -43,7 +60,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.error("Registration endpoint error:", err);
+    console.error("Registration endpoint error:", {
+      error: err,
+      message: err instanceof Error ? err.message : "Unknown error",
+      stack: err instanceof Error ? err.stack : undefined,
+    });
     const message = err instanceof Error ? err.message : "Invalid request";
     return new Response(JSON.stringify({ error: "bad_request", message }), { status: 400 });
   }
