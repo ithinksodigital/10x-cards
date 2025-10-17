@@ -160,6 +160,7 @@ export class GenerationService {
    */
   private async enqueueGenerationJob(generationId: string, command: StartGenerationCommand): Promise<void> {
     // Starting AI generation
+    // eslint-disable-next-line no-console
     console.log("🚀 Enqueueing generation job for:", generationId);
 
     // Start processing asynchronously to avoid API timeout
@@ -187,7 +188,7 @@ export class GenerationService {
   private async processGeneration(generationId: string, command: StartGenerationCommand): Promise<void> {
     try {
       console.log("🔄 Starting processGeneration for:", generationId);
-      
+
       // Update status to processing with progress
       await this.updateGenerationStatus(generationId, "processing", 25, "Analyzing source text...");
       console.log("✅ Updated status to 25% - Analyzing source text");
@@ -205,7 +206,11 @@ export class GenerationService {
 
       // Check if OpenRouter API key is available
       const apiKey = getSecret("OPENROUTER_API_KEY") || "";
-      console.log("🔑 API Key check:", { hasKey: !!apiKey, keyLength: apiKey?.length || 0, startsWithSkOr: apiKey?.startsWith("sk-or-") });
+      console.log("🔑 API Key check:", {
+        hasKey: !!apiKey,
+        keyLength: apiKey?.length || 0,
+        startsWithSkOr: apiKey?.startsWith("sk-or-"),
+      });
 
       // API Key check completed
 
@@ -310,7 +315,7 @@ export class GenerationService {
   private async simulateGeneration(generationId: string, sourceText: string, targetCount: number): Promise<void> {
     try {
       console.log("🎭 Starting simulation for:", generationId, "targetCount:", targetCount);
-      
+
       // Update status to processing with progress
       await this.updateGenerationStatus(generationId, "processing", 50, "Generating flashcards...");
       console.log("✅ Simulation: Updated status to 50%");
