@@ -50,9 +50,6 @@ export class GenerationService {
    * Creates a database record and enqueues background processing
    */
   async startGeneration(command: StartGenerationCommand, userId: string): Promise<StartGenerationResponseDto> {
-    // eslint-disable-next-line no-console
-    console.log("🎬 Starting generation for user:", userId, "text length:", command.source_text.length);
-
     // 1. Calculate source text hash (SHA-256)
     const sourceTextHash = await this.calculateHash(command.source_text);
     const sourceTextLength = command.source_text.length;
