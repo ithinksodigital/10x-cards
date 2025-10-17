@@ -20,4 +20,32 @@ export default defineConfig({
       enabled: true,
     },
   }),
+  // Astro 5 environment variables configuration
+  env: {
+    schema: {
+      // Public client variables (available in both client and server)
+      PUBLIC_ENV_NAME: {
+        context: "client",
+        access: "public",
+        type: "string",
+        default: "local",
+      },
+      // Secret server variables (only available on server)
+      SUPABASE_URL: {
+        context: "server",
+        access: "secret",
+        type: "string",
+      },
+      SUPABASE_KEY: {
+        context: "server",
+        access: "secret",
+        type: "string",
+      },
+      OPENROUTER_API_KEY: {
+        context: "server",
+        access: "secret",
+        type: "string",
+      },
+    },
+  },
 });

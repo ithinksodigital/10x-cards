@@ -12,12 +12,25 @@ declare global {
   }
 }
 
+// Astro 5 environment variables schema
+declare module "astro:env" {
+  interface ImportMetaEnv {
+    // Public client variables (available in both client and server)
+    readonly PUBLIC_ENV_NAME: string;
+    
+    // Secret server variables (only available on server)
+    readonly SUPABASE_URL: string;
+    readonly SUPABASE_KEY: string;
+    readonly OPENROUTER_API_KEY: string;
+  }
+}
+
+// Legacy support for import.meta.env (fallback)
 interface ImportMetaEnv {
   readonly SUPABASE_URL: string;
   readonly SUPABASE_KEY: string;
   readonly OPENROUTER_API_KEY: string;
   readonly PUBLIC_ENV_NAME: string;
-  // more env variables...
 }
 
 interface ImportMeta {

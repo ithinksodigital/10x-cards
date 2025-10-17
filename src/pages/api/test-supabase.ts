@@ -1,6 +1,8 @@
 // src/pages/api/test-supabase.ts
 import type { APIRoute } from "astro";
 import { createSupabaseServerInstance } from "../../db/supabase.client";
+import { getSecret } from "astro:env/server";
+import { PUBLIC_ENV_NAME } from "astro:env/client";
 
 export const prerender = false;
 
@@ -11,25 +13,28 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     
     const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
     
-    // Test 1: Check environment variables
+    // Test 1: Check environment variables using Astro 5 system
     const envCheck = {
-      // Check import.meta.env
+      // Check astro:env/server with getSecret
+      astroEnvServer: {
+        hasSupabaseUrl: !!getSecret("SUPABASE_URL"),
+        hasSupabaseKey: !!getSecret("SUPABASE_KEY"),
+        supabaseUrlLength: getSecret("SUPABASE_URL")?.length || 0,
+        supabaseKeyLength: getSecret("SUPABASE_KEY")?.length || 0,
+        supabaseUrlValue: getSecret("SUPABASE_URL") || "UNDEFINED",
+        supabaseKeyValue: getSecret("SUPABASE_KEY") || "UNDEFINED",
+        envName: PUBLIC_ENV_NAME,
+      },
+      // Legacy checks for comparison
       importMeta: {
         hasSupabaseUrl: !!import.meta.env.SUPABASE_URL,
         hasSupabaseKey: !!import.meta.env.SUPABASE_KEY,
         envName: import.meta.env.PUBLIC_ENV_NAME,
-        supabaseUrl: import.meta.env.SUPABASE_URL?.substring(0, 20) + "...",
       },
-      // Check process.env (Cloudflare Pages)
       processEnv: {
         hasSupabaseUrl: !!process.env.SUPABASE_URL,
         hasSupabaseKey: !!process.env.SUPABASE_KEY,
-        envName: process.env.PUBLIC_ENV_NAME,
-        supabaseUrl: process.env.SUPABASE_URL?.substring(0, 20) + "...",
       },
-      // Check all available env keys
-      allImportMetaKeys: Object.keys(import.meta.env),
-      allProcessEnvKeys: Object.keys(process.env).filter(k => k.includes('SUPABASE') || k.includes('OPENROUTER') || k.includes('PUBLIC')),
     };
     
     // Test 2: Try to query a table

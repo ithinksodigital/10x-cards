@@ -7,6 +7,7 @@
 
 import type { Environment, FeatureFlag, FeatureFlags } from "./types";
 import { FEATURE_FLAGS_CONFIG, DEFAULT_FEATURE_FLAGS } from "./config";
+import { PUBLIC_ENV_NAME } from "astro:env/client";
 
 /**
  * Cache dla flag - ładowane raz przy pierwszym użyciu
@@ -17,8 +18,8 @@ let cachedFlags: FeatureFlags | null = null;
  * Pobiera aktualne środowisko z zmiennej PUBLIC_ENV_NAME
  */
 function getCurrentEnvironment(): Environment {
-  // Zawsze odczytuj środowisko z import.meta.env lub process.env, nie cache'uj
-  const envName = import.meta.env.PUBLIC_ENV_NAME || process.env.PUBLIC_ENV_NAME;
+  // Use Astro 5 environment variables system
+  const envName = PUBLIC_ENV_NAME;
   if (!envName) {
     // console.warn("PUBLIC_ENV_NAME not set, defaulting to \"local\"");
     return "local";

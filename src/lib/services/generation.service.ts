@@ -2,6 +2,7 @@
 import type { SupabaseClient } from "../../db/supabase.client";
 import type { StartGenerationCommand, StartGenerationResponseDto, OpenRouterConfig } from "../../types";
 import { OpenRouterService } from "./openrouter.service";
+import { getSecret } from "astro:env/server";
 
 /**
  * Service responsible for managing AI flashcard generation lifecycle
@@ -22,8 +23,8 @@ export class GenerationService {
    * @returns Configured OpenRouterService instance
    */
   private createOpenRouterService(): OpenRouterService {
-    // Get API key from environment - try both import.meta.env and process.env for Cloudflare Pages
-    const apiKey = import.meta.env.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY || "";
+    // Get API key from environment using Astro 5 system
+    const apiKey = getSecret("OPENROUTER_API_KEY") || "";
 
     const config: OpenRouterConfig = {
       apiKey,
@@ -197,7 +198,7 @@ export class GenerationService {
       }
 
       // Check if OpenRouter API key is available
-      const apiKey = import.meta.env.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY || "";
+      const apiKey = getSecret("OPENROUTER_API_KEY") || "";
 
       // API Key check completed
 
