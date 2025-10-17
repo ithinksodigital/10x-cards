@@ -2,10 +2,14 @@
 import Layout from "../../layouts/Layout.astro";
 import { AuthProvider } from "../../components/auth/AuthProvider";
 import { AuthContainer } from "../../components/auth/AuthContainer";
+import { isFeatureEnabled } from "../../features";
 
 // Mock user data - will be replaced with actual Supabase integration
 const user = null;
 const session = null;
+
+// Sprawdź czy funkcjonalność autoryzacji jest włączona
+const authEnabled = isFeatureEnabled("auth");
 ---
 
 <Layout title="Logowanie - 10x Cards">
@@ -16,9 +20,18 @@ const session = null;
         <p class="mt-2 text-muted-foreground">Zaloguj się, aby uzyskać dostęp do swoich fiszek</p>
       </div>
 
-      <AuthProvider client:load initialUser={user} initialSession={session}>
-        <AuthContainer client:load initialMode="login" />
-      </AuthProvider>
+      {
+        authEnabled ? (
+          <AuthProvider client:load initialUser={user} initialSession={session}>
+            <AuthContainer client:load initialMode="login" />
+          </AuthProvider>
+        ) : (
+          <div class="text-center p-6 bg-muted rounded-lg">
+            <h2 class="text-xl font-semibold text-foreground mb-2">Funkcjonalność niedostępna</h2>
+            <p class="text-muted-foreground">Autoryzacja jest obecnie wyłączona w tym środowisku.</p>
+          </div>
+        )
+      }
     </div>
   </div>
 </Layout>

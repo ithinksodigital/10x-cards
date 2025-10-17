@@ -3,6 +3,7 @@ import type { APIContext } from "astro";
 import { SetService } from "../../lib/services/set.service";
 import { CreateSetSchema, ListSetsQuerySchema } from "../../lib/schemas";
 import { parseJsonBody, validateQuery, jsonResponse, withErrorHandling } from "../../lib/api-utils";
+import { isFeatureEnabled } from "../../features";
 
 export const prerender = false;
 
@@ -24,6 +25,22 @@ export const prerender = false;
  * }
  */
 export const GET = withErrorHandling(async (context: APIContext) => {
+  // 0. Check if collections feature is enabled
+  if (!isFeatureEnabled('collections')) {
+    return new Response(
+      JSON.stringify({
+        error: "Feature Unavailable",
+        message: "Collections feature is currently disabled",
+        code: "FEATURE_DISABLED",
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
   // 1. Check if user is authenticated
   const user = context.locals.user;
   if (!user) {
@@ -74,6 +91,22 @@ export const GET = withErrorHandling(async (context: APIContext) => {
  * - 409 Conflict - Set name already exists
  */
 export const POST = withErrorHandling(async (context: APIContext) => {
+  // 0. Check if collections feature is enabled
+  if (!isFeatureEnabled('collections')) {
+    return new Response(
+      JSON.stringify({
+        error: "Feature Unavailable",
+        message: "Collections feature is currently disabled",
+        code: "FEATURE_DISABLED",
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
   // 1. Check if user is authenticated
   const user = context.locals.user;
   if (!user) {
