@@ -2,21 +2,21 @@
  * Testy jednostkowe dla systemu feature flagów
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
-import { isFeatureEnabled, getFeatureFlags, resetFeatureFlagsCache } from '../feature-flags';
+import { describe, it, expect, beforeEach } from "vitest";
+import { isFeatureEnabled, getFeatureFlags, resetFeatureFlagsCache } from "../feature-flags";
 
-describe('Feature Flags System', () => {
+describe("Feature Flags System", () => {
   beforeEach(() => {
     resetFeatureFlagsCache();
   });
 
-  describe('basic functionality', () => {
-    it('should return boolean values for feature flags', () => {
-      const authEnabled = isFeatureEnabled('auth');
-      const collectionsEnabled = isFeatureEnabled('collections');
-      
-      expect(typeof authEnabled).toBe('boolean');
-      expect(typeof collectionsEnabled).toBe('boolean');
+  describe("basic functionality", () => {
+    it("should return boolean values for feature flags", () => {
+      const authEnabled = isFeatureEnabled("auth");
+      const collectionsEnabled = isFeatureEnabled("collections");
+
+      expect(typeof authEnabled).toBe("boolean");
+      expect(typeof collectionsEnabled).toBe("boolean");
     });
 
     it('should return all flags as an object', () => {
