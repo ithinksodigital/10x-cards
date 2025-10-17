@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { LoginForm } from "./LoginForm";
 import { RegisterForm } from "./RegisterForm";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
+import { isFeatureEnabled } from "../../features";
 
 type AuthMode = "login" | "register" | "forgot-password";
 
@@ -15,6 +16,17 @@ export const AuthContainer: React.FC<AuthContainerProps> = ({ initialMode = "log
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState(false);
+  const authEnabled = isFeatureEnabled("auth");
+
+  // If auth is disabled, show message
+  if (!authEnabled) {
+    return (
+      <div className="w-full max-w-md mx-auto text-center p-6 bg-muted rounded-lg">
+        <h2 className="text-xl font-semibold text-foreground mb-2">Funkcjonalność niedostępna</h2>
+        <p className="text-muted-foreground">Autoryzacja jest obecnie wyłączona w tym środowisku.</p>
+      </div>
+    );
+  }
 
   const handleLogin = async (data: { email: string; password: string }) => {
     setIsLoading(true);

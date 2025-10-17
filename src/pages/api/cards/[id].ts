@@ -3,6 +3,7 @@ import type { APIContext } from "astro";
 import { CardService } from "../../../lib/services/card.service";
 import { UuidSchema, UpdateCardSchema } from "../../../lib/schemas";
 import { getMvpUserId, parseJsonBody, validateParam, jsonResponse, withErrorHandling } from "../../../lib/api-utils";
+import { isFeatureEnabled } from "../../../features";
 
 export const prerender = false;
 
@@ -22,6 +23,22 @@ export const prerender = false;
  * - 404 Not Found - Card not found or doesn't belong to user
  */
 export const GET = withErrorHandling(async (context: APIContext) => {
+  // 0. Check if collections feature is enabled
+  if (!isFeatureEnabled("collections")) {
+    return new Response(
+      JSON.stringify({
+        error: "Feature Unavailable",
+        message: "Collections feature is currently disabled",
+        code: "FEATURE_DISABLED",
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
   // 1. Validate UUID parameter
   const cardId = validateParam(context.params.id, UuidSchema, "id");
 
@@ -60,6 +77,22 @@ export const GET = withErrorHandling(async (context: APIContext) => {
  * - 409 Conflict - New front text conflicts with existing card
  */
 export const PATCH = withErrorHandling(async (context: APIContext) => {
+  // 0. Check if collections feature is enabled
+  if (!isFeatureEnabled("collections")) {
+    return new Response(
+      JSON.stringify({
+        error: "Feature Unavailable",
+        message: "Collections feature is currently disabled",
+        code: "FEATURE_DISABLED",
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
   // 1. Validate UUID parameter
   const cardId = validateParam(context.params.id, UuidSchema, "id");
 
@@ -95,6 +128,22 @@ export const PATCH = withErrorHandling(async (context: APIContext) => {
  * - 404 Not Found - Card not found
  */
 export const DELETE = withErrorHandling(async (context: APIContext) => {
+  // 0. Check if collections feature is enabled
+  if (!isFeatureEnabled("collections")) {
+    return new Response(
+      JSON.stringify({
+        error: "Feature Unavailable",
+        message: "Collections feature is currently disabled",
+        code: "FEATURE_DISABLED",
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
   // 1. Validate UUID parameter
   const cardId = validateParam(context.params.id, UuidSchema, "id");
 

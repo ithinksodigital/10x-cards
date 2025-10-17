@@ -1,5 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
 import { createSupabaseServerInstance } from "../db/supabase.client.ts";
+import { isFeatureEnabled } from "../features";
 
 const PUBLIC_PATHS = new Set([
   "/auth/login",
@@ -14,25 +15,35 @@ const PUBLIC_PATHS = new Set([
 
 export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
   try {
+    // Check if auth feature is enabled
+    const authEnabled = isFeatureEnabled("auth");
+    
     // Attach per-request Supabase instance
     const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
     locals.supabase = supabase;
 
-    // Resolve user for SSR context
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // Resolve user for SSR context only if auth is enabled
+    let user = null;
+    if (authEnabled) {
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
+      user = authUser;
+    }
+    
     if (user) {
       locals.user = { id: user.id, email: user.email || null };
     } else {
       locals.user = null;
     }
 
-    // Gate protected routes (basic example, extend as needed)
-    const isPublic = PUBLIC_PATHS.has(url.pathname);
-    const isProtected = url.pathname === "/" && !user;
-    if (isProtected && !isPublic) {
-      return redirect("/auth/login");
+    // Gate protected routes only if auth is enabled
+    if (authEnabled) {
+      const isPublic = PUBLIC_PATHS.has(url.pathname);
+      const isProtected = url.pathname === "/" && !user;
+      if (isProtected && !isPublic) {
+        return redirect("/auth/login");
+      }
     }
 
     return next();

@@ -42,7 +42,7 @@ export const FEATURE_FLAGS_CONFIG: EnvironmentConfig = {
 - `resetFeatureFlagsCache(): void` - resetuje cache (dla testów)
 
 ### 6. Zmienne środowiskowe
-- **ENV_NAME** - określa środowisko (local/integration/prod)
+- **PUBLIC_ENV_NAME** - określa środowisko (local/integration/prod)
 - Dodana do `src/env.d.ts` dla TypeScript
 
 ### 7. Przykłady użycia
@@ -137,7 +137,7 @@ System jest w pełni funkcjonalny i gotowy do integracji w całej aplikacji. Wsz
 - ✅ Wsparcie dla frontend i backend
 - ✅ Konfiguracja dla 3 środowisk
 - ✅ Flagi auth i collections
-- ✅ Zmienna ENV_NAME
+- ✅ Zmienna PUBLIC_ENV_NAME
 - ✅ Przykłady użycia w Astro, API i React
 - ✅ Testy jednostkowe
 - ✅ Dokumentacja

@@ -100,18 +100,20 @@ console.log('Dostępne flagi:', flags);
 
 ## Zmienne środowiskowe
 
-System używa zmiennej `ENV_NAME` do określenia środowiska:
+System używa zmiennej `PUBLIC_ENV_NAME` do określenia środowiska:
 
 ```bash
 # .env.local
-ENV_NAME=local
+PUBLIC_ENV_NAME=local
 
 # .env.integration  
-ENV_NAME=integration
+PUBLIC_ENV_NAME=integration
 
 # .env.production
-ENV_NAME=prod
+PUBLIC_ENV_NAME=prod
 ```
+
+**Ważne**: W Astro zmienne środowiskowe używane po stronie klienta muszą mieć prefix `PUBLIC_`.
 
 ## Domyślne wartości
 

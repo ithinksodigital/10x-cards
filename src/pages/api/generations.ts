@@ -3,6 +3,7 @@ import type { APIContext } from "astro";
 import { z } from "zod";
 import { GenerationService } from "../../lib/services/generation.service";
 import type { ErrorResponseDto, StartGenerationResponseDto } from "../../types";
+import { isFeatureEnabled } from "../../features";
 
 // Load environment variables from .env file
 import dotenv from "dotenv";
@@ -47,6 +48,19 @@ const StartGenerationSchema = z.object({
  */
 export async function POST(context: APIContext): Promise<Response> {
   const supabase = context.locals.supabase;
+
+  // 0. Check if collections feature is enabled
+  if (!isFeatureEnabled("collections")) {
+    const errorResponse: ErrorResponseDto = {
+      error: "Feature Unavailable",
+      message: "Collections feature is currently disabled",
+      timestamp: new Date().toISOString(),
+    };
+    return new Response(JSON.stringify(errorResponse), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   // 1. Check if user is authenticated, otherwise use anonymous ID
   const user = context.locals.user;

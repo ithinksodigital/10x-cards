@@ -14,19 +14,19 @@ import { FEATURE_FLAGS_CONFIG, DEFAULT_FEATURE_FLAGS } from "./config";
 let cachedFlags: FeatureFlags | null = null;
 
 /**
- * Pobiera aktualne środowisko z zmiennej ENV_NAME
+ * Pobiera aktualne środowisko z zmiennej PUBLIC_ENV_NAME
  */
 function getCurrentEnvironment(): Environment {
   // Zawsze odczytuj środowisko z import.meta.env, nie cache'uj
-  const envName = import.meta.env.ENV_NAME;
+  const envName = import.meta.env.PUBLIC_ENV_NAME;
   if (!envName) {
-    // console.warn("ENV_NAME not set, defaulting to \"local\"");
+    // console.warn("PUBLIC_ENV_NAME not set, defaulting to \"local\"");
     return "local";
   }
 
   const validEnvironments: Environment[] = ["local", "integration", "prod"];
   if (!validEnvironments.includes(envName as Environment)) {
-    // console.warn(`Invalid ENV_NAME: ${envName}, defaulting to "local"`);
+    // console.warn(`Invalid PUBLIC_ENV_NAME: ${envName}, defaulting to "local"`);
     return "local";
   }
 

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import type { ReactNode } from "react";
 import { useAuth } from "./AuthProvider";
 import { Loader2Icon } from "lucide-react";
+import { isFeatureEnabled } from "../../features";
 
 interface AuthGuardProps {
   children: ReactNode;
@@ -17,6 +18,12 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   requireAuth = true,
 }) => {
   const { isAuthenticated, isLoading } = useAuth();
+  const authEnabled = isFeatureEnabled("auth");
+
+  // If auth is disabled, always render children
+  if (!authEnabled) {
+    return <>{children}</>;
+  }
 
   // Handle redirect using useEffect
   useEffect(() => {

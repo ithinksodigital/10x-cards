@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useSetsApi } from "@/hooks/useSetsApi";
+import { isFeatureEnabled } from "@/features";
 import type { BatchCreateCardsCommand } from "@/types";
 import type { FlashCardProposal } from "@/lib/view-models";
 import type { CreateSetCommand } from "@/types";
@@ -39,6 +40,26 @@ export function SaveToSetDialog({
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const { sets, fetchSets, createSet, batchCreateCards, isLoading, error } = useSetsApi();
+  const collectionsEnabled = isFeatureEnabled("collections");
+
+  // If collections feature is disabled, show message
+  if (!collectionsEnabled) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className={cn("sm:max-w-md", className)}>
+          <DialogHeader>
+            <DialogTitle>Funkcjonalność niedostępna</DialogTitle>
+            <DialogDescription>
+              Funkcjonalność kolekcji jest obecnie wyłączona w tym środowisku.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <Button onClick={onClose}>Zamknij</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   // Fetch sets when dialog opens
   useEffect(() => {

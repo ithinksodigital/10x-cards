@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { User, Session } from "@supabase/supabase-js";
+import { isFeatureEnabled } from "../../features";
 
 // Types for authentication context
 interface AuthContextType {
@@ -40,6 +41,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
   const [session, setSession] = useState<Session | null>(initialSession);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Check if auth feature is enabled
+  const authEnabled = isFeatureEnabled("auth");
+
   // Mock implementation - will be replaced with actual Supabase integration
   useEffect(() => {
     // Simulate loading
@@ -51,6 +55,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
   }, []);
 
   const signInWithEmail = async (): Promise<void> => {
+    if (!authEnabled) {
+      throw new Error("Authentication feature is disabled");
+    }
+    
     setIsLoading(true);
     // TODO: Implement actual Supabase sign in
     // Mock success
@@ -61,6 +69,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
   };
 
   const signUpWithEmail = async (): Promise<void> => {
+    if (!authEnabled) {
+      throw new Error("Authentication feature is disabled");
+    }
+    
     setIsLoading(true);
     // TODO: Implement actual Supabase sign up
     // Mock success
@@ -71,6 +83,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, initialUse
   };
 
   const signOut = async (): Promise<void> => {
+    if (!authEnabled) {
+      throw new Error("Authentication feature is disabled");
+    }
+    
     setIsLoading(true);
     // TODO: Implement actual Supabase sign out
     // Mock success
