@@ -22,7 +22,7 @@ export const FEATURE_FLAGS_CONFIG: EnvironmentConfig = {
     collections: true,
   },
   prod: {
-    auth: true,
+    auth: false,
     collections: true,
   },
 } as const;
