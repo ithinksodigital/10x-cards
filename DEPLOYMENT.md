@@ -6,8 +6,8 @@ Projekt został skonfigurowany do deploymentu na Cloudflare Pages z wykorzystani
 
 - **Astro 5** z adapterem Cloudflare
 - **Server-side rendering** (wszystkie strony + API routes)
-- **Automatyczny deployment** przy push na branch `master`
-- **Testy jednostkowe** przed deploymentem
+- **Ręczny deployment** (workflow_dispatch)
+- **Testy jednostkowe z coverage** przed deploymentem
 
 ## Wymagane zmienne środowiskowe
 
@@ -87,15 +87,27 @@ Workflow `master.yml` wykonuje następujące kroki:
 2. **Setup Node.js** (wersja 20)
 3. **Install dependencies** (`npm ci`)
 4. **Lint** kodu
-5. **Unit tests**
-6. **Build** aplikacji
-7. **Deploy** na Cloudflare Pages
+5. **Unit tests** (podstawowe)
+6. **Unit tests z coverage** (szczegółowe)
+7. **Upload coverage** do Codecov
+8. **Build** aplikacji
+9. **Check build output**
+10. **Deploy** na Cloudflare Pages
 
 ### Trigger
 
-Workflow uruchamia się automatycznie przy:
-- Push na branch `master`
-- Manual trigger (`workflow_dispatch`)
+Workflow uruchamia się **tylko ręcznie** przez:
+- **Manual trigger** (`workflow_dispatch`) w GitHub Actions UI
+
+### Jak uruchomić deployment ręcznie
+
+1. Przejdź do **Actions** w Twoim repozytorium GitHub
+2. Wybierz workflow **"Deploy to Cloudflare Pages"**
+3. Kliknij **"Run workflow"**
+4. Wybierz branch (domyślnie `master`)
+5. Kliknij **"Run workflow"**
+
+Workflow wykona wszystkie testy, zbuduje aplikację i wdroży ją na Cloudflare Pages.
 
 ## Struktura projektu
 

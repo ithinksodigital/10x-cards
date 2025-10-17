@@ -1,8 +1,6 @@
 name: Deploy to Cloudflare Pages
 
 on:
-  push:
-    branches: [master]
   workflow_dispatch:
 
 jobs:
@@ -37,6 +35,19 @@ jobs:
         run: npm run test
         env:
           CI: true
+
+      - name: Run unit tests with coverage
+        run: npm run test:coverage -- --run tests/unit
+        env:
+          CI: true
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
 
       - name: Build application
         run: npm run build
