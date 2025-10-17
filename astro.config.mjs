@@ -8,7 +8,8 @@ import cloudflare from "@astrojs/cloudflare";
 
 // https://astro.build/config
 export default defineConfig({
-  output: "hybrid",
+  site: "https://your-domain.pages.dev", // Zastąp rzeczywistą domeną Cloudflare Pages
+  output: "server",
   integrations: [react(), sitemap()],
   server: { port: 3000 },
   vite: {

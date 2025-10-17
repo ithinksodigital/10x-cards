@@ -5,7 +5,7 @@
 Projekt został skonfigurowany do deploymentu na Cloudflare Pages z wykorzystaniem GitHub Actions. Konfiguracja obejmuje:
 
 - **Astro 5** z adapterem Cloudflare
-- **Hybrid rendering** (statyczne strony + API routes)
+- **Server-side rendering** (wszystkie strony + API routes)
 - **Automatyczny deployment** przy push na branch `master`
 - **Testy jednostkowe** przed deploymentem
 
@@ -57,6 +57,17 @@ Root directory: /
 
 - **Node.js version**: 20
 - **Environment variables**: Dodaj wszystkie wymagane zmienne
+
+### 4. Konfiguracja domeny
+
+Po utworzeniu projektu Cloudflare Pages:
+
+1. Skopiuj URL projektu (np. `https://your-project-name.pages.dev`)
+2. Zaktualizuj `site` w `astro.config.mjs`:
+   ```javascript
+   site: "https://your-project-name.pages.dev"
+   ```
+3. Zaktualizuj plik i wdróż ponownie
 
 ## Workflow GitHub Actions
 
