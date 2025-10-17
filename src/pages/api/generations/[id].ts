@@ -32,7 +32,7 @@ export async function GET(context: APIContext): Promise<Response> {
 
   try {
     const generationService = new GenerationService(supabase);
-    const generation = await generationService.getGenerationStatus(generationId, userId);
+    const generation = await generationService.getGenerationStatus(generationId);
 
     if (!generation) {
       const errorResponse: ErrorResponseDto = {

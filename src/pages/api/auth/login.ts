@@ -2,6 +2,7 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createSupabaseServerInstance } from "../../../db/supabase.client.ts";
+import { getSecret } from "astro:env/server";
 
 export const prerender = false;
 
@@ -14,8 +15,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     // eslint-disable-next-line no-console
     console.log("Login attempt - environment check:", {
-      hasSupabaseUrl: !!import.meta.env.SUPABASE_URL,
-      hasSupabaseKey: !!import.meta.env.SUPABASE_KEY,
+      hasSupabaseUrl: !!getSecret("SUPABASE_URL"),
+      hasSupabaseKey: !!getSecret("SUPABASE_KEY"),
       envName: import.meta.env.PUBLIC_ENV_NAME,
     });
 

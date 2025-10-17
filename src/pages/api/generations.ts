@@ -4,8 +4,7 @@ import { z } from "zod";
 import { GenerationService } from "../../lib/services/generation.service";
 import type { ErrorResponseDto, StartGenerationResponseDto } from "../../types";
 import { isFeatureEnabled } from "../../features";
-
-// Environment variables are available via import.meta.env on Cloudflare Pages
+import { getSecret } from "astro:env/server";
 
 export const prerender = false;
 
@@ -108,8 +107,8 @@ export async function POST(context: APIContext): Promise<Response> {
     // Check environment variables
     // eslint-disable-next-line no-console
     console.log("Environment check:", {
-      hasOpenRouterKey: !!import.meta.env.OPENROUTER_API_KEY,
-      openRouterKeyLength: import.meta.env.OPENROUTER_API_KEY?.length || 0,
+      hasOpenRouterKey: !!getSecret("OPENROUTER_API_KEY"),
+      openRouterKeyLength: getSecret("OPENROUTER_API_KEY")?.length || 0,
       allEnvKeys: Object.keys(import.meta.env).filter((k) => k.includes("OPENROUTER")),
     });
 
