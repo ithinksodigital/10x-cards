@@ -22,8 +22,8 @@ export class GenerationService {
    * @returns Configured OpenRouterService instance
    */
   private createOpenRouterService(): OpenRouterService {
-    // Get API key from environment - use import.meta.env for Astro
-    const apiKey = import.meta.env.OPENROUTER_API_KEY || "";
+    // Get API key from environment - try both import.meta.env and process.env for Cloudflare Pages
+    const apiKey = import.meta.env.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY || "";
 
     const config: OpenRouterConfig = {
       apiKey,
@@ -197,7 +197,7 @@ export class GenerationService {
       }
 
       // Check if OpenRouter API key is available
-      const apiKey = import.meta.env.OPENROUTER_API_KEY || "";
+      const apiKey = import.meta.env.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY || "";
 
       // API Key check completed
 

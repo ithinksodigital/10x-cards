@@ -17,8 +17,8 @@ let cachedFlags: FeatureFlags | null = null;
  * Pobiera aktualne środowisko z zmiennej PUBLIC_ENV_NAME
  */
 function getCurrentEnvironment(): Environment {
-  // Zawsze odczytuj środowisko z import.meta.env, nie cache'uj
-  const envName = import.meta.env.PUBLIC_ENV_NAME;
+  // Zawsze odczytuj środowisko z import.meta.env lub process.env, nie cache'uj
+  const envName = import.meta.env.PUBLIC_ENV_NAME || process.env.PUBLIC_ENV_NAME;
   if (!envName) {
     // console.warn("PUBLIC_ENV_NAME not set, defaulting to \"local\"");
     return "local";

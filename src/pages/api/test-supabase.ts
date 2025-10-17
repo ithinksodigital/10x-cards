@@ -13,10 +13,23 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     
     // Test 1: Check environment variables
     const envCheck = {
-      hasSupabaseUrl: !!import.meta.env.SUPABASE_URL,
-      hasSupabaseKey: !!import.meta.env.SUPABASE_KEY,
-      envName: import.meta.env.PUBLIC_ENV_NAME,
-      supabaseUrl: import.meta.env.SUPABASE_URL?.substring(0, 20) + "...",
+      // Check import.meta.env
+      importMeta: {
+        hasSupabaseUrl: !!import.meta.env.SUPABASE_URL,
+        hasSupabaseKey: !!import.meta.env.SUPABASE_KEY,
+        envName: import.meta.env.PUBLIC_ENV_NAME,
+        supabaseUrl: import.meta.env.SUPABASE_URL?.substring(0, 20) + "...",
+      },
+      // Check process.env (Cloudflare Pages)
+      processEnv: {
+        hasSupabaseUrl: !!process.env.SUPABASE_URL,
+        hasSupabaseKey: !!process.env.SUPABASE_KEY,
+        envName: process.env.PUBLIC_ENV_NAME,
+        supabaseUrl: process.env.SUPABASE_URL?.substring(0, 20) + "...",
+      },
+      // Check all available env keys
+      allImportMetaKeys: Object.keys(import.meta.env),
+      allProcessEnvKeys: Object.keys(process.env).filter(k => k.includes('SUPABASE') || k.includes('OPENROUTER') || k.includes('PUBLIC')),
     };
     
     // Test 2: Try to query a table

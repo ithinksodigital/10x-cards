@@ -4,8 +4,9 @@ import type { AstroCookies } from "astro";
 
 import type { Database } from "./database.types.ts";
 
-const supabaseUrl = import.meta.env.SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
+// Try both import.meta.env and process.env for Cloudflare Pages compatibility
+const supabaseUrl = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.SUPABASE_KEY || process.env.SUPABASE_KEY;
 
 // Validate environment variables
 if (!supabaseUrl || !supabaseAnonKey) {
@@ -38,8 +39,8 @@ function parseCookieHeader(cookieHeader: string): { name: string; value: string 
 }
 
 export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
-  const url = import.meta.env.SUPABASE_URL || "https://mock.supabase.co";
-  const key = import.meta.env.SUPABASE_KEY || "mock-anon-key";
+  const url = import.meta.env.SUPABASE_URL || process.env.SUPABASE_URL || "https://mock.supabase.co";
+  const key = import.meta.env.SUPABASE_KEY || process.env.SUPABASE_KEY || "mock-anon-key";
 
   const supabase = createServerClient<Database>(url, key, {
     cookieOptions,
