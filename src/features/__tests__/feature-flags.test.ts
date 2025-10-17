@@ -19,27 +19,27 @@ describe("Feature Flags System", () => {
       expect(typeof collectionsEnabled).toBe("boolean");
     });
 
-    it('should return all flags as an object', () => {
+    it("should return all flags as an object", () => {
       const flags = getFeatureFlags();
-      
-      expect(flags).toHaveProperty('auth');
-      expect(flags).toHaveProperty('collections');
-      expect(typeof flags.auth).toBe('boolean');
-      expect(typeof flags.collections).toBe('boolean');
+
+      expect(flags).toHaveProperty("auth");
+      expect(flags).toHaveProperty("collections");
+      expect(typeof flags.auth).toBe("boolean");
+      expect(typeof flags.collections).toBe("boolean");
     });
 
-    it('should reset cache when resetFeatureFlagsCache is called', () => {
+    it("should reset cache when resetFeatureFlagsCache is called", () => {
       // First call to load cache
       const flags1 = getFeatureFlags();
-      
+
       // Reset cache
       resetFeatureFlagsCache();
-      
+
       // Second call should work without errors
       const flags2 = getFeatureFlags();
-      
-      expect(typeof flags1).toBe('object');
-      expect(typeof flags2).toBe('object');
+
+      expect(typeof flags1).toBe("object");
+      expect(typeof flags2).toBe("object");
     });
   });
 
