@@ -131,7 +131,9 @@ Flash Cards AI addresses the time-consuming process of manually creating effecti
 - ✅ **Testing Framework**: Comprehensive test suite (Vitest + Playwright)
 - ✅ **Feature Flags**: Environment-based feature control
 - ✅ **Authentication**: Email/password system via Supabase Auth
-- 🚧 **Frontend UI**: Basic components, needs completion
+- ✅ **Generation Frontend**: Complete React app with 3-step flow (paste → review → save)
+- ✅ **Card Review Interface**: Batch review, inline editing, bulk actions, undo
+- 🚧 **Sets Management**: Backend ready, frontend needs API integration
 - 🚧 **SRS System**: Complete SM-2 algorithm backend, frontend UI pending
 
 ### Out of Scope (Post-MVP)
@@ -143,7 +145,7 @@ Flash Cards AI addresses the time-consuming process of manually creating effecti
 
 ## Project Status
 
-🚧 **Development Phase** - MVP in active development
+🚧 **Development Phase** 
 
 ### Key Metrics & Goals
 - **AI Acceptance Rate**: Target ≥75% of generated cards accepted
@@ -158,10 +160,6 @@ Flash Cards AI addresses the time-consuming process of manually creating effecti
 - **Testing**: Comprehensive test suite with 90%+ coverage
 - **Deployment**: Cloudflare Pages with GitHub Actions CI/CD
 - **Feature Control**: Environment-based feature flags system
-
-## License
-
-This project is currently in development. License information will be added upon release.
 
 ---
 
@@ -191,8 +189,8 @@ This project is currently in development. License information will be added upon
 
 This project is in active development. The backend API is complete and ready for frontend integration. Key areas for contribution:
 
-1. **Frontend UI Completion** - React components for card review and SRS interface
-2. **Authentication Frontend** - Complete the auth flow UI
-3. **SRS Frontend Integration** - Connect SRS backend to frontend
+1. **Sets Management Frontend** - Connect sets API to frontend components
+2. **SRS Study Interface** - Build React components for spaced repetition
+3. **Authentication Integration** - Connect auth components to Supabase
 4. **Testing** - Expand test coverage for new features
 5. **Documentation** - Improve user-facing documentation
