@@ -20,17 +20,20 @@ let cachedFlags: FeatureFlags | null = null;
 function getCurrentEnvironment(): Environment {
   // Use Astro 5 environment variables system
   const envName = PUBLIC_ENV_NAME;
+  console.log("🔍 Feature Flag Debug - PUBLIC_ENV_NAME:", envName);
+
   if (!envName) {
-    // console.warn("PUBLIC_ENV_NAME not set, defaulting to \"local\"");
+    console.warn('PUBLIC_ENV_NAME not set, defaulting to "local"');
     return "local";
   }
 
   const validEnvironments: Environment[] = ["local", "integration", "prod"];
   if (!validEnvironments.includes(envName as Environment)) {
-    // console.warn(`Invalid PUBLIC_ENV_NAME: ${envName}, defaulting to "local"`);
+    console.warn(`Invalid PUBLIC_ENV_NAME: ${envName}, defaulting to "local"`);
     return "local";
   }
 
+  console.log("✅ Feature Flag Debug - Using environment:", envName);
   return envName as Environment;
 }
 
@@ -46,10 +49,13 @@ function loadFeatureFlags(): FeatureFlags {
     collections: environmentFlags.collections ?? DEFAULT_FEATURE_FLAGS.collections,
   };
 
+  console.log("🚩 Feature Flag Debug - Environment:", environment);
+  console.log("🚩 Feature Flag Debug - Flags:", flags);
+
   // Cache tylko jeśli nie ma cache lub środowisko się nie zmieniło
   if (!cachedFlags) {
     cachedFlags = flags;
-    // console.log(`Feature flags loaded for environment: ${environment}`, cachedFlags);
+    console.log(`Feature flags loaded for environment: ${environment}`, cachedFlags);
   }
 
   return flags;
