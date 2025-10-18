@@ -132,7 +132,7 @@ Flash Cards AI addresses the time-consuming process of manually creating effecti
 - ✅ **Feature Flags**: Environment-based feature control
 - ✅ **Authentication**: Email/password system via Supabase Auth
 - 🚧 **Frontend UI**: Basic components, needs completion
-- 🚧 **SRS System**: Backend ready, frontend integration pending
+- 🚧 **SRS System**: Complete SM-2 algorithm backend, frontend UI pending
 
 ### Out of Scope (Post-MVP)
 - File import (PDF, DOCX)

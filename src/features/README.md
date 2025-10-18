@@ -29,10 +29,10 @@ export const FEATURE_FLAGS_CONFIG: EnvironmentConfig = {
   },
   integration: {
     auth: true,
-    collections: false,
+    collections: true,
   },
   prod: {
-    auth: true,
+    auth: false,
     collections: true,
   },
 };

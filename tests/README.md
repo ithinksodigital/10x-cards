@@ -158,10 +158,10 @@ vi.mock("@/lib/api", () => ({
 
 Minimalne wymagania coverage:
 
-- **Branches**: 90%
-- **Functions**: 90%
-- **Lines**: 90%
-- **Statements**: 90%
+- **Branches**: 80%
+- **Functions**: 80%
+- **Lines**: 80%
+- **Statements**: 80%
 
 ## Dostępność (A11y)
 

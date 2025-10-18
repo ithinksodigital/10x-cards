@@ -77,7 +77,7 @@ Strona ustawiania nowego hasła (z tokenem z emaila).
 
 ### /auth/callback
 
-Strona obsługująca OAuth callbacks.
+Strona obsługująca OAuth callbacks (obecnie mock implementacja).
 
 ### /auth/logout
 
