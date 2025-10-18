@@ -130,7 +130,7 @@ Flash Cards AI addresses the time-consuming process of manually creating effecti
 - ✅ **AI Integration**: OpenRouter.ai service with multiple models
 - ✅ **Testing Framework**: Comprehensive test suite (Vitest + Playwright)
 - ✅ **Feature Flags**: Environment-based feature control
-- ✅ **Authentication**: Email/password system via Supabase Auth
+- ✅ **Authentication**: Complete email/password system with Supabase Auth
 - ✅ **Generation Frontend**: Complete React app with 3-step flow (paste → review → save)
 - ✅ **Card Review Interface**: Batch review, inline editing, bulk actions, undo
 - 🚧 **Sets Management**: Backend ready, frontend needs API integration
@@ -191,6 +191,6 @@ This project is in active development. The backend API is complete and ready for
 
 1. **Sets Management Frontend** - Connect sets API to frontend components
 2. **SRS Study Interface** - Build React components for spaced repetition
-3. **Authentication Integration** - Connect auth components to Supabase
+3. **Password Reset** - Complete password reset flow
 4. **Testing** - Expand test coverage for new features
 5. **Documentation** - Improve user-facing documentation
