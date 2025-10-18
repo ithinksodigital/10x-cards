@@ -5,6 +5,7 @@ import { GenerationService } from "../../lib/services/generation.service";
 import type { ErrorResponseDto, StartGenerationResponseDto } from "../../types";
 import { isFeatureEnabled } from "../../features";
 import { getSecret } from "astro:env/server";
+import { PUBLIC_ENV_NAME } from "astro:env/client";
 
 export const prerender = false;
 
@@ -109,7 +110,7 @@ export async function POST(context: APIContext): Promise<Response> {
     console.log("Environment check:", {
       hasOpenRouterKey: !!getSecret("OPENROUTER_API_KEY"),
       openRouterKeyLength: getSecret("OPENROUTER_API_KEY")?.length || 0,
-      allEnvKeys: Object.keys(import.meta.env).filter((k) => k.includes("OPENROUTER")),
+      envName: PUBLIC_ENV_NAME,
     });
 
     const generationService = new GenerationService(supabase);

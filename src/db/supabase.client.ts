@@ -6,6 +6,7 @@ import type { Database } from "./database.types.ts";
 
 // Use Astro 5 environment variables system
 import { getSecret } from "astro:env/server";
+import { PUBLIC_ENV_NAME } from "astro:env/client";
 
 const supabaseUrl = getSecret("SUPABASE_URL");
 const supabaseAnonKey = getSecret("SUPABASE_KEY");
@@ -25,7 +26,7 @@ export type SupabaseClient = typeof supabaseClient;
 
 export const cookieOptions: CookieOptionsWithName = {
   path: "/",
-  secure: import.meta.env.PUBLIC_ENV_NAME === "prod", // Use secure cookies in production
+  secure: PUBLIC_ENV_NAME === "prod", // Use secure cookies in production
   httpOnly: true,
   sameSite: "lax",
 };

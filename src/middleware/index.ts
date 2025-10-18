@@ -1,6 +1,7 @@
 import { defineMiddleware } from "astro:middleware";
 import { createSupabaseServerInstance } from "../db/supabase.client.ts";
 import { isFeatureEnabled } from "../features";
+import { PUBLIC_ENV_NAME } from "astro:env/client";
 
 const PUBLIC_PATHS = new Set([
   "/auth/login",
