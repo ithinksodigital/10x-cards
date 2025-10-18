@@ -17,7 +17,7 @@ declare module "astro:env" {
   interface ImportMetaEnv {
     // Public client variables (available in both client and server)
     readonly PUBLIC_ENV_NAME: string;
-    
+
     // Secret server variables (only available on server)
     readonly SUPABASE_URL: string;
     readonly SUPABASE_KEY: string;

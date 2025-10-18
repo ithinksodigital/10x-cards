@@ -23,15 +23,15 @@ const baseConfig = tseslint.config({
     },
   },
   rules: {
-    "no-console": process.env.CI ? "warn" : "warn",
+    "no-console": "warn",
     "no-unused-vars": "off",
-    "@typescript-eslint/no-explicit-any": process.env.CI ? "error" : "warn",
-    "@typescript-eslint/no-unused-vars": process.env.CI ? "error" : "warn",
-    "@typescript-eslint/no-non-null-assertion": process.env.CI ? "error" : "warn",
-    "no-empty": process.env.CI ? "error" : "warn",
-    "no-empty-function": process.env.CI ? "error" : "warn",
-    "no-constant-binary-expression": process.env.CI ? "error" : "warn",
-    "no-case-declarations": process.env.CI ? "error" : "warn",
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-non-null-assertion": "error",
+    "no-empty": "error",
+    "no-empty-function": "error",
+    "no-constant-binary-expression": "error",
+    "no-case-declarations": "error",
   },
 });
 
@@ -64,7 +64,7 @@ const reactConfig = tseslint.config({
   rules: {
     ...eslintPluginReactHooks.configs.recommended.rules,
     "react/react-in-jsx-scope": "off",
-    "react-compiler/react-compiler": process.env.CI ? "error" : "warn",
+    "react-compiler/react-compiler": "error",
   },
 });
 

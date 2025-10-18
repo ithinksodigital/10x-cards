@@ -30,14 +30,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     console.log("Registration data validated successfully");
 
     const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
-    
+
     // Test Supabase connection
     // eslint-disable-next-line no-console
     console.log("Testing Supabase connection...");
     const { data: healthCheck } = await supabase.from("generations").select("id").limit(1);
     // eslint-disable-next-line no-console
     console.log("Supabase connection test result:", healthCheck !== null ? "OK" : "FAILED");
-    
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,

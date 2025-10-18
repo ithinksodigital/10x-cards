@@ -26,9 +26,8 @@ export async function GET(context: APIContext): Promise<Response> {
     });
   }
 
-  // Check if user is authenticated, otherwise use anonymous ID
-  const user = context.locals.user;
-  const userId = user ? user.id : "anonymous-user";
+  // Check if user is authenticated (for future use)
+  // const user = context.locals.user;
 
   try {
     const generationService = new GenerationService(supabase);
