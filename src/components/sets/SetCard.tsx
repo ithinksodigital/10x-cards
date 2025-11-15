@@ -3,14 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardAction } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { SetDto } from "@/types";
-import { BookOpen, Edit, Trash2, Play } from "lucide-react";
+import { BookOpen, Trash2, Play } from "lucide-react";
 
 interface SetCardProps {
   set: SetDto;
   onStudy: (setId: string) => void;
-  onEdit: (setId: string) => void;
   onDelete: (setId: string) => void;
-  onView?: (setId: string) => void; // Optional, not used anymore
 }
 
 const languageLabels: Record<string, string> = {
@@ -25,7 +23,7 @@ const languageColors: Record<string, string> = {
   es: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
 };
 
-export function SetCard({ set, onStudy, onEdit, onDelete }: SetCardProps) {
+export function SetCard({ set, onStudy, onDelete }: SetCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -41,11 +39,6 @@ export function SetCard({ set, onStudy, onEdit, onDelete }: SetCardProps) {
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDelete(set.id);
-  };
-
-  const handleEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onEdit(set.id);
   };
 
   const handleStudy = (e: React.MouseEvent) => {
@@ -95,10 +88,6 @@ export function SetCard({ set, onStudy, onEdit, onDelete }: SetCardProps) {
             <Button size="sm" onClick={handleStudy} className="flex-1" disabled={set.cards_count === 0}>
               <Play className="h-4 w-4 mr-1" />
               Ucz się
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleEdit} className="flex-1">
-              <Edit className="h-4 w-4 mr-1" />
-              Edytuj
             </Button>
           </div>
         </div>

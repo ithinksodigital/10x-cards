@@ -170,6 +170,10 @@ export class SrsService {
     // 5. Fetch review cards
     // First try to get cards that are due (due_at <= now)
     const now = new Date().toISOString();
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayStartISO = todayStart.toISOString();
+
     let { data: reviewCards } = await this.supabase
       .from("cards")
       .select("id, front, back, status")
@@ -182,16 +186,33 @@ export class SrsService {
 
     // If no cards are due, get cards that are closest to being due (allow early review)
     if (!reviewCards || reviewCards.length === 0) {
-      const { data: upcomingCards } = await this.supabase
+      // First, try to get cards reviewed today in this set (allow immediate re-review)
+      const { data: todayReviewedCards } = await this.supabase
         .from("cards")
-        .select("id, front, back, status")
+        .select("id, front, back, status, updated_at")
         .eq("set_id", command.set_id)
         .eq("user_id", userId)
         .neq("status", "new")
-        .order("due_at", { ascending: true })
-        .limit(Math.min(command.review_cards_limit, reviewsRemaining));
+        .gte("updated_at", todayStartISO)
+        .order("updated_at", { ascending: false })
+        .limit(command.review_cards_limit);
 
-      reviewCards = upcomingCards;
+      // If we have cards reviewed today, use them (bypass daily limit for immediate re-review)
+      if (todayReviewedCards && todayReviewedCards.length > 0) {
+        reviewCards = todayReviewedCards;
+      } else {
+        // Otherwise, get cards closest to being due
+        const { data: upcomingCards } = await this.supabase
+          .from("cards")
+          .select("id, front, back, status")
+          .eq("set_id", command.set_id)
+          .eq("user_id", userId)
+          .neq("status", "new")
+          .order("due_at", { ascending: true })
+          .limit(Math.min(command.review_cards_limit, reviewsRemaining));
+
+        reviewCards = upcomingCards;
+      }
     }
 
     // 6. Combine cards

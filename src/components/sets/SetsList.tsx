@@ -12,7 +12,6 @@ import { AlertCircle, RefreshCw } from "lucide-react";
 
 interface SetsListProps {
   onSetStudy?: (setId: string) => void;
-  onSetEdit?: (setId: string) => void;
   className?: string;
 }
 
@@ -25,7 +24,7 @@ interface SetsListState {
   error: string | null;
 }
 
-export function SetsList({ onSetStudy, onSetEdit, className }: SetsListProps) {
+export function SetsList({ onSetStudy, className }: SetsListProps) {
   const { fetchSets, createSet, isLoading: apiLoading, error: apiError } = useSetsApi();
 
   const [state, setState] = useState<SetsListState>({
@@ -131,18 +130,6 @@ export function SetsList({ onSetStudy, onSetEdit, className }: SetsListProps) {
       }
     },
     [onSetStudy]
-  );
-
-  const handleSetEdit = useCallback(
-    (setId: string) => {
-      if (onSetEdit) {
-        onSetEdit(setId);
-      } else {
-        // Default behavior - navigate to set detail
-        window.location.href = `/sets/${setId}`;
-      }
-    },
-    [onSetEdit]
   );
 
   const handleSetDelete = useCallback(
@@ -260,13 +247,7 @@ export function SetsList({ onSetStudy, onSetEdit, className }: SetsListProps) {
           {/* Sets Grid */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
             {filteredSets.map((set) => (
-              <SetCard
-                key={set.id}
-                set={set}
-                onStudy={handleSetStudy}
-                onEdit={handleSetEdit}
-                onDelete={handleSetDelete}
-              />
+              <SetCard key={set.id} set={set} onStudy={handleSetStudy} onDelete={handleSetDelete} />
             ))}
           </div>
 
