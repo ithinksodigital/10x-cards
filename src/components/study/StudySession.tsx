@@ -27,37 +27,17 @@ export function StudySession({ session, onReview, onComplete, onClose }: StudySe
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [startTime] = useState(Date.now());
 
-  // Check if session has cards
-  if (!session.cards || session.cards.length === 0) {
-    return (
-      <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
-        <DialogContent className="max-w-md">
-          <div className="text-center space-y-4 py-6">
-            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto" />
-            <h3 className="text-lg font-semibold">Brak kart do powtórki</h3>
-            <p className="text-sm text-muted-foreground">
-              Wszystkie karty z tego zestawu są już przerobione lub nie ma kart do nauki w tym momencie.
-            </p>
-            <Button onClick={onClose} className="w-full">
-              Zamknij
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  const currentCard = session.cards[currentIndex];
-  const progress = ((currentIndex + 1) / session.total_cards) * 100;
-  const isLastCard = currentIndex === session.cards.length - 1;
+  // Get current card safely
+  const currentCard = session.cards?.[currentIndex];
+  const progress = session.cards && session.cards.length > 0 ? ((currentIndex + 1) / session.total_cards) * 100 : 0;
+  const isLastCard = session.cards ? currentIndex === session.cards.length - 1 : false;
 
   const handleFlip = useCallback(() => {
     if (!isSubmitting) {
-      setIsFlipped(!isFlipped);
+      setIsFlipped((prev) => !prev);
     }
-  }, [isFlipped, isSubmitting]);
+  }, [isSubmitting]);
 
   const handleRating = useCallback(
     async (rating: number) => {
@@ -80,13 +60,14 @@ export function StudySession({ session, onReview, onComplete, onClose }: StudySe
           setIsFlipped(false);
         }
       } catch (error) {
-        console.error("Failed to submit review:", error);
         // Error is handled by parent component
+        // eslint-disable-next-line no-console
+        console.error("Failed to submit review:", error);
       } finally {
         setIsSubmitting(false);
       }
     },
-    [currentCard, isSubmitting, isLastCard, onReview, session.session_id]
+    [currentCard, isSubmitting, isLastCard, onReview, session.session_id, onComplete]
   );
 
   // Keyboard shortcuts
@@ -129,7 +110,27 @@ export function StudySession({ session, onReview, onComplete, onClose }: StudySe
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isFlipped, isSubmitting, handleFlip, handleRating, onClose]);
+  }, [isSubmitting, handleFlip, handleRating, onClose]);
+
+  // Check if session has cards
+  if (!session.cards || session.cards.length === 0) {
+    return (
+      <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+        <DialogContent className="max-w-md">
+          <div className="text-center space-y-4 py-6">
+            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto" />
+            <h3 className="text-lg font-semibold">Brak kart do powtórki</h3>
+            <p className="text-sm text-muted-foreground">
+              Wszystkie karty z tego zestawu są już przerobione lub nie ma kart do nauki w tym momencie.
+            </p>
+            <Button onClick={onClose} className="w-full">
+              Zamknij
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   // Additional safety check (should not happen due to early return above)
   if (!currentCard) {
@@ -172,13 +173,7 @@ export function StudySession({ session, onReview, onComplete, onClose }: StudySe
               </div>
               <Progress value={progress} className="h-2" />
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="ml-4"
-              aria-label="Zamknij sesję"
-            >
+            <Button variant="ghost" size="icon" onClick={onClose} className="ml-4" aria-label="Zamknij sesję">
               <X className="h-5 w-5" />
             </Button>
           </div>
@@ -202,7 +197,9 @@ export function StudySession({ session, onReview, onComplete, onClose }: StudySe
                   {isFlipped ? currentCard.back : currentCard.front}
                 </div>
                 {!isFlipped && (
-                  <p className="mt-4 text-sm text-muted-foreground">Kliknij lub naciśnij spację, aby zobaczyć odpowiedź</p>
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    Kliknij lub naciśnij spację, aby zobaczyć odpowiedź
+                  </p>
                 )}
               </div>
             </CardContent>
@@ -236,9 +233,7 @@ export function StudySession({ session, onReview, onComplete, onClose }: StudySe
                   );
                 })}
               </div>
-              <p className="text-xs text-center text-muted-foreground mt-2">
-                Lub użyj klawiszy 1-5 na klawiaturze
-              </p>
+              <p className="text-xs text-center text-muted-foreground mt-2">Lub użyj klawiszy 1-5 na klawiaturze</p>
             </div>
           ) : (
             <div className="text-center">
@@ -252,4 +247,3 @@ export function StudySession({ session, onReview, onComplete, onClose }: StudySe
     </Dialog>
   );
 }
-

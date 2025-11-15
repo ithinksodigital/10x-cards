@@ -11,7 +11,7 @@ interface PaginationProps {
 
 export function Pagination({ pagination, onPageChange, className }: PaginationProps) {
   const { page, total_pages, total } = pagination;
-  
+
   // Don't render if there's only one page or no items
   if (total_pages <= 1) {
     return null;
@@ -37,7 +37,7 @@ export function Pagination({ pagination, onPageChange, className }: PaginationPr
   const getPageNumbers = () => {
     const pages: (number | string)[] = [];
     const maxVisible = 5;
-    
+
     if (total_pages <= maxVisible) {
       // Show all pages if total is small
       for (let i = 1; i <= total_pages; i++) {
@@ -46,29 +46,29 @@ export function Pagination({ pagination, onPageChange, className }: PaginationPr
     } else {
       // Always show first page
       pages.push(1);
-      
+
       if (page > 3) {
         pages.push("...");
       }
-      
+
       // Show pages around current page
       const start = Math.max(2, page - 1);
       const end = Math.min(total_pages - 1, page + 1);
-      
+
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
-      
+
       if (page < total_pages - 2) {
         pages.push("...");
       }
-      
+
       // Always show last page
       if (total_pages > 1) {
         pages.push(total_pages);
       }
     }
-    
+
     return pages;
   };
 
@@ -77,9 +77,9 @@ export function Pagination({ pagination, onPageChange, className }: PaginationPr
   return (
     <div className={`flex items-center justify-between ${className}`}>
       <div className="text-sm text-muted-foreground">
-        Pokazuję {((page - 1) * pagination.limit) + 1}-{Math.min(page * pagination.limit, total)} z {total} zestawów
+        Pokazuję {(page - 1) * pagination.limit + 1}-{Math.min(page * pagination.limit, total)} z {total} zestawów
       </div>
-      
+
       <div className="flex items-center gap-1">
         <Button
           variant="outline"
@@ -90,7 +90,7 @@ export function Pagination({ pagination, onPageChange, className }: PaginationPr
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        
+
         {pageNumbers.map((pageNumber, index) => (
           <React.Fragment key={index}>
             {pageNumber === "..." ? (
@@ -109,7 +109,7 @@ export function Pagination({ pagination, onPageChange, className }: PaginationPr
             )}
           </React.Fragment>
         ))}
-        
+
         <Button
           variant="outline"
           size="sm"

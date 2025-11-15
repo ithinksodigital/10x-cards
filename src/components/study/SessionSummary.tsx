@@ -2,7 +2,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import type { SessionSummaryDto } from "@/types";
 
@@ -50,9 +49,7 @@ export function SessionSummary({ summary, onStudyMore, onBackToSets }: SessionSu
                 <div className="text-sm text-muted-foreground mt-1">Przejrzanych kart</div>
               </div>
               <div className="text-center p-4 bg-muted rounded-lg">
-                <div className="text-2xl font-bold text-foreground">
-                  {summary.average_rating.toFixed(1)}
-                </div>
+                <div className="text-2xl font-bold text-foreground">{summary.average_rating.toFixed(1)}</div>
                 <div className="text-sm text-muted-foreground mt-1">Średnia ocena</div>
               </div>
               <div className="text-center p-4 bg-muted rounded-lg">
@@ -76,12 +73,13 @@ export function SessionSummary({ summary, onStudyMore, onBackToSets }: SessionSu
                         <div className="flex items-center gap-2">
                           <div className="flex-1 bg-muted rounded-full h-6 overflow-hidden">
                             <div
-                              className={cn("h-full transition-all duration-500 flex items-center justify-end pr-2", color)}
+                              className={cn(
+                                "h-full transition-all duration-500 flex items-center justify-end pr-2",
+                                color
+                              )}
                               style={{ width: `${percentage}%` }}
                             >
-                              {count > 0 && (
-                                <span className="text-xs font-medium text-white">{count}</span>
-                              )}
+                              {count > 0 && <span className="text-xs font-medium text-white">{count}</span>}
                             </div>
                           </div>
                         </div>
@@ -107,4 +105,3 @@ export function SessionSummary({ summary, onStudyMore, onBackToSets }: SessionSu
     </div>
   );
 }
-

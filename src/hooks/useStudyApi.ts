@@ -168,4 +168,3 @@ export function useStudyApi(): UseStudyApiReturn {
     getSessionSummary,
   };
 }
-

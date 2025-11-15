@@ -4,8 +4,6 @@ import { z } from "zod";
 import { GenerationService } from "../../lib/services/generation.service";
 import type { ErrorResponseDto, StartGenerationResponseDto } from "../../types";
 import { isFeatureEnabled } from "../../features";
-import { getSecret } from "astro:env/server";
-import { PUBLIC_ENV_NAME } from "astro:env/client";
 
 export const prerender = false;
 

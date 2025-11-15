@@ -16,44 +16,44 @@ interface NewSetDialogProps {
 const languageOptions = [
   { value: "pl", label: "Polski" },
   { value: "en", label: "English" },
-  { value: "es", label: "Español" }
+  { value: "es", label: "Español" },
 ];
 
 export function NewSetDialog({ onCreateSet, isLoading = false, trigger }: NewSetDialogProps) {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<CreateSetCommand>({
     name: "",
-    language: "pl"
+    language: "pl",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Reset errors
     setErrors({});
-    
+
     // Validate form
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = "Nazwa zestawu jest wymagana";
     } else if (formData.name.length > 100) {
       newErrors.name = "Nazwa zestawu nie może przekraczać 100 znaków";
     }
-    
+
     if (!formData.language) {
       newErrors.language = "Język jest wymagany";
     }
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       await onCreateSet(formData);
       // Reset form and close dialog on success
@@ -61,6 +61,7 @@ export function NewSetDialog({ onCreateSet, isLoading = false, trigger }: NewSet
       setOpen(false);
     } catch (error) {
       // Error handling is done in parent component
+      // eslint-disable-next-line no-console
       console.error("Error creating set:", error);
     } finally {
       setIsSubmitting(false);
@@ -68,10 +69,10 @@ export function NewSetDialog({ onCreateSet, isLoading = false, trigger }: NewSet
   };
 
   const handleInputChange = (field: keyof CreateSetCommand, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
@@ -95,14 +96,12 @@ export function NewSetDialog({ onCreateSet, isLoading = false, trigger }: NewSet
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        {trigger || defaultTrigger}
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Utwórz nowy zestaw</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="set-name">Nazwa zestawu</Label>
@@ -122,14 +121,14 @@ export function NewSetDialog({ onCreateSet, isLoading = false, trigger }: NewSet
               </p>
             )}
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="set-language">Język</Label>
-            <Select
-              value={formData.language}
-              onValueChange={(value) => handleInputChange("language", value)}
-            >
-              <SelectTrigger aria-invalid={!!errors.language} aria-describedby={errors.language ? "language-error" : undefined}>
+            <Select value={formData.language} onValueChange={(value) => handleInputChange("language", value)}>
+              <SelectTrigger
+                aria-invalid={!!errors.language}
+                aria-describedby={errors.language ? "language-error" : undefined}
+              >
                 <SelectValue placeholder="Wybierz język" />
               </SelectTrigger>
               <SelectContent>
@@ -146,20 +145,12 @@ export function NewSetDialog({ onCreateSet, isLoading = false, trigger }: NewSet
               </p>
             )}
           </div>
-          
+
           <div className="flex justify-end gap-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              disabled={isSubmitting}
-            >
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isSubmitting}>
               Anuluj
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || isLoading}
-            >
+            <Button type="submit" disabled={isSubmitting || isLoading}>
               {isSubmitting ? "Tworzenie..." : "Utwórz zestaw"}
             </Button>
           </div>

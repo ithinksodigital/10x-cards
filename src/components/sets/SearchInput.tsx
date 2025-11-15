@@ -9,12 +9,7 @@ interface SearchInputProps {
   className?: string;
 }
 
-export function SearchInput({ 
-  value, 
-  onChange, 
-  placeholder = "Szukaj zestawów...",
-  className 
-}: SearchInputProps) {
+export function SearchInput({ value, onChange, placeholder = "Szukaj zestawów...", className }: SearchInputProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
   };

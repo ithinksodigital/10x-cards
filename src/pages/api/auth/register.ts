@@ -2,8 +2,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createSupabaseServerInstance } from "../../../db/supabase.client.ts";
-import { getSecret } from "astro:env/server";
-import { PUBLIC_ENV_NAME } from "astro:env/client";
 
 export const prerender = false;
 

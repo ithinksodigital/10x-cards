@@ -31,21 +31,6 @@ export function StudyApp({ setId }: StudyAppProps) {
   const [summary, setSummary] = useState<SessionSummaryDto | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Load set info if setId is provided
-  useEffect(() => {
-    if (setId) {
-      loadSetInfo();
-    } else {
-      // This should not happen as Astro page redirects, but just in case
-      setState("error");
-      setErrorMessage("Brak identyfikatora zestawu. Przekierowywanie...");
-      setTimeout(() => {
-        window.location.href = "/sets";
-      }, 2000);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setId]);
-
   const loadSetInfo = useCallback(async () => {
     if (!setId) {
       setState("start");
@@ -89,6 +74,20 @@ export function StudyApp({ setId }: StudyAppProps) {
       setState("error");
     }
   }, [setId]);
+
+  // Load set info if setId is provided
+  useEffect(() => {
+    if (setId) {
+      loadSetInfo();
+    } else {
+      // This should not happen as Astro page redirects, but just in case
+      setState("error");
+      setErrorMessage("Brak identyfikatora zestawu. Przekierowywanie...");
+      setTimeout(() => {
+        window.location.href = "/sets";
+      }, 2000);
+    }
+  }, [setId, loadSetInfo]);
 
   const handleStartSession = useCallback(async () => {
     if (!setId) return;

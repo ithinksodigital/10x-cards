@@ -25,7 +25,7 @@ interface SetsListState {
 }
 
 export function SetsList({ onSetStudy, className }: SetsListProps) {
-  const { fetchSets, createSet, isLoading: apiLoading, error: apiError } = useSetsApi();
+  const { createSet, isLoading: apiLoading } = useSetsApi();
 
   const [state, setState] = useState<SetsListState>({
     sets: [],
@@ -108,14 +108,9 @@ export function SetsList({ onSetStudy, className }: SetsListProps) {
 
   const handleCreateSet = useCallback(
     async (command: CreateSetCommand) => {
-      try {
-        await createSet(command);
-        // Reload sets after creating new one
-        await loadSets();
-      } catch (error) {
-        // Error is handled by the hook
-        throw error;
-      }
+      await createSet(command);
+      // Reload sets after creating new one
+      await loadSets();
     },
     [createSet, loadSets]
   );
@@ -191,7 +186,7 @@ export function SetsList({ onSetStudy, className }: SetsListProps) {
         {state.searchQuery ? (
           <>
             <p className="text-lg font-medium mb-2">Nie znaleziono zestawów</p>
-            <p>Brak zestawów pasujących do wyszukiwania "{state.searchQuery}"</p>
+            <p>Brak zestawów pasujących do wyszukiwania &quot;{state.searchQuery}&quot;</p>
           </>
         ) : (
           <>

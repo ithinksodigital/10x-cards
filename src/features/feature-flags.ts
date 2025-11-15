@@ -22,12 +22,14 @@ function getCurrentEnvironment(): Environment {
   const envName = PUBLIC_ENV_NAME;
 
   if (!envName) {
+    // eslint-disable-next-line no-console
     console.warn('PUBLIC_ENV_NAME not set, defaulting to "local"');
     return "local";
   }
 
   const validEnvironments: Environment[] = ["local", "integration", "prod"];
   if (!validEnvironments.includes(envName as Environment)) {
+    // eslint-disable-next-line no-console
     console.warn(`Invalid PUBLIC_ENV_NAME: ${envName}, defaulting to "local"`);
     return "local";
   }
