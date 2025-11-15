@@ -2,7 +2,7 @@
 import type { APIContext } from "astro";
 import { CardService } from "../../../lib/services/card.service";
 import { UuidSchema, UpdateCardSchema } from "../../../lib/schemas";
-import { getMvpUserId, parseJsonBody, validateParam, jsonResponse, withErrorHandling } from "../../../lib/api-utils";
+import { parseJsonBody, validateParam, jsonResponse, withErrorHandling } from "../../../lib/api-utils";
 import { isFeatureEnabled } from "../../../features";
 
 export const prerender = false;
@@ -39,17 +39,31 @@ export const GET = withErrorHandling(async (context: APIContext) => {
     );
   }
 
-  // 1. Validate UUID parameter
+  // 1. Check if user is authenticated
+  const user = context.locals.user;
+  if (!user) {
+    return jsonResponse(
+      {
+        error: "Unauthorized",
+        message: "Authentication required to access cards",
+        code: "AUTHENTICATION_REQUIRED",
+        timestamp: new Date().toISOString(),
+      },
+      401
+    );
+  }
+
+  // 2. Validate UUID parameter
   const cardId = validateParam(context.params.id, UuidSchema, "id");
 
-  // 2. MVP: Get hardcoded user ID
-  const userId = getMvpUserId();
+  // 3. Use authenticated user ID
+  const userId = user.id;
 
-  // 3. Get card via service
+  // 4. Get card via service
   const cardService = new CardService(context.locals.supabase);
   const card = await cardService.getCard(cardId, userId);
 
-  // 4. Return response
+  // 5. Return response
   return jsonResponse(card, 200);
 });
 
@@ -93,20 +107,34 @@ export const PATCH = withErrorHandling(async (context: APIContext) => {
     );
   }
 
-  // 1. Validate UUID parameter
+  // 1. Check if user is authenticated
+  const user = context.locals.user;
+  if (!user) {
+    return jsonResponse(
+      {
+        error: "Unauthorized",
+        message: "Authentication required to update cards",
+        code: "AUTHENTICATION_REQUIRED",
+        timestamp: new Date().toISOString(),
+      },
+      401
+    );
+  }
+
+  // 2. Validate UUID parameter
   const cardId = validateParam(context.params.id, UuidSchema, "id");
 
-  // 2. MVP: Get hardcoded user ID
-  const userId = getMvpUserId();
+  // 3. Use authenticated user ID
+  const userId = user.id;
 
-  // 3. Parse and validate body
+  // 4. Parse and validate body
   const command = await parseJsonBody(context.request, UpdateCardSchema);
 
-  // 4. Update via service
+  // 5. Update via service
   const cardService = new CardService(context.locals.supabase);
   const updatedCard = await cardService.updateCard(cardId, command, userId);
 
-  // 5. Return response
+  // 6. Return response
   return jsonResponse(updatedCard, 200);
 });
 
@@ -144,17 +172,31 @@ export const DELETE = withErrorHandling(async (context: APIContext) => {
     );
   }
 
-  // 1. Validate UUID parameter
+  // 1. Check if user is authenticated
+  const user = context.locals.user;
+  if (!user) {
+    return jsonResponse(
+      {
+        error: "Unauthorized",
+        message: "Authentication required to delete cards",
+        code: "AUTHENTICATION_REQUIRED",
+        timestamp: new Date().toISOString(),
+      },
+      401
+    );
+  }
+
+  // 2. Validate UUID parameter
   const cardId = validateParam(context.params.id, UuidSchema, "id");
 
-  // 2. MVP: Get hardcoded user ID
-  const userId = getMvpUserId();
+  // 3. Use authenticated user ID
+  const userId = user.id;
 
-  // 3. Delete via service
+  // 4. Delete via service
   const cardService = new CardService(context.locals.supabase);
   await cardService.deleteCard(cardId, userId);
 
-  // 4. Return response
+  // 5. Return response
   return jsonResponse(
     {
       message: "Card successfully deleted",

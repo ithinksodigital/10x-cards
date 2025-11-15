@@ -3,7 +3,7 @@ import type { APIContext } from "astro";
 import { SrsService } from "../../../lib/services/srs.service";
 import { CardService } from "../../../lib/services/card.service";
 import { GetDueCardsQuerySchema } from "../../../lib/schemas";
-import { getMvpUserId, validateQuery, jsonResponse, withErrorHandling } from "../../../lib/api-utils";
+import { validateQuery, jsonResponse, withErrorHandling } from "../../../lib/api-utils";
 
 export const prerender = false;
 
@@ -32,17 +32,31 @@ export const prerender = false;
  * - 401 Unauthorized - Missing/invalid token
  */
 export const GET = withErrorHandling(async (context: APIContext) => {
-  // 1. MVP: Get hardcoded user ID
-  const userId = getMvpUserId();
+  // 1. Check if user is authenticated
+  const user = context.locals.user;
+  if (!user) {
+    return jsonResponse(
+      {
+        error: "Unauthorized",
+        message: "Authentication required to view due cards",
+        code: "AUTHENTICATION_REQUIRED",
+        timestamp: new Date().toISOString(),
+      },
+      401
+    );
+  }
 
-  // 2. Validate query parameters
+  // 2. Use authenticated user ID
+  const userId = user.id;
+
+  // 3. Validate query parameters
   const query = validateQuery(context.url, GetDueCardsQuerySchema);
 
-  // 3. Get due cards via service
+  // 4. Get due cards via service
   const cardService = new CardService(context.locals.supabase);
   const srsService = new SrsService(context.locals.supabase, cardService);
   const result = await srsService.getDueCards(userId, query.set_id);
 
-  // 4. Return response
+  // 5. Return response
   return jsonResponse(result, 200);
 });

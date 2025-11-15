@@ -2,7 +2,7 @@
 import type { APIContext } from "astro";
 import { SetService } from "../../../lib/services/set.service";
 import { UuidSchema, UpdateSetSchema } from "../../../lib/schemas";
-import { getMvpUserId, parseJsonBody, validateParam, jsonResponse, withErrorHandling } from "../../../lib/api-utils";
+import { parseJsonBody, validateParam, jsonResponse, withErrorHandling } from "../../../lib/api-utils";
 
 export const prerender = false;
 
@@ -22,17 +22,31 @@ export const prerender = false;
  * - 404 Not Found - Set not found or doesn't belong to user
  */
 export const GET = withErrorHandling(async (context: APIContext) => {
-  // 1. Validate UUID parameter
+  // 1. Check if user is authenticated
+  const user = context.locals.user;
+  if (!user) {
+    return jsonResponse(
+      {
+        error: "Unauthorized",
+        message: "Authentication required to access sets",
+        code: "AUTHENTICATION_REQUIRED",
+        timestamp: new Date().toISOString(),
+      },
+      401
+    );
+  }
+
+  // 2. Validate UUID parameter
   const setId = validateParam(context.params.id, UuidSchema, "id");
 
-  // 2. MVP: Get hardcoded user ID
-  const userId = getMvpUserId();
+  // 3. Use authenticated user ID
+  const userId = user.id;
 
-  // 3. Get set via service
+  // 4. Get set via service
   const setService = new SetService(context.locals.supabase);
   const set = await setService.getSet(setId, userId);
 
-  // 4. Return response
+  // 5. Return response
   return jsonResponse(set, 200);
 });
 
@@ -58,20 +72,34 @@ export const GET = withErrorHandling(async (context: APIContext) => {
  * - 409 Conflict - New name conflicts with existing set
  */
 export const PATCH = withErrorHandling(async (context: APIContext) => {
-  // 1. Validate UUID parameter
+  // 1. Check if user is authenticated
+  const user = context.locals.user;
+  if (!user) {
+    return jsonResponse(
+      {
+        error: "Unauthorized",
+        message: "Authentication required to update sets",
+        code: "AUTHENTICATION_REQUIRED",
+        timestamp: new Date().toISOString(),
+      },
+      401
+    );
+  }
+
+  // 2. Validate UUID parameter
   const setId = validateParam(context.params.id, UuidSchema, "id");
 
-  // 2. MVP: Get hardcoded user ID
-  const userId = getMvpUserId();
+  // 3. Use authenticated user ID
+  const userId = user.id;
 
-  // 3. Parse and validate body
+  // 4. Parse and validate body
   const command = await parseJsonBody(context.request, UpdateSetSchema);
 
-  // 4. Update via service
+  // 5. Update via service
   const setService = new SetService(context.locals.supabase);
   const updatedSet = await setService.updateSet(setId, command, userId);
 
-  // 5. Return response
+  // 6. Return response
   return jsonResponse(updatedSet, 200);
 });
 
@@ -93,17 +121,31 @@ export const PATCH = withErrorHandling(async (context: APIContext) => {
  * - 404 Not Found - Set not found
  */
 export const DELETE = withErrorHandling(async (context: APIContext) => {
-  // 1. Validate UUID parameter
+  // 1. Check if user is authenticated
+  const user = context.locals.user;
+  if (!user) {
+    return jsonResponse(
+      {
+        error: "Unauthorized",
+        message: "Authentication required to delete sets",
+        code: "AUTHENTICATION_REQUIRED",
+        timestamp: new Date().toISOString(),
+      },
+      401
+    );
+  }
+
+  // 2. Validate UUID parameter
   const setId = validateParam(context.params.id, UuidSchema, "id");
 
-  // 2. MVP: Get hardcoded user ID
-  const userId = getMvpUserId();
+  // 3. Use authenticated user ID
+  const userId = user.id;
 
-  // 3. Delete via service
+  // 4. Delete via service
   const setService = new SetService(context.locals.supabase);
   const result = await setService.deleteSet(setId, userId);
 
-  // 4. Return response
+  // 5. Return response
   return jsonResponse(
     {
       message: `Set and ${result.cardsCount} cards successfully deleted`,

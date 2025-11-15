@@ -4,7 +4,6 @@ import { CardService } from "../../../../lib/services/card.service";
 import { SetService } from "../../../../lib/services/set.service";
 import { UuidSchema, CreateCardSchema, ListCardsQuerySchema } from "../../../../lib/schemas";
 import {
-  getMvpUserId,
   parseJsonBody,
   validateParam,
   validateQuery,
@@ -41,24 +40,38 @@ export const prerender = false;
  * - 404 Not Found - Set not found
  */
 export const GET = withErrorHandling(async (context: APIContext) => {
-  // 1. Validate UUID parameter
+  // 1. Check if user is authenticated
+  const user = context.locals.user;
+  if (!user) {
+    return jsonResponse(
+      {
+        error: "Unauthorized",
+        message: "Authentication required to access cards",
+        code: "AUTHENTICATION_REQUIRED",
+        timestamp: new Date().toISOString(),
+      },
+      401
+    );
+  }
+
+  // 2. Validate UUID parameter
   const setId = validateParam(context.params.setId, UuidSchema, "setId");
 
-  // 2. MVP: Get hardcoded user ID
-  const userId = getMvpUserId();
+  // 3. Use authenticated user ID
+  const userId = user.id;
 
-  // 3. Verify set exists and belongs to user
+  // 4. Verify set exists and belongs to user
   const setService = new SetService(context.locals.supabase);
   await setService.verifySetOwnership(setId, userId);
 
-  // 4. Validate query parameters
+  // 5. Validate query parameters
   const query = validateQuery(context.url, ListCardsQuerySchema);
 
-  // 5. Get cards via service
+  // 6. Get cards via service
   const cardService = new CardService(context.locals.supabase);
   const result = await cardService.listCards(setId, userId, query);
 
-  // 6. Return response
+  // 7. Return response
   return jsonResponse(result, 200);
 });
 
@@ -86,19 +99,33 @@ export const GET = withErrorHandling(async (context: APIContext) => {
  * - 422 Unprocessable Entity - Limit exceeded (200/set or 1000/user)
  */
 export const POST = withErrorHandling(async (context: APIContext) => {
-  // 1. Validate UUID parameter
+  // 1. Check if user is authenticated
+  const user = context.locals.user;
+  if (!user) {
+    return jsonResponse(
+      {
+        error: "Unauthorized",
+        message: "Authentication required to create cards",
+        code: "AUTHENTICATION_REQUIRED",
+        timestamp: new Date().toISOString(),
+      },
+      401
+    );
+  }
+
+  // 2. Validate UUID parameter
   const setId = validateParam(context.params.setId, UuidSchema, "setId");
 
-  // 2. MVP: Get hardcoded user ID
-  const userId = getMvpUserId();
+  // 3. Use authenticated user ID
+  const userId = user.id;
 
-  // 3. Parse and validate request body
+  // 4. Parse and validate request body
   const command = await parseJsonBody(context.request, CreateCardSchema);
 
-  // 4. Create card via service
+  // 5. Create card via service
   const cardService = new CardService(context.locals.supabase);
   const newCard = await cardService.createCard(setId, command, userId);
 
-  // 5. Return response with 201 Created status
+  // 6. Return response with 201 Created status
   return jsonResponse(newCard, 201);
 });

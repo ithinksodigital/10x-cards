@@ -3,7 +3,7 @@ import type { APIContext } from "astro";
 import { SrsService } from "../../../lib/services/srs.service";
 import { CardService } from "../../../lib/services/card.service";
 import { StartSessionSchema } from "../../../lib/schemas";
-import { getMvpUserId, parseJsonBody, jsonResponse, withErrorHandling } from "../../../lib/api-utils";
+import { parseJsonBody, jsonResponse, withErrorHandling } from "../../../lib/api-utils";
 
 export const prerender = false;
 
@@ -34,13 +34,27 @@ export const prerender = false;
  * - 422 Unprocessable Entity - Daily limit reached
  */
 export const POST = withErrorHandling(async (context: APIContext) => {
-  // 1. MVP: Get hardcoded user ID
-  const userId = getMvpUserId();
+  // 1. Check if user is authenticated
+  const user = context.locals.user;
+  if (!user) {
+    return jsonResponse(
+      {
+        error: "Unauthorized",
+        message: "Authentication required to start study sessions",
+        code: "AUTHENTICATION_REQUIRED",
+        timestamp: new Date().toISOString(),
+      },
+      401
+    );
+  }
 
-  // 2. Parse and validate request body
+  // 2. Use authenticated user ID
+  const userId = user.id;
+
+  // 3. Parse and validate request body
   const command = await parseJsonBody(context.request, StartSessionSchema);
 
-  // 3. Start session via service
+  // 4. Start session via service
   const cardService = new CardService(context.locals.supabase);
   const srsService = new SrsService(context.locals.supabase, cardService);
   const result = await srsService.startSession(
@@ -52,6 +66,6 @@ export const POST = withErrorHandling(async (context: APIContext) => {
     userId
   );
 
-  // 4. Return response with 201 Created status
+  // 5. Return response with 201 Created status
   return jsonResponse(result, 201);
 });

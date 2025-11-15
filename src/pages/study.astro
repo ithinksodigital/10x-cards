@@ -1,47 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { StudyApp } from "../components/study/StudyApp";
+
+// Get setId from URL query parameter
+const url = Astro.url;
+const setId = url.searchParams.get("setId") || undefined;
 ---
 
 <Layout title="Sesje powtórkowe - 10x Cards">
-  <div class="container mx-auto px-4 py-8">
-    <div class="max-w-4xl mx-auto">
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-foreground mb-4">Sesje powtórkowe</h1>
-        <p class="text-muted-foreground text-lg">Systematyczne powtarzanie fiszek dla lepszego zapamiętywania</p>
-      </div>
-
-      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <!-- Placeholder for study sessions -->
-        <div class="bg-card border border-border rounded-lg p-6">
-          <h3 class="text-lg font-semibold mb-2">Dzisiejsze powtórki</h3>
-          <p class="text-muted-foreground mb-4">Masz 0 fiszek do powtórki dzisiaj</p>
-          <button
-            class="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
-          >
-            Rozpocznij sesję
-          </button>
-        </div>
-
-        <div class="bg-card border border-border rounded-lg p-6">
-          <h3 class="text-lg font-semibold mb-2">Statystyki</h3>
-          <p class="text-muted-foreground mb-4">Średnia dokładność: 85%</p>
-          <button
-            class="w-full bg-secondary text-secondary-foreground px-4 py-2 rounded-md hover:bg-secondary/90 transition-colors"
-          >
-            Zobacz szczegóły
-          </button>
-        </div>
-
-        <div class="bg-card border border-border rounded-lg p-6">
-          <h3 class="text-lg font-semibold mb-2">Historia sesji</h3>
-          <p class="text-muted-foreground mb-4">Ostatnia sesja: 2 dni temu</p>
-          <button
-            class="w-full bg-secondary text-secondary-foreground px-4 py-2 rounded-md hover:bg-secondary/90 transition-colors"
-          >
-            Zobacz historię
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <StudyApp client:load setId={setId} />
 </Layout>
