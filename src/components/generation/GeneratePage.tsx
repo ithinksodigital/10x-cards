@@ -39,6 +39,8 @@ export function GeneratePage() {
 
   const [pasteText, setPasteText] = useState("");
   const [pasteValid, setPasteValid] = useState(false);
+  const [isGenerationCancelled, setIsGenerationCancelled] = useState(false);
+  const cancelledGenerationRef = React.useRef<string | null>(null);
 
   const { currentBatch, goToBatch } = useCardGrid(state.proposals);
   const { canUndo, undoCount, acceptAll, rejectAll } = useBulkActions(
@@ -64,25 +66,59 @@ export function GeneratePage() {
   const handleStartGeneration = useCallback(
     async (command: StartGenerationCommand) => {
       try {
+        // Reset cancelled state when starting new generation
+        cancelledGenerationRef.current = null;
+        setIsGenerationCancelled(false);
+        // Open modal immediately before starting the request
+        openModal("pending");
         const response = await apiStartGeneration(command);
         startGeneration(response.id);
+        // Update modal with actual generation ID
         openModal(response.id);
-        nextStep(); // Move to review step
+        // Don't move to review step yet - wait for generation to complete
+        // nextStep() will be called in handleGenerationComplete
       } catch {
+        // Close modal on error
+        closeModal();
+        setIsGenerationCancelled(false);
         // Error handling is done by the error toast system
       }
     },
-    [apiStartGeneration, startGeneration, openModal, nextStep]
+    [apiStartGeneration, startGeneration, openModal, closeModal]
   );
 
   // Handle generation completion
   const handleGenerationComplete = useCallback(
     (proposals: FlashCardProposal[]) => {
+      // Only proceed if modal is still open (not cancelled) and generation wasn't cancelled
+      if (!isProgressOpen || cancelledGenerationRef.current === state.generationId) {
+        // eslint-disable-next-line no-console
+        console.log("⏭️ Skipping generation complete - modal was cancelled", {
+          isProgressOpen,
+          cancelledId: cancelledGenerationRef.current,
+          currentId: state.generationId,
+        });
+        cancelledGenerationRef.current = null; // Reset cancelled ref
+        return;
+      }
       setProposals(proposals);
       closeModal();
+      nextStep(); // Move to review step after generation completes
     },
-    [setProposals, closeModal]
+    [setProposals, closeModal, nextStep, isProgressOpen, state.generationId]
   );
+
+  // Handle generation cancellation
+  const handleGenerationCancel = useCallback(() => {
+    // Mark this generation as cancelled
+    if (state.generationId) {
+      cancelledGenerationRef.current = state.generationId;
+      setIsGenerationCancelled(true);
+      // eslint-disable-next-line no-console
+      console.log("🚫 Generation cancelled", { generationId: state.generationId });
+    }
+    closeModal();
+  }, [state.generationId, closeModal]);
 
   // Handle retry
   const handleRetry = useCallback(async () => {
@@ -165,7 +201,7 @@ export function GeneratePage() {
                       target_count: 30,
                     }}
                     disabled={!pasteValid}
-                    isLoading={isGenerating}
+                    isLoading={isGenerating && !isGenerationCancelled}
                     onClick={handleStartGeneration}
                     error={apiError}
                     onRetry={handleRetry}
@@ -254,7 +290,7 @@ export function GeneratePage() {
           onComplete={handleGenerationComplete}
           onFailed={handleGenerationFailed}
           onRetry={handleRetry}
-          onCancel={closeModal}
+          onCancel={handleGenerationCancel}
         />
 
         {/* Save Dialog */}
