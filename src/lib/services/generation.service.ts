@@ -97,11 +97,7 @@ export class GenerationService {
     }
 
     // 4. Enqueue background job (Edge Function or worker)
-    // eslint-disable-next-line no-console
-    console.log("📝 About to enqueue generation job for:", generation.id);
     await this.enqueueGenerationJob(generation.id, command);
-    // eslint-disable-next-line no-console
-    console.log("📝 Generation job enqueued for:", generation.id);
 
     // 5. Calculate estimated duration
     const targetCount = command.target_count ?? 30;
@@ -163,18 +159,9 @@ export class GenerationService {
    * This will call an Edge Function or enqueue a job in a queue
    */
   private async enqueueGenerationJob(generationId: string, command: StartGenerationCommand): Promise<void> {
-    // Starting AI generation
-    // eslint-disable-next-line no-console
-    console.log("🚀 Enqueueing generation job for:", generationId);
-
     // For Cloudflare Pages, try immediate processing instead of setTimeout
-    // eslint-disable-next-line no-console
-    console.log("⏰ Starting immediate processing for:", generationId);
-
     try {
       await this.processGeneration(generationId, command);
-      // eslint-disable-next-line no-console
-      console.log("✅ Processing completed successfully for:", generationId);
     } catch (error) {
       // Processing failed
       // eslint-disable-next-line no-console
@@ -195,13 +182,8 @@ export class GenerationService {
    */
   private async processGeneration(generationId: string, command: StartGenerationCommand): Promise<void> {
     try {
-      // eslint-disable-next-line no-console
-      console.log("🔄 Starting processGeneration for:", generationId);
-
       // Update status to processing with progress
       await this.updateGenerationStatus(generationId, "processing", 25, "Analyzing source text...");
-      // eslint-disable-next-line no-console
-      console.log("✅ Updated status to 25% - Analyzing source text");
 
       // Get user ID from generation record
       const { data: generation, error: fetchError } = await this.supabase
@@ -216,32 +198,15 @@ export class GenerationService {
 
       // Check if OpenRouter API key is available
       const apiKey = getSecret("OPENROUTER_API_KEY") || "";
-      // eslint-disable-next-line no-console
-      console.log("🔑 API Key check:", {
-        hasKey: !!apiKey,
-        keyLength: apiKey?.length || 0,
-        startsWithSkOr: apiKey?.startsWith("sk-or-"),
-      });
-
-      // API Key check completed
 
       if (!apiKey || !apiKey.startsWith("sk-or-")) {
         // OpenRouter API key not found or invalid, using simulation mode
-        // eslint-disable-next-line no-console
-        console.log("🎭 Using simulation mode - no valid API key");
         await this.simulateGeneration(generationId, command.source_text, command.target_count || 30);
-        // Simulation completed
         return;
       }
 
       // Update progress
       await this.updateGenerationStatus(generationId, "processing", 50, "Generating flashcards with AI...");
-      // eslint-disable-next-line no-console
-      console.log("✅ Updated status to 50% - Generating flashcards with AI");
-
-      // Starting OpenRouter API call
-      // eslint-disable-next-line no-console
-      console.log("🤖 Starting OpenRouter API call...");
 
       // Use OpenRouter service to generate flashcards with shorter timeout
       const result = await Promise.race([
@@ -328,13 +293,8 @@ export class GenerationService {
    */
   private async simulateGeneration(generationId: string, sourceText: string, targetCount: number): Promise<void> {
     try {
-      // eslint-disable-next-line no-console
-      console.log("🎭 Starting simulation for:", generationId, "targetCount:", targetCount);
-
       // Update status to processing with progress
       await this.updateGenerationStatus(generationId, "processing", 50, "Generating flashcards...");
-      // eslint-disable-next-line no-console
-      console.log("✅ Simulation: Updated status to 50%");
 
       // Split text into sentences and create flashcards
       const sentences = sourceText.split(/[.!?]+/).filter((s) => s.trim().length > 15);
@@ -392,10 +352,6 @@ export class GenerationService {
         `Generation completed! Generated ${flashcards.length} flashcards.`,
         flashcards
       );
-
-      // eslint-disable-next-line no-console
-      console.log("🎉 Simulation completed! Generated", flashcards.length, "flashcards");
-      // Generated flashcards via simulation
     } catch (error) {
       await this.updateGenerationStatus(
         generationId,

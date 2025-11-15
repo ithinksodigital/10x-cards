@@ -14,13 +14,6 @@ const BodySchema = z.object({
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    // eslint-disable-next-line no-console
-    console.log("Login attempt - environment check:", {
-      hasSupabaseUrl: !!getSecret("SUPABASE_URL"),
-      hasSupabaseKey: !!getSecret("SUPABASE_KEY"),
-      envName: PUBLIC_ENV_NAME,
-    });
-
     const body = await request.json();
     const { email, password } = BodySchema.parse(body);
 
@@ -33,8 +26,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return new Response(JSON.stringify({ error: "invalid_credentials", message: error.message }), { status: 400 });
     }
 
-    // eslint-disable-next-line no-console
-    console.log("Login successful for user:", data.user?.email);
     return new Response(JSON.stringify({ user: data.user }), {
       status: 200,
       headers: { "Content-Type": "application/json" },

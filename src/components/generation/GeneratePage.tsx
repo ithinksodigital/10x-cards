@@ -92,12 +92,6 @@ export function GeneratePage() {
     (proposals: FlashCardProposal[]) => {
       // Only proceed if modal is still open (not cancelled) and generation wasn't cancelled
       if (!isProgressOpen || cancelledGenerationRef.current === state.generationId) {
-        // eslint-disable-next-line no-console
-        console.log("⏭️ Skipping generation complete - modal was cancelled", {
-          isProgressOpen,
-          cancelledId: cancelledGenerationRef.current,
-          currentId: state.generationId,
-        });
         cancelledGenerationRef.current = null; // Reset cancelled ref
         return;
       }
@@ -114,8 +108,6 @@ export function GeneratePage() {
     if (state.generationId) {
       cancelledGenerationRef.current = state.generationId;
       setIsGenerationCancelled(true);
-      // eslint-disable-next-line no-console
-      console.log("🚫 Generation cancelled", { generationId: state.generationId });
     }
     closeModal();
   }, [state.generationId, closeModal]);

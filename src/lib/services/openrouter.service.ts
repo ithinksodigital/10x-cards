@@ -342,15 +342,9 @@ export class OpenRouterService {
     const startTime = Date.now();
 
     try {
-      // eslint-disable-next-line no-console
-      console.log("Processing chunk:", { chunkLength: chunk.length, language, targetCount });
-
       // Build prompts for this chunk
       const systemPrompt = this.buildSystemPrompt(language);
       const userPrompt = this.buildUserPrompt(chunk, targetCount, language);
-
-      // eslint-disable-next-line no-console
-      console.log("Built prompts:", { systemPromptLength: systemPrompt.length, userPromptLength: userPrompt.length });
 
       // Create API request
       const request: OpenRouterRequest = {
@@ -364,14 +358,8 @@ export class OpenRouterService {
         response_format: this.getResponseFormat(),
       };
 
-      // eslint-disable-next-line no-console
-      console.log("Making API request to OpenRouter...");
-
       // Make API request with retry logic
       const response = await this.retryWithBackoff(() => this.makeApiRequest(request));
-
-      // eslint-disable-next-line no-console
-      console.log("Received API response:", { responseId: response.id, choicesCount: response.choices.length });
 
       // Parse and validate response
       const parsedResponse = this.parseResponse(response);
@@ -887,8 +875,6 @@ Utwórz fiszki w formacie JSON z tablicą "cards".`;
         }
 
         const delay = this.calculateRetryDelay(attempt);
-        // eslint-disable-next-line no-console
-        console.log(`Retry attempt ${attempt}/${maxRetries} after ${delay}ms delay`);
         await this.sleep(delay);
       }
     }

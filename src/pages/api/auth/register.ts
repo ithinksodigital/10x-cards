@@ -14,29 +14,13 @@ const BodySchema = z.object({
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
-    // eslint-disable-next-line no-console
-    console.log("Registration attempt - environment check:", {
-      hasSupabaseUrl: !!getSecret("SUPABASE_URL"),
-      hasSupabaseKey: !!getSecret("SUPABASE_KEY"),
-      envName: PUBLIC_ENV_NAME,
-    });
-
     const body = await request.json();
-    // eslint-disable-next-line no-console
-    console.log("Registration request body:", { email: body.email, passwordLength: body.password?.length });
-
     const { email, password } = BodySchema.parse(body);
-    // eslint-disable-next-line no-console
-    console.log("Registration data validated successfully");
 
     const supabase = createSupabaseServerInstance({ cookies, headers: request.headers });
 
     // Test Supabase connection
-    // eslint-disable-next-line no-console
-    console.log("Testing Supabase connection...");
-    const { data: healthCheck } = await supabase.from("generations").select("id").limit(1);
-    // eslint-disable-next-line no-console
-    console.log("Supabase connection test result:", healthCheck !== null ? "OK" : "FAILED");
+    await supabase.from("generations").select("id").limit(1);
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -54,8 +38,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       return new Response(JSON.stringify({ error: "registration_failed", message: error.message }), { status: 400 });
     }
 
-    // eslint-disable-next-line no-console
-    console.log("Registration successful for user:", data.user?.email);
     return new Response(JSON.stringify({ user: data.user }), {
       status: 200,
       headers: { "Content-Type": "application/json" },

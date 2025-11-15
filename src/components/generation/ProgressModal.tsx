@@ -39,11 +39,6 @@ export function ProgressModal({ isOpen, generationId, onComplete, onFailed, onRe
     (data) => {
       // Use refs to get latest values (avoid stale closure)
       if (isCancelledRef.current || !isOpenRef.current) {
-        // eslint-disable-next-line no-console
-        console.log("🚫 Skipping polling update - cancelled or modal closed", {
-          isCancelled: isCancelledRef.current,
-          isOpen: isOpenRef.current,
-        });
         return;
       }
 
@@ -54,18 +49,12 @@ export function ProgressModal({ isOpen, generationId, onComplete, onFailed, onRe
         if (!isCancelledRef.current && isOpenRef.current) {
           const proposals = convertToFlashCardProposals(data as CompletedGenerationDto);
           onComplete(proposals);
-        } else {
-          // eslint-disable-next-line no-console
-          console.log("🚫 Blocked onComplete - cancelled or modal closed");
         }
       } else if (data.status === "failed") {
         // Double check with refs before calling onFailed
         if (!isCancelledRef.current && isOpenRef.current) {
           const failedData = data as FailedGenerationDto;
           onFailed(failedData.error.message);
-        } else {
-          // eslint-disable-next-line no-console
-          console.log("🚫 Blocked onFailed - cancelled or modal closed");
         }
       }
     },
@@ -87,17 +76,10 @@ export function ProgressModal({ isOpen, generationId, onComplete, onFailed, onRe
 
   // Start polling when modal opens and we have a valid generation ID
   useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log(`📱 ProgressModal effect: isOpen=${isOpen}, generationId=${generationId}, isCancelled=${isCancelled}`);
-
     // Only start polling if modal is open AND we have a valid generation ID (not "pending") AND not cancelled
     if (isOpen && generationId && generationId !== "pending" && !isCancelled) {
-      // eslint-disable-next-line no-console
-      console.log(`🚀 Starting polling for modal with generation ${generationId}`);
       startPolling();
     } else {
-      // eslint-disable-next-line no-console
-      console.log(`🛑 Stopping polling for modal - isOpen: ${isOpen}, isCancelled: ${isCancelled}`);
       stopPolling();
       if (!isOpen) {
         setCurrentStatus(null);
@@ -108,8 +90,6 @@ export function ProgressModal({ isOpen, generationId, onComplete, onFailed, onRe
     // Cleanup on unmount or when modal closes
     return () => {
       if (!isOpen) {
-        // eslint-disable-next-line no-console
-        console.log(`🧹 ProgressModal cleanup: stopping polling (modal closed)`);
         stopPolling();
       }
     };
@@ -141,14 +121,6 @@ export function ProgressModal({ isOpen, generationId, onComplete, onFailed, onRe
 
   const isCompleted = currentStatus?.status === "completed";
   const isFailed = currentStatus?.status === "failed" || pollingError;
-
-  // Debug log
-  useEffect(() => {
-    if (isOpen) {
-      // eslint-disable-next-line no-console
-      console.log("🔵 ProgressModal: Modal should be visible", { isOpen, generationId, isPolling });
-    }
-  }, [isOpen, generationId, isPolling]);
 
   if (!isOpen) return null;
 
@@ -326,17 +298,11 @@ export function useProgressModal() {
   const [generationId, setGenerationId] = useState<string | null>(null);
 
   const openModal = (id: string) => {
-    // eslint-disable-next-line no-console
-    console.log("🟢 useProgressModal: openModal called", { id });
     setGenerationId(id);
     setIsOpen(true);
-    // eslint-disable-next-line no-console
-    console.log("🟢 useProgressModal: isOpen set to true");
   };
 
   const closeModal = () => {
-    // eslint-disable-next-line no-console
-    console.log("🔴 useProgressModal: closeModal called");
     setIsOpen(false);
     setGenerationId(null);
   };

@@ -97,31 +97,8 @@ export async function POST(context: APIContext): Promise<Response> {
 
   // 3. Call GenerationService to start generation
   try {
-    // eslint-disable-next-line no-console
-    console.log("Starting generation with command:", {
-      source_text_length: command.source_text.length,
-      language: command.language,
-      target_count: command.target_count,
-      user_id: userId,
-    });
-
-    // Check environment variables
-    // eslint-disable-next-line no-console
-    console.log("Environment check:", {
-      hasOpenRouterKey: !!getSecret("OPENROUTER_API_KEY"),
-      openRouterKeyLength: getSecret("OPENROUTER_API_KEY")?.length || 0,
-      envName: PUBLIC_ENV_NAME,
-    });
-
     const generationService = new GenerationService(supabase);
     const result: StartGenerationResponseDto = await generationService.startGeneration(command, userId);
-
-    // eslint-disable-next-line no-console
-    console.log("Generation started successfully:", {
-      generation_id: result.id,
-      status: result.status,
-      estimated_duration_ms: result.estimated_duration_ms,
-    });
 
     // 4. Return 202 Accepted with generation metadata
     return new Response(JSON.stringify(result), {
