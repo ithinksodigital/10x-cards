@@ -5,6 +5,11 @@ import { StudyApp } from "../components/study/StudyApp";
 // Get setId from URL query parameter
 const url = Astro.url;
 const setId = url.searchParams.get("setId") || undefined;
+
+// If no setId, redirect to sets page
+if (!setId) {
+  return Astro.redirect("/sets", 302);
+}
 ---
 
 <Layout title="Sesje powtórkowe - 10x Cards">

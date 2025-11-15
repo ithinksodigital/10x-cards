@@ -36,7 +36,12 @@ export function StudyApp({ setId }: StudyAppProps) {
     if (setId) {
       loadSetInfo();
     } else {
-      setState("start");
+      // This should not happen as Astro page redirects, but just in case
+      setState("error");
+      setErrorMessage("Brak identyfikatora zestawu. Przekierowywanie...");
+      setTimeout(() => {
+        window.location.href = "/sets";
+      }, 2000);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setId]);
