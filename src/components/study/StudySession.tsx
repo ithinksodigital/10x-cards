@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
+import { X, AlertCircle } from "lucide-react";
 import type { StartSessionResponseDto, SubmitReviewCommand } from "@/types";
 
 interface StudySessionProps {
@@ -28,6 +28,26 @@ export function StudySession({ session, onReview, onComplete, onClose }: StudySe
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [startTime] = useState(Date.now());
+
+  // Check if session has cards
+  if (!session.cards || session.cards.length === 0) {
+    return (
+      <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+        <DialogContent className="max-w-md">
+          <div className="text-center space-y-4 py-6">
+            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto" />
+            <h3 className="text-lg font-semibold">Brak kart do powtórki</h3>
+            <p className="text-sm text-muted-foreground">
+              Wszystkie karty z tego zestawu są już przerobione lub nie ma kart do nauki w tym momencie.
+            </p>
+            <Button onClick={onClose} className="w-full">
+              Zamknij
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   const currentCard = session.cards[currentIndex];
   const progress = ((currentIndex + 1) / session.total_cards) * 100;
@@ -111,8 +131,22 @@ export function StudySession({ session, onReview, onComplete, onClose }: StudySe
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isFlipped, isSubmitting, handleFlip, handleRating, onClose]);
 
+  // Additional safety check (should not happen due to early return above)
   if (!currentCard) {
-    return null;
+    return (
+      <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+        <DialogContent className="max-w-md">
+          <div className="text-center space-y-4 py-6">
+            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto" />
+            <h3 className="text-lg font-semibold">Błąd</h3>
+            <p className="text-sm text-muted-foreground">Nie można załadować karty.</p>
+            <Button onClick={onClose} className="w-full">
+              Zamknij
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
   }
 
   return (

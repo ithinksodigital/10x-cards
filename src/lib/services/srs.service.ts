@@ -168,8 +168,9 @@ export class SrsService {
       .limit(Math.min(command.new_cards_limit, newCardsRemaining));
 
     // 5. Fetch review cards
+    // First try to get cards that are due (due_at <= now)
     const now = new Date().toISOString();
-    const { data: reviewCards } = await this.supabase
+    let { data: reviewCards } = await this.supabase
       .from("cards")
       .select("id, front, back, status")
       .eq("set_id", command.set_id)
@@ -178,6 +179,20 @@ export class SrsService {
       .lte("due_at", now)
       .order("due_at", { ascending: true })
       .limit(Math.min(command.review_cards_limit, reviewsRemaining));
+
+    // If no cards are due, get cards that are closest to being due (allow early review)
+    if (!reviewCards || reviewCards.length === 0) {
+      const { data: upcomingCards } = await this.supabase
+        .from("cards")
+        .select("id, front, back, status")
+        .eq("set_id", command.set_id)
+        .eq("user_id", userId)
+        .neq("status", "new")
+        .order("due_at", { ascending: true })
+        .limit(Math.min(command.review_cards_limit, reviewsRemaining));
+
+      reviewCards = upcomingCards;
+    }
 
     // 6. Combine cards
     const allCards = [...(newCards ?? []), ...(reviewCards ?? [])];

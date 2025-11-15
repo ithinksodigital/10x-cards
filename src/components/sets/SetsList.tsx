@@ -11,7 +11,6 @@ import type { SetDto, CreateSetCommand, PaginationDto } from "@/types";
 import { AlertCircle, RefreshCw } from "lucide-react";
 
 interface SetsListProps {
-  onSetView?: (setId: string) => void;
   onSetStudy?: (setId: string) => void;
   onSetEdit?: (setId: string) => void;
   className?: string;
@@ -26,26 +25,21 @@ interface SetsListState {
   error: string | null;
 }
 
-export function SetsList({ 
-  onSetView, 
-  onSetStudy, 
-  onSetEdit, 
-  className 
-}: SetsListProps) {
+export function SetsList({ onSetStudy, onSetEdit, className }: SetsListProps) {
   const { fetchSets, createSet, isLoading: apiLoading, error: apiError } = useSetsApi();
-  
+
   const [state, setState] = useState<SetsListState>({
     sets: [],
     pagination: {
       page: 1,
       limit: 12,
       total: 0,
-      total_pages: 0
+      total_pages: 0,
     },
     searchQuery: "",
     currentPage: 1,
     isLoading: false,
-    error: null
+    error: null,
   });
 
   // Debounced search query
@@ -63,37 +57,39 @@ export function SetsList({
   // Reset to first page when search changes
   useEffect(() => {
     if (debouncedSearchQuery !== state.searchQuery) {
-      setState(prev => ({ ...prev, currentPage: 1 }));
+      setState((prev) => ({ ...prev, currentPage: 1 }));
     }
   }, [debouncedSearchQuery, state.searchQuery]);
 
   // Fetch sets when search query or page changes
   const loadSets = useCallback(async () => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-    
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
+
     try {
-      const response = await fetch(`/api/sets?page=${state.currentPage}&limit=${state.pagination.limit}&search=${encodeURIComponent(debouncedSearchQuery)}`);
-      
+      const response = await fetch(
+        `/api/sets?page=${state.currentPage}&limit=${state.pagination.limit}&search=${encodeURIComponent(debouncedSearchQuery)}`
+      );
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `Request failed with status ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
-      setState(prev => ({
+
+      setState((prev) => ({
         ...prev,
         sets: data.data || [],
         pagination: data.pagination || prev.pagination,
         isLoading: false,
-        error: null
+        error: null,
       }));
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Wystąpił nieoczekiwany błąd";
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isLoading: false,
-        error: errorMessage
+        error: errorMessage,
       }));
     }
   }, [state.currentPage, state.pagination.limit, debouncedSearchQuery]);
@@ -104,73 +100,76 @@ export function SetsList({
   }, [loadSets]);
 
   const handleSearchChange = useCallback((value: string) => {
-    setState(prev => ({ ...prev, searchQuery: value }));
+    setState((prev) => ({ ...prev, searchQuery: value }));
   }, []);
 
   const handlePageChange = useCallback((page: number) => {
-    setState(prev => ({ ...prev, currentPage: page }));
+    setState((prev) => ({ ...prev, currentPage: page }));
   }, []);
 
-  const handleCreateSet = useCallback(async (command: CreateSetCommand) => {
-    try {
-      await createSet(command);
-      // Reload sets after creating new one
-      await loadSets();
-    } catch (error) {
-      // Error is handled by the hook
-      throw error;
-    }
-  }, [createSet, loadSets]);
+  const handleCreateSet = useCallback(
+    async (command: CreateSetCommand) => {
+      try {
+        await createSet(command);
+        // Reload sets after creating new one
+        await loadSets();
+      } catch (error) {
+        // Error is handled by the hook
+        throw error;
+      }
+    },
+    [createSet, loadSets]
+  );
 
-  const handleSetView = useCallback((setId: string) => {
-    if (onSetView) {
-      onSetView(setId);
-    } else {
-      // Default behavior - navigate to set detail
-      window.location.href = `/sets/${setId}`;
-    }
-  }, [onSetView]);
+  const handleSetStudy = useCallback(
+    (setId: string) => {
+      if (onSetStudy) {
+        onSetStudy(setId);
+      } else {
+        // Default behavior - navigate to study
+        window.location.href = `/study?setId=${setId}`;
+      }
+    },
+    [onSetStudy]
+  );
 
-  const handleSetStudy = useCallback((setId: string) => {
-    if (onSetStudy) {
-      onSetStudy(setId);
-    } else {
-      // Default behavior - navigate to study
-      window.location.href = `/study?setId=${setId}`;
-    }
-  }, [onSetStudy]);
+  const handleSetEdit = useCallback(
+    (setId: string) => {
+      if (onSetEdit) {
+        onSetEdit(setId);
+      } else {
+        // Default behavior - navigate to set detail
+        window.location.href = `/sets/${setId}`;
+      }
+    },
+    [onSetEdit]
+  );
 
-  const handleSetEdit = useCallback((setId: string) => {
-    if (onSetEdit) {
-      onSetEdit(setId);
-    } else {
-      // Default behavior - navigate to set detail
-      window.location.href = `/sets/${setId}`;
-    }
-  }, [onSetEdit]);
-
-  const handleSetDelete = useCallback(async (setId: string) => {
-    if (!confirm("Czy na pewno chcesz usunąć ten zestaw? Ta akcja nie może zostać cofnięta.")) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/sets/${setId}`, {
-        method: "DELETE"
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Request failed with status ${response.status}`);
+  const handleSetDelete = useCallback(
+    async (setId: string) => {
+      if (!confirm("Czy na pewno chcesz usunąć ten zestaw? Ta akcja nie może zostać cofnięta.")) {
+        return;
       }
 
-      // Reload sets after deletion
-      await loadSets();
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Wystąpił błąd podczas usuwania zestawu";
-      setState(prev => ({ ...prev, error: errorMessage }));
-    }
-  }, [loadSets]);
+      try {
+        const response = await fetch(`/api/sets/${setId}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Request failed with status ${response.status}`);
+        }
+
+        // Reload sets after deletion
+        await loadSets();
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Wystąpił błąd podczas usuwania zestawu";
+        setState((prev) => ({ ...prev, error: errorMessage }));
+      }
+    },
+    [loadSets]
+  );
 
   const handleRetry = useCallback(() => {
     loadSets();
@@ -226,9 +225,7 @@ export function SetsList({
           <h1 className="text-3xl font-bold text-foreground mb-2">Moje zestawy</h1>
           <p className="text-muted-foreground">
             Zarządzaj swoimi zestawami fiszek
-            {state.pagination.total > 0 && (
-              <span> • {state.pagination.total} zestawów</span>
-            )}
+            {state.pagination.total > 0 && <span> • {state.pagination.total} zestawów</span>}
           </p>
         </div>
         <NewSetDialog onCreateSet={handleCreateSet} isLoading={apiLoading} />
@@ -236,11 +233,7 @@ export function SetsList({
 
       {/* Search */}
       <div className="mb-6">
-        <SearchInput
-          value={state.searchQuery}
-          onChange={handleSearchChange}
-          placeholder="Szukaj zestawów..."
-        />
+        <SearchInput value={state.searchQuery} onChange={handleSearchChange} placeholder="Szukaj zestawów..." />
       </div>
 
       {/* Error State */}
@@ -249,12 +242,7 @@ export function SetsList({
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="flex items-center justify-between">
             <span>{state.error}</span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRetry}
-              className="ml-4"
-            >
+            <Button variant="outline" size="sm" onClick={handleRetry} className="ml-4">
               <RefreshCw className="h-4 w-4 mr-1" />
               Spróbuj ponownie
             </Button>
@@ -275,7 +263,6 @@ export function SetsList({
               <SetCard
                 key={set.id}
                 set={set}
-                onView={handleSetView}
                 onStudy={handleSetStudy}
                 onEdit={handleSetEdit}
                 onDelete={handleSetDelete}
@@ -284,10 +271,7 @@ export function SetsList({
           </div>
 
           {/* Pagination */}
-          <Pagination
-            pagination={state.pagination}
-            onPageChange={handlePageChange}
-          />
+          <Pagination pagination={state.pagination} onPageChange={handlePageChange} />
         </>
       )}
     </div>
